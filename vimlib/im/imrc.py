@@ -6,7 +6,7 @@ fa_rule = """
     *            base
     String       wubi
 
->c,cpp,python,javascript,ch
+>c,cpp,python,javascript,ch,vim
     *            code
     CCommentDesc wubi
     CCommentArg  wubi
