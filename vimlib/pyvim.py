@@ -502,7 +502,7 @@ def load_plugin( pyplugin_path ):
         try:
             mode = __import__( mode )
         except Exception, why :
-            print "Load plugin Error:%s:%s" %( mode, why)
+            print "pyplugin:  Load plugin Error:\n%s: %s" %( mode, why)
 
 
 
