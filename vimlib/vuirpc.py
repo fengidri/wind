@@ -10,18 +10,7 @@ import re
 import pyvim
 import os
 import time
-#infos = {"type":"tag", "tag":[
-#["vuirpc.h"        , "vuirpc.h"        , "vuirpc.h",        0],
-#["rnetwork/anet.h" , "rnetwork/anet.h" , "rnetwork/anet.h", 0],
-#["rnetwork/ae.h"   , "rnetwork/ae.h"   , "rnetwork/ae.h",   0],
-#["network.h"       , "network.h"       , "network.h",       0],
-#["rlist/adlist.h"  , "rlist/adlist.h"  , "rlist/adlist.h",  0],
-#["client.h"        , "client.h"        , "client.h",        0],
-#["cJSON/cJSON.h"   , "cJSON/cJSON.h"   , "cJSON/cJSON.h",   0],
-#["vuiint.h"        , "vuiint.h"        , "vuiint.h"         ,   0]
-#
-#    
-#    ]}
+
 host = "127.0.0.1"
 port =  7878
 
@@ -54,7 +43,9 @@ class VuiProctocol(object):
                 self.sock.connect((host, port))
                 break
             except:
-                os.popen2('vuirpc_server')
+                path = os.path.dirname(os.path.realpath(__file__))
+                path = os.path.join(path, 'vuirpc/vuirpc_server')
+                os.popen2(path)
                 time.sleep(1)
 
         self.buf = ""

@@ -16,3 +16,4 @@ map   <F11>      <esc>:GotoInc<cr>
 
 map <F4>         :ProjectSync<cr>
 map <tab>        :PathsExpGo<cr>
+map <F6>         :Project<cr>

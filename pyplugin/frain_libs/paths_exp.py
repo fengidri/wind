@@ -5,6 +5,12 @@ import os
 import pyvim
 import vim
 import re
+"""
+TODO  2014年 12月 08日 星期一 13:38:21 UTC
+      1. 不应把所有的节点放在nodes中
+      2. root, dir, file 应该使用不同的类, 而不是用变量进行区分
+      3. 对于目录的扫描应该放到pyvim中. 目录与文件信息应该是可以共享的
+"""
 
 nodes = [  ]
 win              = None
@@ -200,6 +206,7 @@ def refresh_nodes(  ):
         if not path:
             continue 
         if not os.path.exists( path ):
+            pyvim.echoline('not dir:%s' % path)
             continue
         if path.endswith( '/' ):
             path = path[ 0:-1 ]
@@ -329,8 +336,8 @@ def open_to_file( path ):
             if index_node == target:
                 line_nu = ii + 1
                 vim.current.window.cursor=( line_nu , 0)
-                line_nu_top = int( vim.eval( "line('w0')" ) )
-                line_nu_bottom = int(  vim.eval( "line('w$')" ) )
+                #line_nu_top = int( vim.eval( "line('w0')" ) )
+                #line_nu_bottom = int(  vim.eval( "line('w$')" ) )
                 #if line_nu <  line_nu_top  or line_nu > line_nu_bottom:
                 #vim.command( "redraw!" )
 
@@ -359,6 +366,7 @@ def refresh_win( ):
         win = vim.current.window
 
 
+    vim.current.window = win
 
     del vim.current.buffer[ : ]
     vim.current.buffer[ 0 ] = "PathsExp"

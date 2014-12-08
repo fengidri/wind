@@ -2,7 +2,6 @@
 import pyvim
 import vim
 
-from frain_libs import mitems 
 from frain_libs import paths_exp
 from frain_libs import data
 
@@ -15,25 +14,7 @@ from frain_libs import fropen
 from frain_libs import frnames
 from frain_libs import mescin
 
-
-
-class FrainOpenDir( pyvim.command ):
-    def run( self ):
-        if not self.params:
-            return
-        mitems.frain_open_dir( self.params[0] )
-        data.mode = True
-
-    def setting( self ):
-        self.set_complete( self.complete_file )
-
-#class FrainClose( pyvim.events ):
-#    def on_VimLeavePre( self ):
-#        if not data.mode:
-#            return
-#        mitems.close( )
-#
-
+import os
 
 
 #############################
@@ -41,8 +22,23 @@ class FrainOpenDir( pyvim.command ):
 #############################
 class PathsExp( pyvim.command ):
     def run( self ):
+        if len(self.params) > 0:#处理path, name 两个参数
+            path = self.params[0]
+            try:
+                name = self.params[1]
+            except:
+                name = ""
+            if not path.startswith('/'):
+                p = os.path.dirname(vim.current.buffer.name) or os.getcwd()
+                path = os.path.join(p, path)
+                path = os.path.realpath(path)
+
+            data.append_path(path, name)
+
         paths_exp.refresh_nodes( )
         paths_exp.refresh_win( )
+    def setting( self ):
+        self.set_complete( self.complete_file )#设置命令补全为文件
 
 class PathsExpFilter( pyvim.command ):
     def run( self ):
@@ -64,10 +60,6 @@ class PathsExpRefresh( pyvim.command ):
 class PathsExpOpen( pyvim.command ):
     def run( self ):
         paths_exp.paths_exp_open( )
-
-class PathsExpSwitch( pyvim.command ):
-    def run( self ):
-        paths_exp.switch_file_quick( )
 
 class PathsExpFind( pyvim.command ):
     def run( self ):
@@ -94,16 +86,11 @@ class Project( pyvim.command ):
         client.request("/open/project", {"values":frnames()})
         client.response()
 
-class ProjectNew( pyvim.command ):
-    def run( self ):
-        mescin.create_cfg()
-
-
-class ProjectSync( pyvim.command ):
+class ProjectSync(pyvim.command):
     def run( self ):
         if not project.Project:
             return
-        project.Project.sync( )
+        project.Project.sync()
 """
     -- 无视时间, 同步所有的文件
 """
@@ -121,15 +108,4 @@ class ProjectEvent( pyvim.events ):
         if not project.Project:
             return
         project.Project.on_close( )
-
-
-
-
-
-
-
-
-
-
-
 
