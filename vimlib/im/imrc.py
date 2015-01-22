@@ -1,5 +1,6 @@
 import os
-wubi_db = os.path.join(os.path.dirname(__file__), 'wubi_sqlite3.db').replace('\\','/')
+wbcpickle = os.path.join(os.path.dirname(__file__), 'wbtree.cpickle').replace('\\','/')
+wbtxt = os.path.join(os.path.dirname(__file__), 'wubi.txt').replace('\\','/')
 fa_rule = """
 
 >*

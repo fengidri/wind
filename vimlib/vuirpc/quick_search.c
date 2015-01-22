@@ -253,7 +253,11 @@ static gboolean list_keys(GtkWidget *w,  GdkEventKey *event, gpointer data){
     }
     return FALSE;
 }
-
+static gboolean show_all(GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
+    system("wmctrl -l");
+    return FALSE;
+}
 
 static gboolean check_escape(GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
@@ -288,6 +292,7 @@ GtkWidget * window_init()
     gtk_container_set_border_width(GTK_CONTAINER(w), 10);  
     g_signal_connect(GTK_WINDOW(w), "destroy", G_CALLBACK(gtk_main_quit), NULL);  
     g_signal_connect(GTK_WINDOW(w), "key_press_event", G_CALLBACK(check_escape), NULL);
+    //g_signal_connect(GTK_WINDOW(w), "show", G_CALLBACK(show_all), NULL);
     return w;
 }
 

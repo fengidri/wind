@@ -3,8 +3,10 @@ import pyvim
 import vim
 import re
 import imrc
-import sqlite3
 import string
+#import wbtree
+import urllib2
+import json
 class Base_Fsm( object ):
     def __init__(self):
         self.key_map={}
@@ -223,39 +225,44 @@ class Base_Code_Fsm( Base_Fsm ):
             pyvim.feedkeys('.' ,'n' )
 
 class _wubi_seach( object ):
-    def __del__( self ):
-        self.cu.close( )
-        self.cx.close( )
     def __init__(self):
-        self.cx=sqlite3.connect(imrc.wubi_db)
-        self.cu=self.cx.cursor()
         self.cache={  }
+
+    def search_from_db(self, patten):
+        try:
+            r = urllib2.urlopen("http://localhost/wubi/search?patten=%s" %
+                patten)
+            return json.loads(r.read())
+        except Exception, e:
+            pyvim.echoline(str(e))
+            return ([], [])
 
 
     def search( self , buf):
         '得到备选的字词'
 
         patten = ''.join( buf )
-        command="select * from wubi where id ='%s'" % patten
 
         words= self.cache.get( patten )
     
         if  words:
             return words
 
-        self.cu.execute(command)
+        w = self.search_from_db(patten)
+        self.cache[ patten ] = w
 
-        result = self.cu.fetchone()
+        return w
+    def setcount(self, patten, num):
+            w, ass = self.cache.pop(patten)
+            ww = w[num]
+            url = "http://localhost/wubi/setcount?patten=%s&word=%s" % (patten,
+                    ww.encode('utf8'))
+            try:
+                urllib2.urlopen(url)
+            except Exception, e:
+                pyvim.echoline(str(e))
+        
 
-        if result != None:
-            words =result[1].split(',')
-            self.cache[ patten ] = words
-        else:
-            words = []
-
-
-
-        return words
 
 
 class Wubi( Base_Key_Fsm):
@@ -268,16 +275,10 @@ class Wubi( Base_Key_Fsm):
     def Leave(self):
         pass
 
-
     def __init__(self):
         super(Wubi, self).__init__()
         self.buffer=[]
         self.search=  _wubi_seach( )
-
-
-
-        
-
 
     def in_fsm( self, key):
         self.key= key
@@ -286,23 +287,33 @@ class Wubi( Base_Key_Fsm):
         callback()
 
     def wubi(self):
-        self.match_words  = self.result( self.search.search(self.buffer) ) 
+        self.match_words  = self.result( *self.search.search(self.buffer) ) 
 
         vim.vars["omniresult"] = self.match_words
         #imrc.wubi_match_words= self.match_words
 
 
 
-    def result(self, words):
+    def result(self, words, associate):
         '组成vim 智能补全要求的形式，这一步只是py形式的数据，vim要求是vim的形式'
+        patten = ''.join(self.buffer)
 
-        items=[{"word": " " ,"abbr":"%s        Wubi" %  ''.join(self.buffer) }]
+        items=[{"word": " " ,"abbr":"%s                  " %  patten }]
 
         if len( self.buffer ) > 4:
             return items
 
-        for i,w in enumerate(words):
-            items.append({"word":w, "abbr":"%s.%s"%(i+1, w)})
+        i = 0
+        for w in words:
+            i += 1
+            items.append({"word":w, "abbr":"%s.%s"%(i, w)})
+
+        for w, k, c  in associate:
+            i += 1
+            items.append(
+                    {"word":w, 
+                        "abbr":"%s.%s %s"%(i, w, k)}
+                    )
 
         return items
 
@@ -332,8 +343,9 @@ class Wubi( Base_Key_Fsm):
     def digit( self ):
         if pyvim.pumvisible():
 
-            del self.buffer[:]
+            self.search.setcount(''.join(self.buffer), int(self.key) -1)
             pyvim.pmenu.select( int(self.key) )
+            del self.buffer[:]
             return 0
         pyvim.feedkeys( self.key ,'n')
 

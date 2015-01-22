@@ -26,6 +26,8 @@ class Response(object):
         self.msg = msg
 
 def handle100(response):
+    time.sleep(0.2)
+    os.system('wmctrl -a VuiRpcQs')
     pyvim.echoline(response.reason)
 
 def handle110(response):
