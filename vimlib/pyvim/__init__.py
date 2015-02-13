@@ -7,7 +7,6 @@
 from plugin import command, events, load_plugin
 from pyvim import *
 import pyvim
-pmenu = pyvim._pmenu()
 
 
 if __name__ == "__main__":

@@ -2,11 +2,11 @@
 import pyvim
 import vim
 import re
-import imrc
 import string
-#import wbtree
+
 import urllib2
 import json
+
 class Base_Fsm( object ):
     def __init__(self):
         self.key_map={}
@@ -253,24 +253,23 @@ class _wubi_seach( object ):
 
         return w
     def setcount(self, patten, num):
-            w, ass = self.cache.pop(patten)
-            ww = w[num]
-            url = "http://localhost/wubi/setcount?patten=%s&word=%s" % (patten,
-                    ww.encode('utf8'))
-            try:
-                urllib2.urlopen(url)
-            except Exception, e:
-                pyvim.echoline(str(e))
-        
-
-
+        w, ass = self.cache.pop(patten)
+        if len(w) -1 < num:
+            return
+        ww = w[num]
+        url = "http://localhost/wubi/setcount?patten=%s&word=%s" % (patten,
+                ww.encode('utf8'))
+        try:
+            urllib2.urlopen(url)
+        except Exception, e:
+            pyvim.echoline(str(e))
 
 class Wubi( Base_Key_Fsm):
     def fsm_name(self):
         return "wubi"
+
     def Enter(self):
         del self.buffer[:]
-        pyvim.pmenu.check_omnifunc( 'input_monitor#OmniComplete' )
 
     def Leave(self):
         pass
@@ -279,6 +278,7 @@ class Wubi( Base_Key_Fsm):
         super(Wubi, self).__init__()
         self.buffer=[]
         self.search=  _wubi_seach( )
+        self.pmenu = pyvim.SelMenu()
 
     def in_fsm( self, key):
         self.key= key
@@ -287,10 +287,8 @@ class Wubi( Base_Key_Fsm):
         callback()
 
     def wubi(self):
-        self.match_words  = self.result( *self.search.search(self.buffer) ) 
+        return self.result( *self.search.search(self.buffer) ) 
 
-        vim.vars["omniresult"] = self.match_words
-        #imrc.wubi_match_words= self.match_words
 
 
 
@@ -326,11 +324,10 @@ class Wubi( Base_Key_Fsm):
 
         if len( self.buffer ) > 1:
             self.buffer.pop()
-            self.wubi()
-            pyvim.pmenu.show( 'input_monitor#OmniComplete')
+            self.pmenu.show(self.wubi(), 0)
         else:
             del self.buffer[:]
-            pyvim.pmenu.cencel( )
+            self.pmenu.cencel( )
 
    
     def enter(self):
@@ -344,7 +341,7 @@ class Wubi( Base_Key_Fsm):
         if pyvim.pumvisible():
 
             self.search.setcount(''.join(self.buffer), int(self.key) -1)
-            pyvim.pmenu.select( int(self.key) )
+            self.pmenu.select( int(self.key) )
             del self.buffer[:]
             return 0
         pyvim.feedkeys( self.key ,'n')
@@ -363,14 +360,12 @@ class Wubi( Base_Key_Fsm):
 
     def lower_letter( self ):
         self.buffer.append( self.key )
-
-        self.wubi()
-        pyvim.pmenu.show( 'input_monitor#OmniComplete')
+        self.pmenu.show(self.wubi(), 0)
 
     def space(self):
         del self.buffer[:]
         if pyvim.pumvisible():
-            pyvim.pmenu.select( 1 )
+            self.pmenu.select( 1 )
             return 0
         pyvim.feedkeys('\<space>', 'n')
 
@@ -378,14 +373,9 @@ class Wubi( Base_Key_Fsm):
         del self.buffer[:]
         pyvim.feedkeys( '\<esc>','n')
 
-        
-
-
-
-
-
-
-
-
 if not __name__=="__main__":
     key_fsm=[Base_Key_Fsm( ), Base_Code_Fsm(), Wubi(), Html_Key_Fsm()]
+
+
+
+

@@ -1,8 +1,15 @@
-#encoding:utf8
-from base_key_fsm import key_fsm
+# -*- coding:utf-8 -*-
+#    author    :   丁雪峰
+#    time      :   2015-02-13 18:22:39
+#    email     :   fengidri@yeah.net
+#    version   :   1.0.1
+
+
+from im.base_key_fsm import key_fsm
+from im.imrc import fa_rule
 import pyvim
 import logging
-from imrc import fa_rule
+import vim
 logging.basicConfig(filename="/tmp/vimlog", level=logging.DEBUG)
 
 
@@ -21,6 +28,7 @@ class Rule(object):
             pass
     def get(self, syn):
         return self.fm.get(syn, self.default_fsm)
+
 class Rules(object):
     def __init__(self, fa_rule):
         self.rules = {}
@@ -42,6 +50,8 @@ class Rules(object):
         if not m:
             return 'base'
         return m
+
+
         
 
 
@@ -49,6 +59,7 @@ class Rules(object):
 
 class Base_Context_Fsm( object ):
     def __init__(self):
+        self.pmenu = pyvim.SelMenu()
         self.rules = Rules(fa_rule)
 
         self.all_fsm = {}
@@ -60,7 +71,10 @@ class Base_Context_Fsm( object ):
         self.fsm_name = "base"
         self.fsm = self.all_fsm.get(self.fsm_name)
     
-    def in_fsm( self, ft, area, key):
+    def in_fsm( self,  key):
+        ft = vim.eval('&ft')
+        area = pyvim.syntax_area()
+
         '当在多个key fsm之间进行切换时，在切入与切出时，可能要执行一些动作'
         '在基础状态机中有Enter Leave函数分应这两种情况'
         if self.current  != (ft, area):
@@ -75,6 +89,7 @@ class Base_Context_Fsm( object ):
 
         self.fsm.in_fsm(key)
         self.complete(key)
+        return True
 
     def is_comp_char(self, key):
         if (key.islower( ) or key.isupper( ) or key in '._'):
@@ -100,11 +115,14 @@ class Base_Context_Fsm( object ):
             if not self.is_comp_char(before[-2]):
                 return
 
-        pyvim.pmenu.show('youcompleteme#OmniComplete')
+        self.pmenu.complete('youcompleteme#OmniComplete')
 
 
     def all_key( self ):
         return self.fsm.all_key( )
         
 
+
+if __name__ == "__main__":
+    pass
 

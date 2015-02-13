@@ -1,31 +1,21 @@
 #encoding:utf8
 import pyvim
 import vim
-from im.base_context_fsm import Base_Context_Fsm
+from context import contexts, all_key
 
 
 class Input_Monitor(object):
-    def __init__( self ):
-        self.context_fsm=Base_Context_Fsm( )
-        self.ft = ""
-
-
-    def filetype( self ):
-        filetype= vim.eval( '&ft' )
-        self.ft = filetype
-
-
     def in_key( self, key ):
-        self.context_fsm.in_fsm(self.ft, pyvim.syntax_area(), key)
+        for c in contexts:# 检查所有的context 对象
+            if c.in_fsm(key):
+                return
 
-
-
-    def all_key( self ):
-        "返回被监控的所有的键的list"
-        return self.context_fsm.all_key( )
+#    def all_key( self ):
+#        "返回被监控的所有的键的list"
+#        return self.context_fsm.all_key( )
 
     def init_monitor_keys( self ):
-        keys=self.all_key()
+        keys=all_key()
         for key in keys:
             if len( key ) > 1 and key.islower():
                 map_key = '<%s>' % key

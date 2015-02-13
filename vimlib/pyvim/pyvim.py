@@ -42,17 +42,6 @@ class vstdout( object ):
         vim.command( "close" )
         vim.current.window = self.save_w
 
-class stdin( object ):
-    def read(self, message = ''):
-        vim.command('call inputsave()')
-        vim.command("let user_input = input('" + message + "')")
-        vim.command('call inputrestore()')
-        print( "" )
-        return vim.eval('user_input')
-
-class stdout( object ):
-    def write( self, message ):
-        print message
 
 
 def getchr():#getchr
@@ -64,7 +53,7 @@ def getchr():#getchr
 def redraw():#刷新窗口
     vim.command("redraw")
 
-def echoline(msg):
+def echoline(msg):#在命令行, 输出一行通知信息
     vim.command('redraw| echo "%s"' % msg.replace('"', r'\"') )
 
 
@@ -114,26 +103,48 @@ class _get_input:
             return str_tmp
         else:
             return None
-class _pmenu( object ):
-    def __init__(self):
-        self.omnifunc = ""
-        self.omnifunc_save = ""
 
+class SelMenu( object ):
+    "基于omnicomplete 包装成的SelMenu"
+    "默认使用内部的complete function"
+    "也可以指定omnicomplete function "
+
+    omnifunc = "vimlib#SelMenuFunction"
+    def __new__(cls, *args, **kw):  
+        "单例模式"
+        if not hasattr(cls, '_instance'):  
+            orig = super(SelMenu, cls)  
+            cls._instance = orig.__new__(cls, *args, **kw)  
+        return cls._instance
 
     def check_omnifunc( self, func ):
         if vim.eval( '&l:omnifunc' ) != func:
             vim.command("let &omnifunc='%s'" % func)
             vim.command("let &l:omnifunc='%s'" % func)
 
+    def showlist(self, words_list, length):
+        """ 与show 比较相似, 只是使用 输入的是list, 也就说是比较简单的结构"""
+        words = []
+        for w in words_list:
+            words.append({"word": w})
+        self.show(words, length)
 
-    def show( self, func="" ):
-        logging.info("Pmenu show")
+    def show( self, words, length ):
+        """使用内部的补全函数进行输出
+                @words:   vim 格式的数据结构
+                @length:  光标前要进行补全的字符长度
+        """
+        vim.vars["omniresult"] = words
+        vim.vars["omnicol"] = vim.current.window.cursor[1] - length + 1
+        self.complete(self.omnifunc)
         
-        self.check_omnifunc(func)
+
+    def complete(self, fun):
+        "指定补全函数"
+        self.check_omnifunc(fun)
         feedkeys('\<C-X>\<C-O>\<C-P>',  'n')
 
-
-    def select( self, nu):
+    def select(self, nu):
         if pumvisible( ):
             feedkeys((nu + 1) * '\<C-N>' , 'n' )
             feedkeys( '\<C-Y>', 'n' )
@@ -155,6 +166,7 @@ def str_after_cursor():
     col_nu_cursor=vim.current.window.cursor[1]
     cur_line=vim.current.line
     return cur_line[col_nu_cursor:]
+
 def getline( ):
     return vim.current.line
 
@@ -202,20 +214,13 @@ def _parent_search(path, file_name ):
             return None
         else:
             return _parent_search( _path, file_name)
+
 def is_empty( ):
     if (len(vim.current.buffer) == 1\
                 and len(vim.current.buffer[0]) == 0):
         return True
     else:
         return False
-
-
-
-def highlight():
-    pass
-        #高亮 MarkJust
-#        vim.command('MarkJust')
-
 
 def current_word( from_vim=True ):
     if from_vim:

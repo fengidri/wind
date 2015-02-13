@@ -121,7 +121,7 @@ def put(content, info):
     j = {'title':info.get('title'), 
             'content': content, 
             'class': info.get('class', ''),
-            'post': info.get('post', 1)
+            'post': info.get('post', '1')
             }
     url = 'http://%s/fwiki/chapters/%s' % (SERVER, ID)
 
