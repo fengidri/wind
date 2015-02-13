@@ -10,10 +10,6 @@ class Input_Monitor(object):
             if c.in_fsm(key):
                 return
 
-#    def all_key( self ):
-#        "返回被监控的所有的键的list"
-#        return self.context_fsm.all_key( )
-
     def init_monitor_keys( self ):
         keys=all_key()
         for key in keys:
@@ -24,7 +20,7 @@ class Input_Monitor(object):
             if key == '"':
                 key = r'\"'
                 map_key = '"'
-            command='inoremap <expr> %s input_monitor#Input_Monitor( "%s" )' % ( map_key, key)
+            command='inoremap <expr> %s Input_Monitor( "%s" )' % ( map_key, key)
             vim.command(command)
 
 
