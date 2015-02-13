@@ -1,7 +1,8 @@
 #encoding:utf8
 import pyvim
 import vim
-from context import contexts, all_key
+from context import contexts
+from imrc import allkeys
 
 
 class Input_Monitor(object):
@@ -11,7 +12,7 @@ class Input_Monitor(object):
                 return
 
     def init_monitor_keys( self ):
-        keys=all_key()
+        keys=allkeys()
         for key in keys:
             if len( key ) > 1 and key.islower():
                 map_key = '<%s>' % key
@@ -22,11 +23,4 @@ class Input_Monitor(object):
                 map_key = '"'
             command='inoremap <expr> %s Input_Monitor( "%s" )' % ( map_key, key)
             vim.command(command)
-
-
-        
-        
-
-
-
 

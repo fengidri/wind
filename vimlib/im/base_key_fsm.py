@@ -3,121 +3,63 @@ import pyvim
 import vim
 import re
 import string
+import imrc
 
 import urllib2
 import json
 
 class Base_Fsm( object ):
     def __init__(self):
-        self.key_map={}
-        for c in string.digits:
-            self.key_map[c] = self.digit
-        for c in string.ascii_lowercase:
-            self.key_map[c] = self.lower_letter
-        for c in string.ascii_uppercase:
-            self.key_map[c] = self.upper_letter
+        #处理重载的key
+        self.cbs = {}
+        self.simple_key = imrc.digits + imrc.lowerletter + imrc.upperletter
+        for attr in dir(self):
+            if not attr.startswith('cb_'):
+                continue
+            vname = attr[3:]
+            if vname in self.simple_key:
+                name = vname
+            else:
+                for k,v in imrc.puncs.items() + imrc.mults.items():
+                    if v[1] == vname:
+                        name = k
+                        break
 
-        self.punc_map={
-            "(" : self.parenthess,
-            "[" : self.bracket,
-            "{" : self.brace,
-            "'" : self.mark,
-            "," : self.comma,
-            ";" : self.semicolon,
-            "-" : self.minus,
-            "_" : self.underline,
-            "+" : self.add,
-            "%" : self.precent,
-            "&" : self.and_,
-            "<" : self.lt,
-            ">" : self.gt,
-            "^" : self.cat,
-            "!" : self.not_,
-            "." : self.dot,
-            "/" : self.slash,
-            "=" : self.eq,
-            '"' : self.double_mark,
-            'tab' : self.tab,
-            'c-j' : self.c_j,
-            'bs' : self.backspace,
-            'cr' : self.enter,
-            'space': self.space,
-            'esc': self.esc
-            }
-            #}}}
-    def Leave(self):
-        pass
+
+            self.cbs[name] = getattr(self, attr)
+
+
     def Enter(self):
         pass
+
+    def Leave(self):
+        pass
+
+    def fsm_name(self):
+        return "base"
+
+    def output(self, out):
+        pyvim.feedkeys( out ,'n' )
+
     def in_fsm( self, key):
-        self.key= key
-        callback=self.key_map.get(key, self.punc)
-        callback()
-    def all_key( self ):
-        keys=self.key_map.keys( )
-        keys.extend( self.punc_map.keys())
-        return keys
+        if key in self.cbs: #如果有对应的重载方法
+            self.cbs.get(key)()
 
- 
-    def digit( self ):
-        pyvim.feedkeys( self.key ,'n' )
+        elif key in self.simple_key: # 简单的key
+            self.output(key)
 
-    def upper_letter( self ):
-        pyvim.feedkeys( self.key  ,'n' )
+        elif key in imrc.puncs: # 符号key
+            self.output(imrc.puncs[key][0])
 
-    def lower_letter( self ):
-        pyvim.feedkeys( self.key ,'n'  )
+class Base_Key_Fsm(Base_Fsm):
+    def cb_tab(self):
+        if pyvim.pumvisible():
+            o = '\<C-n>'
+        else:
+            o = '    '
+        self.output(o)
 
-    def punc(self):
-        callback=self.punc_map.get( self.key, None)
-
-        if callback:
-            callback()
-
-    def parenthess(self):
-        pyvim.feedkeys("(" ,'n' )
-    def bracket(self):
-        pyvim.feedkeys('[' ,'n' )
-    def brace(self):
-        pyvim.feedkeys('{' ,'n' )
-    def mark(self):
-        pyvim.feedkeys("'" ,'n' )
-    def comma(self):
-        pyvim.feedkeys(',' ,'n' )
-    def semicolon(self):
-        pyvim.feedkeys(';' ,'n' )
-    def minus(self):
-        pyvim.feedkeys('-' ,'n' )
-    def add(self):
-        pyvim.feedkeys('+' ,'n' )
-    def precent(self):
-        pyvim.feedkeys('%' ,'n' )
-    def and_(self):
-        pyvim.feedkeys('&' ,'n' )
-    def lt(self):
-        pyvim.feedkeys('<' ,'n' )
-    def gt(self):
-        pyvim.feedkeys('>' ,'n' )
-    def cat(self):
-        pyvim.feedkeys('^' ,'n' )
-    def not_(self):
-        pyvim.feedkeys('!' ,'n' )
-    def dot(self):
-        pyvim.feedkeys('.' ,'n' )
-    def underline( self ):
-        pyvim.feedkeys('_' ,'n' )
-
-    def slash(self):
-        pyvim.feedkeys('/' ,'n' )
-    def eq(self):
-        pyvim.feedkeys('=' ,'n' )
-    def double_mark(self):
-        pyvim.feedkeys('"' ,'n' )
-    def tab(self):
-        pyvim.feedkeys('    ' ,'n' )
-
-        
-    def c_j(self):
+    def cb_jump(self):
         string=pyvim.str_after_cursor( )
         tag=r'\'"([{}])'
 
@@ -128,33 +70,12 @@ class Base_Fsm( object ):
                 n_list.append( t )
 
         if len( n_list ) > 0:
-            pyvim.feedkeys( '\<right>' * ( min( n_list ) +1))
-
-    def backspace(self):
-        pyvim.feedkeys(r'\<BS>','n')
-    def enter(self):
-        pyvim.feedkeys(r'\<CR>' ,'n')
-    def space(self):
-        pyvim.feedkeys(r'\<space>', 'n')
-    def esc( self ):
-        pyvim.feedkeys('\<esc>' ,'n' )
-
-    def fsm_name(self):
-        return "base"
-        
-class Base_Key_Fsm( Base_Fsm ):
-    def fsm_name(self):
-        return "base"
-    def tab(self):
-        if pyvim.pumvisible():
-            pyvim.feedkeys('\<C-n>' ,'n' )
-        else:
-            pyvim.feedkeys('    ' ,'n' )
+            pyvim.feedkeys( '\<right>' * ( min( n_list ) +1), 'n')
 
 class Html_Key_Fsm( Base_Fsm ):
     def fsm_name(self):
         return "html"
-    def gt(self):
+    def cb_gt(self):
         regex = "<(\w+)[^>]+$"
         match = re.search(regex, pyvim.str_before_cursor())
 
@@ -164,61 +85,48 @@ class Html_Key_Fsm( Base_Fsm ):
             pyvim.feedkeys( s,'n' )
         else:
             Base_Fsm.gt(self)
+
 class Base_Code_Fsm( Base_Fsm ):
     def fsm_name(self):
         return "code"
 
-    def tab( self ):
+    def double_out(self, d, b):
+        if pyvim.str_after_cursor(  ) == '':
+            self.output(d + b + '\<left>')
+        else:
+            self.output(d)
+
+
+    def cb_bracket( self ):#[  ]
+        self.double_out('[', ']')
+
+    def cb_parenthess( self ):#(  )
+        self.double_out('(', ')')
+
+    def cb_mark( self ):
+        self.double_out("'", "'")
+    
+    def cb_double_mark( self ):
+        self.double_out('"', '"')
+
+    def cb_tab( self ):
         if pyvim.pumvisible():
-            pyvim.feedkeys('\<C-n>' ,'n' )
-            return 0
+            o = '\<C-n>'
 
-        if re.search(r'^\s*$',pyvim.str_before_cursor( )):
-            pyvim.feedkeys( '    ')
+        elif re.search(r'^\s*$',pyvim.str_before_cursor( )):
+            o = '    '
         else:
-            pyvim.feedkeys('\<C-X>\<C-O>\<C-P>' )
-
-    def bracket( self ):#[  ]
-        if pyvim.str_after_cursor(  ) == '':
-            pyvim.feedkeys( '[]', 'n')
-            pyvim.feedkeys('\<left>')
-        else:
-            pyvim.feedkeys( '[', 'n')
-
-    def parenthess( self ):#(  )
-        if pyvim.str_after_cursor(  ) == '':
-            pyvim.feedkeys('()', 'n')
-            pyvim.feedkeys('\<left>')
-        else:
-            pyvim.feedkeys('(', 'n')
+            o = '\<C-X>\<C-O>\<C-P>'
+        self.output(o)
     
-    def brace( self ):#{  }
-        if pyvim.str_after_cursor(  ) == '':
-            if pyvim.str_before_cursor( ).endswith( ')'):
-                pyvim.feedkeys( '\<cr>{\<cr>}\<up>\<cr>','n')
-            else:
-                pyvim.feedkeys( '{}\<left>', 'n')
-        else:
-            pyvim.feedkeys('{', 'n')
+    def cb_brace( self ):#{  }
+        if pyvim.str_after_cursor(  ) == '' and \
+            pyvim.str_before_cursor( ).endswith(')'):
+                self.output('\<cr>{\<cr>}\<up>\<cr>')
+                return
+        self.double_out('{', '}')
     
-    def mark( self ):
-        if pyvim.str_after_cursor(  ) == '':
-            pyvim.feedkeys("\<c-v>'\<c-v>'\<left>")
-        else:
-            pyvim.feedkeys("\<c-v>'")
-    
-    def double_mark( self ):
-        str_after=pyvim.str_after_cursor(  )
-        if  str_after == '':
-            pyvim.feedkeys( r'""\<left>','n')
-            return 0
-
-        if str_after[0] == '"':
-            pyvim.feedkeys( r'""\<left>','n')
-            return 0
-
-        pyvim.feedkeys( '"','n')
-    def dot(self):
+    def cb_dot(self):
         if pyvim.str_before_cursor( ).endswith('.'):
             pyvim.feedkeys('\<bs>->' ,'n' )
         else:
@@ -238,11 +146,8 @@ class _wubi_seach( object ):
             return ([], [])
 
 
-    def search( self , buf):
+    def search( self , patten):
         '得到备选的字词'
-
-        patten = ''.join( buf )
-
         words= self.cache.get( patten )
     
         if  words:
@@ -264,41 +169,15 @@ class _wubi_seach( object ):
         except Exception, e:
             pyvim.echoline(str(e))
 
-class Wubi( Base_Key_Fsm):
-    def fsm_name(self):
-        return "wubi"
+    def wubi(self, patten):
+        return self.result(patten, *self.search(patten)) 
 
-    def Enter(self):
-        del self.buffer[:]
-
-    def Leave(self):
-        pass
-
-    def __init__(self):
-        super(Wubi, self).__init__()
-        self.buffer=[]
-        self.search=  _wubi_seach( )
-        self.pmenu = pyvim.SelMenu()
-
-    def in_fsm( self, key):
-        self.key= key
-
-        callback=self.key_map.get(key, self.punc)
-        callback()
-
-    def wubi(self):
-        return self.result( *self.search.search(self.buffer) ) 
-
-
-
-
-    def result(self, words, associate):
+    def result(self, patten, words, associate):
         '组成vim 智能补全要求的形式，这一步只是py形式的数据，vim要求是vim的形式'
-        patten = ''.join(self.buffer)
 
         items=[{"word": " " ,"abbr":"%s                  " %  patten }]
 
-        if len( self.buffer ) > 4:
+        if len( patten ) > 4:
             return items
 
         i = 0
@@ -315,63 +194,89 @@ class Wubi( Base_Key_Fsm):
 
         return items
 
+class Wubi( Base_Key_Fsm, _wubi_seach):
+    def fsm_name(self):
+        return "wubi"
 
+    def Enter(self):
+        del self.buffer[:]
 
-    def backspace(self):
+    def Leave(self):
+        pass
+
+    def __init__(self):
+        Base_Key_Fsm.__init__(self)
+        _wubi_seach.__init__(self)
+        self.buffer=[]
+        self.pmenu = pyvim.SelMenu()
+
+    def cb_backspace(self):
         if not pyvim.pumvisible():
             pyvim.feedkeys('\<bs>', 'n')
             return 0
 
         if len( self.buffer ) > 1:
             self.buffer.pop()
-            self.pmenu.show(self.wubi(), 0)
+            self.patten = ''.join(self.buffer)
+            self.pmenu.show(self.wubi(self.patten), 0)
         else:
             del self.buffer[:]
             self.pmenu.cencel( )
 
    
-    def enter(self):
+    def cb_enter(self):
         if pyvim.pumvisible():
-            pyvim.feedkeys(r'%s\<C-e>' % ''.join(self.buffer),'n')
+            pyvim.feedkeys(r'%s\<C-e>' % self.patten,'n')
             del self.buffer[ : ]
             return 0
         pyvim.feedkeys(r'\<cr>' ,'n')
 
-    def digit( self ):
-        if pyvim.pumvisible():
-
-            self.search.setcount(''.join(self.buffer), int(self.key) -1)
-            self.pmenu.select( int(self.key) )
-            del self.buffer[:]
-            return 0
-        pyvim.feedkeys( self.key ,'n')
-
-
-    def upper_letter( self ):
-        del self.buffer[:]
-        pyvim.feedkeys( self.key  ,'n' )
-
-
-    def punc(self):
-        callback=self.punc_map.get(self.key, None)
-
-        if callback:
-            callback()
-
-    def lower_letter( self ):
-        self.buffer.append( self.key )
-        self.pmenu.show(self.wubi(), 0)
-
-    def space(self):
+    def cb_space(self): 
         del self.buffer[:]
         if pyvim.pumvisible():
             self.pmenu.select( 1 )
             return 0
         pyvim.feedkeys('\<space>', 'n')
 
-    def esc( self ):
+    def cb_esc( self ):
         del self.buffer[:]
         pyvim.feedkeys( '\<esc>','n')
+
+    def in_fsm(self, key):
+        self.key = key
+        if key in self.cbs: #如果有对应的重载方法
+            self.cbs.get(key)()
+
+        elif key in imrc.digits:
+            self.digit()
+
+        elif key in imrc.lowerletter:
+            self.lower_letter()
+
+        elif key in imrc.upperletter:
+            self.upper_letter()
+
+        elif key in imrc.puncs: # 符号key
+            self.output(imrc.puncs[key][0])
+
+    def digit( self ):
+        if pyvim.pumvisible():
+
+            self.setcount(self.patten, int(self.key) -1)
+            self.pmenu.select( int(self.key) )
+            del self.buffer[:]
+            return 0
+        pyvim.feedkeys( self.key ,'n')
+
+    def upper_letter( self ):
+        del self.buffer[:]
+        pyvim.feedkeys( self.key  ,'n' )
+
+    def lower_letter( self ):
+        self.buffer.append( self.key )
+        self.patten = ''.join(self.buffer)
+        self.pmenu.show(self.wubi(self.patten), 0)
+
 
 if not __name__=="__main__":
     key_fsm=[Base_Key_Fsm( ), Base_Code_Fsm(), Wubi(), Html_Key_Fsm()]
