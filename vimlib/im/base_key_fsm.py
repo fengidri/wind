@@ -17,16 +17,8 @@ class Base_Fsm( object ):
             if not attr.startswith('cb_'):
                 continue
             vname = attr[3:]
-            if vname in self.simple_key:
-                name = vname
-            else:
-                for k,v in imrc.puncs.items() + imrc.mults.items():
-                    if v[1] == vname:
-                        name = k
-                        break
 
-
-            self.cbs[name] = getattr(self, attr)
+            self.cbs[vname] = getattr(self, attr)
 
 
     def Enter(self):
@@ -49,9 +41,8 @@ class Base_Fsm( object ):
             self.output(key)
 
         elif key in imrc.puncs: # 符号key
-            self.output(imrc.puncs[key][0])
+            self.output(imrc.puncs.get(key)[1])
 
-class Base_Key_Fsm(Base_Fsm):
     def cb_tab(self):
         if pyvim.pumvisible():
             o = '\<C-n>'
@@ -72,6 +63,9 @@ class Base_Key_Fsm(Base_Fsm):
         if len( n_list ) > 0:
             pyvim.feedkeys( '\<right>' * ( min( n_list ) +1), 'n')
 
+class Base_Key_Fsm(Base_Fsm):
+    pass
+
 class Html_Key_Fsm( Base_Fsm ):
     def fsm_name(self):
         return "html"
@@ -87,8 +81,16 @@ class Html_Key_Fsm( Base_Fsm ):
             Base_Fsm.gt(self)
 
 class Base_Code_Fsm( Base_Fsm ):
+    def __init__(self):
+        super(Base_Code_Fsm, self).__init__()
+        self.pmenu = pyvim.SelMenu()
+
     def fsm_name(self):
         return "code"
+
+    def in_fsm(self, key):
+        super(Base_Code_Fsm, self).in_fsm(key)
+        self.complete(key)
 
     def double_out(self, d, b):
         if pyvim.str_after_cursor(  ) == '':
@@ -131,6 +133,26 @@ class Base_Code_Fsm( Base_Fsm ):
             pyvim.feedkeys('\<bs>->' ,'n' )
         else:
             pyvim.feedkeys('.' ,'n' )
+
+    def is_comp_char(self, key):
+        if len(key) != 1:
+            return False
+        if (key.islower( ) or key.isupper( ) or key in '._'):
+            return True
+        return False
+
+    def complete( self, key ):
+        if not self.is_comp_char(key):
+            return
+        before = pyvim.str_before_cursor()
+        if len(before) < 2:
+            return
+        if before[-2:] != "->":
+            if not self.is_comp_char(before[-1]):
+                return
+            if not self.is_comp_char(before[-2]):
+                return
+        self.pmenu.complete('youcompleteme#OmniComplete')
 
 class _wubi_seach( object ):
     def __init__(self):

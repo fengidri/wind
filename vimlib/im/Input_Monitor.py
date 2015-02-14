@@ -13,14 +13,7 @@ class Input_Monitor(object):
 
     def init_monitor_keys( self ):
         keys=allkeys()
-        for key in keys:
-            if len( key ) > 1 and key.islower():
-                map_key = '<%s>' % key
-            else:
-                map_key = key
-            if key == '"':
-                key = r'\"'
-                map_key = '"'
-            command='inoremap <expr> %s Input_Monitor( "%s" )' % ( map_key, key)
+        for map_key, name in keys:
+            command='inoremap <expr> %s Input_Monitor( "%s" )' % ( map_key, name)
             vim.command(command)
 

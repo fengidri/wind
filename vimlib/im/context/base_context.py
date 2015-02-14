@@ -59,7 +59,6 @@ class Rules(object):
 
 class Base_Context_Fsm( object ):
     def __init__(self):
-        self.pmenu = pyvim.SelMenu()
         self.rules = Rules(fa_rule)
 
         self.all_fsm = {}
@@ -81,46 +80,17 @@ class Base_Context_Fsm( object ):
             self.current = (ft, area)
 
             self.fsm.Leave()
+
             fs_name = self.rules.get(ft, area)
             self.fsm_name = fs_name
             self.fsm = self.all_fsm.get(fs_name)
+
             self.fsm.Enter()
             logging.info("Switch fsm ft:%s, area:%s, fsname:%s.", ft, area, fs_name)
 
         self.fsm.in_fsm(key)
-        self.complete(key)
         return True
 
-    def is_comp_char(self, key):
-        if (key.islower( ) or key.isupper( ) or key in '._'):
-            return True
-        return False
-
-    def complete( self, key ):
-
-
-        if self.fsm_name != "code":
-            return
-
-        if len(key) != 1:
-            return
-        if not self.is_comp_char(key):
-            return
-        before = pyvim.str_before_cursor()
-        if len(before) < 2:
-            return
-        if before[-2:] != "->":
-            if not self.is_comp_char(before[-1]):
-                return
-            if not self.is_comp_char(before[-2]):
-                return
-
-        self.pmenu.complete('youcompleteme#OmniComplete')
-
-
-    def all_key( self ):
-        return self.fsm.all_key( )
-        
 
 
 if __name__ == "__main__":

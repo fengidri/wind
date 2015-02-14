@@ -39,39 +39,41 @@ upperletter = [ c for c in string.ascii_uppercase ]
 
 puncs = {
              # "vim name"  "feed key"      "name"
-             "("    : ["("     , "parenthess"     , ] ,
-             "["    : ["["     , "bracket"        , ] ,
-             "{"    : ["{"     , "brace"          , ] ,
-             "'"    : ["'"     , "mark"           , ] ,
-             ","    : [","     , "comma"          , ] ,
-             ";"    : [";"     , "semicolon"      , ] ,
-             "-"    : ["-"     , "minus"          , ] ,
-             "_"    : ["_"     , "underline"      , ] ,
-             "+"    : ["+"     , "add"            , ] ,
-             "%"    : ["%"     , "precent"        , ] ,
-             "&"    : ["&"     , "and_"           , ] ,
-             "<"    : ["<"     , "lt"             , ] ,
-             ">"    : [">"     , "gt"             , ] ,
-             "^"    : ["^"     , "cat"            , ] ,
-             "!"    : ["!"     , "not_"           , ] ,
-             "."    : ["."     , "dot"            , ] ,
-             "/"    : ["/"     , "slash"          , ] ,
-             "="    : ["="     , "eq"             , ] ,
-             '"'    : ['"'     , "double_mark"    , ] ,
-             'tab'  : ['\<tab>'   , "tab"         , ] ,
-             'bs'   : ['\<bs>'    , "backspace"   , ] ,
-             'cr'   : ['\<cr>'    , "enter"       , ] ,
-             'space': ['\<space>' , "space"       , ] ,
-             'esc'  : ['\<esc>'   , "esc"         , ] ,
+      "parenthess"         : ["("       ,  "("          ] ,
+      "bracket"            : ["["       ,  "["          ] ,
+      "brace"              : ["{"       ,  "{"          ] ,
+      "mark"               : ["'"       ,  "'"          ] ,
+      "comma"              : [","       ,  ","          ] ,
+      "semicolon"          : [";"       ,  ";"          ] ,
+      "minus"              : ["-"       ,  "-"          ] ,
+      "underline"          : ["_"       ,  "_"          ] ,
+      "add"                : ["+"       ,  "+"          ] ,
+      "precent"            : ["%"       ,  "%"          ] ,
+      "and_"               : ["&"       ,  "&"          ] ,
+      "lt"                 : ["<"       ,  "<"          ] ,
+      "gt"                 : [">"       ,  ">"          ] ,
+      "cat"                : ["^"       ,  "^"          ] ,
+      "not_"               : ["!"       ,  "!"          ] ,
+      "dot"                : ["."       ,  "."          ] ,
+      "slash"              : ["/"       ,  "/"          ] ,
+      "eq"                 : ["="       ,  "="          ] ,
+      "double_mark"        : ['"'       ,  '"'          ] ,
+      "tab"                : ['<tab>'   ,  '\<tab>'     ] ,
+      "backspace"          : ['<bs>'    ,  '\<bs>'      ] ,
+      "enter"              : ['<cr>'    ,  '\<cr>'      ] ,
+      "space"              : ['<space>' ,  '\<space>'   ] ,
+      "esc"                : ['<esc>'   ,  '\<esc>'     ] ,
         }
 
 mults = {
-             'c-j' :  ['',           "jump" , ],
+            "jump"  :  ['<c-j>',        '\<c-j>'     ],
         }
 
 
 def allkeys():
     keys = []
-    keys = digits + lowerletter + upperletter
-    keys += puncs.keys()
+    for k in digits + lowerletter + upperletter:
+        keys.append((k,k))
+    for k,n in puncs.items() + mults.items():
+        keys.append((n[0], k))
     return keys
