@@ -70,10 +70,5 @@ mults = {
         }
 
 
-def allkeys():
-    keys = []
-    for k in digits + lowerletter + upperletter:
-        keys.append((k,k))
-    for k,n in puncs.items() + mults.items():
-        keys.append((n[0], k))
-    return keys
+
+count = 0  # 

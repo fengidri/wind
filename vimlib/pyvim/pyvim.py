@@ -7,6 +7,21 @@
 import vim
 import os
 import logging
+import sys
+
+logging.basicConfig(filename="/tmp/_vimlog", level=logging.DEBUG)
+
+logging.error("\n\n\n\n\n\nVIM Start.............................")
+
+def excepthook(type, value, trace):
+    if type == KeyboardInterrupt:
+        print ""
+        return
+    echoline(">>>>Error: %s: " % type.__name__ + str(value))
+
+    logging.error("Uncaught exception:", exc_info =(type, value, trace))
+
+sys.excepthook = excepthook
 
 def origin_win( ):
     vim.command( "wincmd p")

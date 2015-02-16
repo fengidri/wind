@@ -7,10 +7,10 @@
 import re
 import os
 import pyvim
+import logging
 
 
-
-class Path_Context_Fsm(object):
+class IM_Path(object):
     "处理输入路径的情况"
     def __init__(self):
         self._path_regex = re.compile( """ 
@@ -29,7 +29,7 @@ class Path_Context_Fsm(object):
         self.pmenu = pyvim.SelMenu()
 
         
-    def in_fsm(self, key):
+    def im(self, key):
 
         if len(key) != 1:
             return False
@@ -53,9 +53,8 @@ class Path_Context_Fsm(object):
             relative_dir = []
 
         pyvim.feedkeys(key, 'n')
-        print path_dir
-        print relative_dir
         self.pmenu.showlist(relative_dir, l)
+        
 
 
         return True

@@ -27,7 +27,7 @@ IM.init_monitor_keys( )
 EOF
 
 function! Input_Monitor( key )
-    py IM.in_key( vim.eval("a:key"))
+    py IM.im( vim.eval("a:key"))
     return ''
 endfunction
 
