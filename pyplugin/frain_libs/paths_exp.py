@@ -5,6 +5,7 @@ import os
 import pyvim
 import vim
 import re
+import logging
 """
 TODO  2014年 12月 08日 星期一 13:38:21 UTC
       1. 不应把所有的节点放在nodes中
@@ -170,6 +171,15 @@ def pe_open_dir( index_node, index_display ):
             break
     return (index_node, index_display)
 
+def display_to_node(line):
+    line = line.decode( 'utf8' )
+    try:
+        index_node = line.split( "<|>" )[ 1 ]
+        index_node = int( index_node )
+        return nodes[index_node]
+    except:
+        return 
+
 def pe_close_dir( index_node, index_display):
     cur_node = nodes[ index_node ]
     cur_deep = cur_node.deep
@@ -177,16 +187,37 @@ def pe_close_dir( index_node, index_display):
     cur_node.show = False
     if index_node + 1 == len( nodes ):
         return 
-    for node in nodes[ index_node + 1: ]:
-        deep_space = node.deep - cur_deep
-        if deep_space == 1:
-            index_node += 1
-            if node.type == type_dir and node.show:
-                pe_close_dir( index_node, index_display + 1 )
-            del vim.current.buffer[ index_display + 1 ]
 
-        elif deep_space <= 0:
+
+    for line in vim.current.buffer[index_display + 1:]:
+
+        node = display_to_node(line)
+        if not node:
             break
+
+
+        if node.type == type_dir:
+            node.show = False
+
+        if node.deep > cur_deep:
+            del vim.current.buffer[ index_display + 1 ]
+        else:
+
+            break
+
+
+    #for node in nodes[ index_node + 1: ]:
+    #    deep_space = node.deep - cur_deep
+    #    if deep_space == 1:
+    #        index_node += 1
+    #        if node.type == type_dir and node.show:
+    #            pe_close_dir( index_node, index_display + 1 )
+    #        del vim.current.buffer[ index_display + 1 ]
+
+    #    elif deep_space <= 0:
+    #        break
+
+
 
 
 
@@ -376,6 +407,9 @@ def refresh_win( ):
         if node.deep == 0 :
             vim.current.buffer.append( node.display )
     return 
+
+
+
 
 def paths_exp_open( ):
     """
