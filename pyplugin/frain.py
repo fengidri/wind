@@ -101,6 +101,18 @@ class ProjectSyncAll( pyvim.command ):
         project.Project.sync( syncall=True )
 
 
+class ProjectTerminal(pyvim.command):
+    def run(self):
+        rs = data.get_path()
+        cur = vim.current.buffer.name
+        for r in rs:
+            if cur.startswith(r):
+                os.system('cd %s;setsid xterm&' % r)
+                break
+        else:
+            os.system('setsid xterm&')
+
+
 
 
 class ProjectEvent( pyvim.events ):

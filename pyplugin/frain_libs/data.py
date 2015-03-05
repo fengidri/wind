@@ -36,6 +36,9 @@ def append_path( path, name="" ):
         settings[ "paths" ].append( path_info )
     else:
         settings[ "paths" ] = [ path_info ]
+
+
+#得到当前所有的工程的根目录列表
 def get_path( ):
     paths_out = [  ]
     paths = settings.get( "paths" )

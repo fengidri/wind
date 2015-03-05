@@ -330,7 +330,7 @@ class class_tag:
             pos_for_taglist  = 0
         taginfo["pos_for_taglist"]  = pos_for_taglist
 
-        pyvim.highlight()
+        #pyvim.highlight()
 
 
 class TagJump( pyvim.command ):

@@ -7,7 +7,7 @@
 import im.imutils
 import im.inputers as inputers
 import logging
-FTS = ['c', 'cpp', 'ch', "python", 'javascript', 'vim']
+FTS = ['c', 'cpp', 'ch', "python", 'javascript', 'vim', 'lua']
 
 
 class im_ft(im.imutils.filetype):

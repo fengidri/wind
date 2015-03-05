@@ -38,8 +38,8 @@ imap <F7>          <esc>:MarkTo<cr>
 map  <F9>          <esc>:TagJump<cr>
 map  <F8>          <esc>:TagBack<cr>
 map  <F10>         <esc>:FSearch<cr>
-imap <F12>         <esc>:!xterm&<cr><cr>
-map  <F12>         <esc>:!xterm&<cr><cr>
+imap <F12>         <esc>:ProjectTerminal<cr><cr>
+map  <F12>         <esc>:ProjectTerminal<cr><cr>
 map  <2-LeftMouse> <esc>:MarkTo<cr>
 map  <C-w>o        <esc>:ClearAllWin<cr>
 vmap w=            <esc>:silent Align<cr>
