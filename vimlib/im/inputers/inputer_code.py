@@ -5,6 +5,7 @@
 #    version   :   1.0.1
 from inputer_base import IM_Base 
 import pyvim
+import re
 
 class IM_Code( IM_Base ):
     def __init__(self, areas = ['*'] ):

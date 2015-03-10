@@ -12,6 +12,7 @@ FTS = ['gitcommit', 'svn', 'markdown']
 class im_ft(im.imutils.filetype):
     im_ft = FTS 
     def __init__(self):
+        self.im_append(inputers.IM_Path())
         self.im_append(inputers.IM_Wubi(['*']))
         
         
