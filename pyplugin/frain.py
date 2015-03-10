@@ -101,6 +101,7 @@ class ProjectSyncAll( pyvim.command ):
         project.Project.sync( syncall=True )
 
 
+
 class ProjectTerminal(pyvim.command):
     def run(self):
         rs = data.get_path()

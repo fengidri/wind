@@ -13,24 +13,41 @@ def key_all():
     for k,n in imrc.puncs.items() + imrc.mults.items():
         keys.append((n[0], k))
     return keys
-
-def key_feed(key):
+def key_to_feed(key):
     if key in imrc.digits:
-        pyvim.feedkeys(key, 'n')
+        return key
 
     elif key in imrc.lowerletter:
-        pyvim.feedkeys(key, 'n')
+        return key
 
     elif key in imrc.upperletter:
-        pyvim.feedkeys(key, 'n')
+        return key
 
     elif key in imrc.puncs:
-        pyvim.feedkeys(imrc.puncs.get(key)[1], 'n')
+        return imrc.puncs.get(key)[1]
 
     elif key in imrc.mults:
-        pyvim.feedkeys(imrc.mults.get(key)[1], 'n')
+        return imrc.puncs.get(key)[1]
     else:
         logging.error("key:%s is not imrc" % key)
+
+def key_to_see(key):
+    if key in imrc.digits:
+        return key
+    elif key in imrc.lowerletter:
+        return key
+    elif key in imrc.upperletter:
+        return key
+    elif key in imrc.puncs:
+        return imrc.puncs.get(key)[0]
+    elif key in imrc.mults:
+        return imrc.puncs.get(key)[0]
+
+def key_feed(key):
+    k = key_to_feed(key)
+    if k:
+        pyvim.feedkeys(k, 'n')
+
 
 class filetype(object):
     def im_append(self, im):

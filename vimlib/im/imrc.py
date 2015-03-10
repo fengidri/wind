@@ -1,3 +1,10 @@
+# -*- coding:utf-8 -*-
+#    author    :   丁雪峰
+#    time      :   2015-03-10 18:15:29
+#    email     :   fengidri@yeah.net
+#    version   :   1.0.1
+
+
 import os
 import string
 
@@ -36,9 +43,9 @@ fa_rule = """
 digits = [ d for d in string.digits ]
 lowerletter = [ c for c in string.ascii_lowercase ]
 upperletter = [ c for c in string.ascii_uppercase ]
-
+# TODO 要对于key 更加详细的划分
 puncs = {
-             # "vim name"  "feed key"      "name"
+             # "vim name"  "see"      "feed"
       "parenthess"         : ["("       ,  "("          ] ,
       "bracket"            : ["["       ,  "["          ] ,
       "brace"              : ["{"       ,  "{"          ] ,
