@@ -28,6 +28,21 @@ class IM_Path(object):
           \\.)*$
           """, re.X )
         self.pmenu = pyvim.SelMenu()
+    def get_match_names(self, path_dir, basename):
+        basename = basename.lower()
+        try:
+            ns = os.listdir(path_dir)
+            if basename == '':
+                #当用户没有转入前缀时, 不显示隐藏文件名
+                relative_dir = [p for p in ns if not p.startswith('.') ]
+            else:
+                #当用户输入了前缀的时候, 进行过滤, 并区分大小写
+                relative_dir = [p for p in ns if
+                        p.lower().startswith(basename) ]
+        except:
+            relative_dir = []
+
+        return relative_dir
 
         
     def im(self, key):
@@ -38,38 +53,76 @@ class IM_Path(object):
         s = pyvim.str_before_cursor() + s
 
         
-        logging.error(s)
         match = self._path_regex.search(s)
         if not match:
             return False
-        logging.error('match')
+        imutils.key_feed(key)
+        # path complete start
 
         path = os.path.expanduser(match.group())
         path_dir = os.path.dirname(path)
-        basename_l = os.path.basename(path).lower()
-        l = len(basename_l)
 
+        if not os.path.isdir(path_dir):
+            return self.try_abbreviation(path)
 
-        try:
-            ns = os.listdir(path_dir)
-            if l == 0:
-                #当用户没有转入前缀时, 不显示隐藏文件名
-                relative_dir = [p for p in ns if not p.startswith('.') ]
-            else:
-                #当用户输入了前缀的时候, 进行过滤, 并区分大小写
-                relative_dir = [p for p in ns if
-                        p.lower().startswith(basename_l) ]
-        except:
-            relative_dir = []
+        basename = os.path.basename(path)
+        l = len(basename)
+        relative_dir = self.get_match_names(path_dir, basename)
 
-        imutils.key_feed(key)
         self.pmenu.showlist(relative_dir, l)
-        
-
-
         return True
+
+    def try_abbreviation(self, path):
+        if path.startswith('/'):
+            fa = ['/']
+            abbs = path.split('/')[1:]
+        else:
+            fa = [os.getcwd()]
+            abbs = path.split('/')
+
+        for abb in abbs:
+            fan = []
+            for f in fa:
+                rel = self.get_match_names(f, abb)
+                for r in rel:
+                    fan.append(os.path.join(f, r))
+            fa = fan
+        self.pmenu.showlist(fa, len(path))
+        return True
+
+
+
+
 
 
 if __name__ == "__main__":
     pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
