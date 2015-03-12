@@ -46,6 +46,7 @@ class IM_Path(object):
 
         
     def im(self, key):
+        logging.error(key)
         s = imutils.key_to_see(key)
         if len(s)  != 1:
             return
@@ -73,9 +74,19 @@ class IM_Path(object):
         return True
 
     def try_abbreviation(self, path):
+        # 路径缩写补全: /u/l/b ===> /usr/local/bin
         if path.startswith('/'):
             fa = ['/']
             abbs = path.split('/')[1:]
+
+        elif path.startswith('.'):
+            fa = ['./']
+            abbs = path.split('/')[1:]
+
+        elif path.startswith('..'):
+            fa = ['../']
+            abbs = path.split('/')[1:]
+
         else:
             fa = [os.getcwd()]
             abbs = path.split('/')

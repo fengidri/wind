@@ -54,8 +54,6 @@ class Input_Monitor(object):
 
         im = self.ftmode.get(ft, None)# 按照文件类型得到对应的filetype 处理方法
 
-        logging.debug("Input Mointer:%s %s", key, im)
-
         if im == None:
             key_feed(key)
         else:

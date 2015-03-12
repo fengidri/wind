@@ -27,7 +27,7 @@ def key_to_feed(key):
         return imrc.puncs.get(key)[1]
 
     elif key in imrc.mults:
-        return imrc.puncs.get(key)[1]
+        return imrc.mults.get(key)[1]
     else:
         logging.error("key:%s is not imrc" % key)
 
@@ -41,7 +41,7 @@ def key_to_see(key):
     elif key in imrc.puncs:
         return imrc.puncs.get(key)[0]
     elif key in imrc.mults:
-        return imrc.puncs.get(key)[0]
+        return imrc.mults.get(key)[0]
 
 def key_feed(key):
     k = key_to_feed(key)
@@ -60,7 +60,6 @@ class filetype(object):
     def im(self, key):
         logging.debug(self._ims)
         for m in self._ims:
-            logging.debug("filetype: inputer: %s" % m)
             if m.im(key):
                 return True
 
