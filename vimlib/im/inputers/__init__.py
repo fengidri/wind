@@ -12,6 +12,7 @@ from inputer_path import IM_Path
 from inputer_base import IM_Base
 from inputer_code import IM_Code
 from inputer_wubi import IM_Wubi
+from inputer_tex  import IM_Tex
 
 if __name__ == "__main__":
     pass

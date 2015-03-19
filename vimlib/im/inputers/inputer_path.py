@@ -46,7 +46,6 @@ class IM_Path(object):
 
         
     def im(self, key):
-        logging.error(key)
         s = imutils.key_to_see(key)
         if len(s)  != 1:
             return
