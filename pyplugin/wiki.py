@@ -17,18 +17,20 @@ class WikiPost(pyvim.command):
 
         global ID
         if ID:
-            ID =  put( c, info)
-        else:
-            ID = post(c, info)
+            pyvim.echoline('ID:%s, You should run WikiPut.' % ID)
+            return
+
+        ID = post(c, info)
         ID = int(ID) 
         print ID
 
 class WikiPut(pyvim.command):
     def run(self):
         global ID
-        if not ID:
-            print "not ID. Should WikiPost" 
-            return 
+        if ID:
+            pyvim.echoline('ID:None, You should run WikiPost.')
+            return
+
         try:
             info, c = content()
         except:
@@ -54,9 +56,11 @@ class WikiNew(pyvim.command):
     def run(self):
         tmp = tempfile.mktemp(suffix='.mkiv', prefix='fwiki_')
         vim.command('e %s' % tmp)
+        vim.current.buffer.append('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', 0)
         vim.current.buffer.append('%Post:1', 0)
         vim.current.buffer.append('%Class:', 0)
         vim.current.buffer.append('%Title:', 0)
+        vim.current.buffer.append('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', 0)
 
 def getv(line):
     tmp = line[1:].split(':')
@@ -68,7 +72,7 @@ def getv(line):
 def content():
         info = {}
         for line in vim.current.buffer:
-            if line.startswith('%%') or len(line) < 2 or line[0] != '%':
+            if len(line) < 2 or line[0] != '%':
                 if not info.get('title'):
                     print "not find title"
                     return
@@ -85,41 +89,40 @@ def content():
         content = '\n'.join(vim.current.buffer)
         return (info, content)
 def get(ID):
-    url = 'http://%s/fwiki/chapters/%s' % (SERVER, ID)
+    url = 'http://%s/blog/store/%s/index.mkiv' % (SERVER, ID)
     req = urllib2.Request(url)
-    req.add_header('Accept', "text/json+mkiv")
-    tmp = tempfile.mktemp(suffix='.mkiv', prefix='fwiki_')
+    tmp = tempfile.mktemp(suffix='.mkiv', prefix='fwiki_%s_' % ID)
     try:
         res = urllib2.urlopen(req).read()
     except Exception, e:
         print e
         return
-    c = json.loads(res).get('content')
-    if not c:
-        print "not content"
-        return 
     open(tmp, 'w').write(c.encode('utf8'))
     return tmp
 
 
 
-def post(content, info):
-    j = {'title':info.get('title'), 
-            'content': content, 
+def post(tex, info):
+    j = {
+            'title':info.get('title'), 
+            'tex': tex, 
+            'html': tex, 
             'class': info.get('class', ''),
             'post': info.get('post', 'true')
             }
+
     url = 'http://%s/fwiki/chapters' % SERVER
     req = urllib2.Request(url, json.dumps(j));
-
     req.add_header('Content-Type', "application/json");
     return urllib2.urlopen(req).read()
 
-def put(content, info):
+def put(tex, info):
     if not ID:
         return
-    j = {'title':info.get('title'), 
-            'content': content, 
+    j = {
+            'title':info.get('title'), 
+            'tex': tex, 
+            'html': tex, 
             'class': info.get('class', ''),
             'post': info.get('post', '1')
             }
