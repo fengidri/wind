@@ -37,7 +37,7 @@ def align_fun_with_tag( lines, tag ):
                 line[i] = w.rstrip().ljust(max_len_list[i])
             else:
                 line[i] = w.strip().ljust(max_len_list[i])
-    join_tag = " " + tag
+    join_tag = " " + tag + ' '
     lines = [join_tag.join(line).rstrip() for line in lines]
     return lines
 
