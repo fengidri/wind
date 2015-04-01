@@ -9,8 +9,9 @@ import vim
 import json
 import urllib2
 import tempfile
+from textohtml import texstohtmls
 ID = None
-SERVER="localhost"
+SERVER="aliyun"
 class WikiPost(pyvim.command):
     def run(self):
         info, c = content()
@@ -22,12 +23,12 @@ class WikiPost(pyvim.command):
 
         ID = post(c, info)
         ID = int(ID) 
-        print ID
+        pyvim.echoline('ID:%s' % ID)
 
 class WikiPut(pyvim.command):
     def run(self):
         global ID
-        if ID:
+        if ID == None:
             pyvim.echoline('ID:None, You should run WikiPost.')
             return
 
@@ -38,7 +39,7 @@ class WikiPut(pyvim.command):
 
         ID =  put( c, info)
         ID = int(ID) 
-        print ID
+        pyvim.echoline('ID:%s' % ID)
 
 class WikiGet(pyvim.command):
     def run(self):
@@ -97,7 +98,7 @@ def get(ID):
     except Exception, e:
         print e
         return
-    open(tmp, 'w').write(c.encode('utf8'))
+    open(tmp, 'wb').write(res)
     return tmp
 
 
@@ -106,7 +107,7 @@ def post(tex, info):
     j = {
             'title':info.get('title'), 
             'tex': tex, 
-            'html': tex, 
+            'html': texstohtmls(tex), 
             'class': info.get('class', ''),
             'post': info.get('post', 'true')
             }
@@ -122,7 +123,7 @@ def put(tex, info):
     j = {
             'title':info.get('title'), 
             'tex': tex, 
-            'html': tex, 
+            'html': texstohtmls(tex), 
             'class': info.get('class', ''),
             'post': info.get('post', '1')
             }
