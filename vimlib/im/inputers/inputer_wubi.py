@@ -9,7 +9,7 @@ import json
 import pyvim
 import im.imrc as imrc
 
-from inputer_base import IM_Base 
+from inputer_base import IM_Base
 import logging
 class _wubi_seach( object ):
     def __init__(self):
@@ -20,7 +20,9 @@ class _wubi_seach( object ):
         try:
             r = urllib2.urlopen("http://localhost/wubi/search?patten=%s" %
                 patten)
-            return json.loads(r.read())
+            w = json.loads(r.read())
+            self.cache[ patten ] = w
+            return w
         except Exception, e:
             pyvim.echoline(str(e))
             return ([], [])
@@ -29,14 +31,12 @@ class _wubi_seach( object ):
     def search( self , patten):
         '得到备选的字词'
         words= self.cache.get( patten )
-    
+
         if  words:
             return words
 
-        w = self.search_from_db(patten)
-        self.cache[ patten ] = w
+        return self.search_from_db(patten)
 
-        return w
     def setcount(self, patten, num):
         w, ass = self.cache.pop(patten)
         if len(w) -1 < num:
@@ -50,7 +50,7 @@ class _wubi_seach( object ):
             pyvim.echoline(str(e))
 
     def wubi(self, patten):
-        return self.result(patten, *self.search(patten)) 
+        return self.result(patten, *self.search(patten))
 
     def result(self, patten, words, associate):
         '组成vim 智能补全要求的形式，这一步只是py形式的数据，vim要求是vim的形式'
@@ -68,7 +68,7 @@ class _wubi_seach( object ):
         for w, k, c  in associate:
             i += 1
             items.append(
-                    {"word":w, 
+                    {"word":w,
                         "abbr":"%s.%s %s"%(i, w, k)}
                     )
 
@@ -96,7 +96,7 @@ class IM_Wubi( IM_Base, _wubi_seach):
             del self.buffer[:]
             self.pmenu.cencel( )
 
-   
+
     def cb_enter(self):
         if pyvim.pumvisible():
             pyvim.feedkeys(r'%s\<C-e>' % self.patten,'n')
@@ -104,7 +104,7 @@ class IM_Wubi( IM_Base, _wubi_seach):
             return 0
         pyvim.feedkeys(r'\<cr>' ,'n')
 
-    def cb_space(self): 
+    def cb_space(self):
         del self.buffer[:]
         if pyvim.pumvisible():
             self.pmenu.select( 1 )
@@ -121,7 +121,7 @@ class IM_Wubi( IM_Base, _wubi_seach):
         if not (area in self.AREAS or '*' in self.AREAS):
             return
         logging.error("wubi:area: %s, %s", area, self.AREAS)
-        
+
 
 
         self.key = key
