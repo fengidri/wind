@@ -86,30 +86,53 @@ class Node(LNode):
             flag = '-'
         else:
             flag = '+'
-        return "%s %s%s/<|>%s" % ("  " * (self.level  -1), flag, self.name,
+        return "%s%s%s/<|>%s" % ("  " * (self.level  -1), flag, self.name,
                 self.ID)
 
     def _open(self, linenu): # 回车 TODO
+        if self.opened:
+            self.__close(linenu)
+        else:
+            self.__open(linenu)
+
+    def __open(self, linenu):
         if self.opened: return
         self.opened = True
 
         if not self.OpenPre(): return
 
+        buf = self.ls.buf
+        buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)
         for n in self.sub_nodes:
             self.ls.buf.append(n.show(), linenu)
             linenu += 1
+            if hasattr(n, 'opened'):
+                n.opened = False
 
         self.OpenPost()
 
-    def _close(self, linenu): #
+    def __close(self, linenu): #
         if not self.opened: return
         self.opened = False
 
         if not self.ClosePre(): return
 
-        for n in self.sub_nodes:
-            listbuffer.append(n.show(), linenu)
+        buf = self.ls.buf
+        buf[linenu - 1] = buf[linenu - 1].replace('-', '+', 1)
+
+        start = linenu
+        while True:
+            node = self.ls.getnode(linenu + 1)
+            if not node:
+                break
+            if node.level <= self.level:
+                break
             linenu += 1
+        end  = linenu
+
+        del self.ls.buf[start: end + 1]
+
+
 
         self.ClosePost()
 

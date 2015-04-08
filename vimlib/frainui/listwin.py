@@ -45,6 +45,8 @@ class LISTNODS(object):
         if linenu == None: # 没有输入行号, 使用当前行
             line = vim.current.line
         else:
+            if linenu >= len(self.buf):
+                return
             line = self.buf[linenu]
 
         line = line.decode('utf8')
