@@ -6,13 +6,14 @@
 from events import EventNames
 import os
 import vim
+import logging
 
 ###################################
 # Command Api
 ###################################
 """
     使用metaclass, 拦截了类对象的创建过程, 并在这个过程中自动创建实例.
-    使用这个方式取代了之前的实例化方法(通过扫描模块空间中的所有的对象, 
+    使用这个方式取代了之前的实例化方法(通过扫描模块空间中的所有的对象,
     找到command 与events 的子类, 并实例化)
 """
 
@@ -108,7 +109,7 @@ class events( object ):
                 continue
 
             callback = getattr( self, attr)
-            event = "%s %s" % (event ,self.pats.get(callback , '*')) 
+            event = "%s %s" % (event ,self.pats.get(callback , '*'))
             self.add_event( event, callback )
 
     def get_callback_list( self, event ):
@@ -139,7 +140,7 @@ def event_callback( event ):#事件回调函数  @event: 当前的事件
         for callback in callback_list:
             callback( )
 
-        
+
 def load_plugin( pyplugin_path ):
     modes = os.listdir( pyplugin_path )
     for mode in modes:
@@ -148,7 +149,9 @@ def load_plugin( pyplugin_path ):
         mode = mode.split( '.' )[ 0 ]
         try:
             mode = __import__( mode )
-        except Exception, why :
+        except Exception, why:
+            import traceback
+            logging.error(traceback.format_exc())
             print "pyplugin: Load Error:\n%s: %s" %( mode, why)
 
 if __name__ == "__main__":

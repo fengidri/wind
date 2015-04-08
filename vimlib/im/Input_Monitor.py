@@ -11,7 +11,7 @@ import imrc
 
 class Input_Monitor(object):
     def __init__(self):
-        self.ftmode = {} # 记录每一种文件类型对应的处理类 
+        self.ftmode = {} # 记录每一种文件类型对应的处理类
 
         ftpath = os.path.realpath(__file__)
         ftpath = os.path.dirname(ftpath)
@@ -35,8 +35,8 @@ class Input_Monitor(object):
 
         del sys.path[0]
 
-        logging.debug("Input Mointer: ftmode: %s", self.ftmode)
-    
+        #logging.debug("Input Mointer: ftmode: %s", self.ftmode)
+
 
 
     def load_ftmode(self, m):
@@ -45,7 +45,7 @@ class Input_Monitor(object):
         f = m.im_ft()
 
         for ft in f.im_ft:
-            self.ftmode[ft] = f 
+            self.ftmode[ft] = f
 
 
     def im( self, key ):

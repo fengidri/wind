@@ -6,7 +6,7 @@ from frain_libs import paths_exp
 from frain_libs import data
 
 
-from frain_libs import project 
+from frain_libs import project
 
 from vuirpc import VuiClient
 
@@ -22,6 +22,12 @@ import os
 #############################
 class PathsExp( pyvim.command ):
     def run( self ):
+        global listwin
+        listwin = LIST()
+        listwin.append(DirNode('/home/feng/nginx'))
+        listwin.append(DirNode('/tmp'))
+        listwin.refresh()
+        return
         if len(self.params) > 0:#处理path, name 两个参数
             path = self.params[0]
             try:
@@ -59,7 +65,9 @@ class PathsExpRefresh( pyvim.command ):
 
 class PathsExpOpen( pyvim.command ):
     def run( self ):
-        paths_exp.paths_exp_open( )
+        listwin.open()
+
+        #paths_exp.paths_exp_open( )
 
 class PathsExpFind( pyvim.command ):
     def run( self ):
@@ -67,7 +75,7 @@ class PathsExpFind( pyvim.command ):
         if not path:
             return
         if pyvim.vim.current.buffer.options['buftype'] != '':
-            return 
+            return
         if paths_exp.goto_path_exp_win( ):
             paths_exp.open_to_file( path )
 
@@ -116,9 +124,47 @@ class ProjectTerminal(pyvim.command):
 
 
 
-class ProjectEvent( pyvim.events ):
-    def on_VimLeave( self ):
-        if not project.Project:
-            return
-        project.Project.on_close( )
+
+
+
+from frainui import LIST
+from frainui import Node, Leaf
+import libpath
+import logging
+
+class DirNode(Node):
+    def __init__(self, path):
+        Node.__init__(self, libpath.basename(path))
+        self.path = path
+
+    def OpenPre(self):
+        if self.sub_nodes:
+            return True
+        dirs, names = libpath.listdir(self.path)
+        names = sorted(names)
+        dirs  = sorted(dirs)
+        for n in names:
+            p = libpath.join(self.path, n)
+            self.append(FileNode(p))
+
+        for d in dirs:
+            p = libpath.join(self.path, d)
+            self.append(DirNode(p))
+        return True
+
+class FileNode(Leaf):
+    def __init__(self, path):
+        Leaf.__init__(self, libpath.basename(path))
+        self.path = path
+
+    def open(self):
+        vim.command( "update")
+        vim.command( "e %s" % self.path )
+
+
+
+
+
+
+
 

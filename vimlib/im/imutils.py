@@ -58,7 +58,7 @@ class filetype(object):
         logging.error(self._ims)
 
     def im(self, key):
-        logging.debug(self._ims)
+        #logging.debug(self._ims)
         for m in self._ims:
             if m.im(key):
                 return True
