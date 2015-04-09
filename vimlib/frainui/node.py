@@ -122,7 +122,7 @@ class Node(LNode):
 
         start = linenu
         while True:
-            node = self.ls.getnode(linenu + 1)
+            node = self.ls.getnode(linenu)
             if not node:
                 break
             if node.level <= self.level:
@@ -130,7 +130,9 @@ class Node(LNode):
             linenu += 1
         end  = linenu
 
-        del self.ls.buf[start: end + 1]
+
+        if end > start:
+            del self.ls.buf[start: end + 1]
 
 
 
