@@ -121,6 +121,8 @@ class FileNode(Leaf):
 
     def edit(self):
         vim.command( "update")
+        if self.path.startswith('/'):
+            pass
         vim.command( "e %s" % self.path )
 
 

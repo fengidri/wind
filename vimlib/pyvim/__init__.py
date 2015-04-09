@@ -4,7 +4,7 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-from plugin import command, events, load_plugin
+from plugin import command, events, load_plugin, addevent
 from pyvim import *
 import pyvim
 

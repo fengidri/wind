@@ -5,11 +5,28 @@
 #    version   :   1.0.1
 import os
 import vim
+import libpathscp
 basename = os.path.basename
 join     = os.path.join
 realpath = os.path.realpath
 
+def get_proctol(path):
+    if path.startswith('scp://'):
+        return libpathscp
+    else:
+        return 
+
+def realpath(path):
+    if get_proctol(path):
+        return path
+    return os.path.realpath(path)
+
+
 def listdir(path):
+    pt = get_proctol(path)
+    if pt:
+        return pt.listdir(path)
+
     names = os.listdir(path)
     dirs = []
     fs = []
@@ -44,7 +61,11 @@ def getnames(root, path):  # 得到用于frainui 进行分析的names
     names.insert(0, base)
     return names
 
-
+def editfile(path):
+    pt = get_proctol(path)
+    if not pt:
+        return path
+    return pt.editfile(path)
 
 if __name__ == "__main__":
     pass
