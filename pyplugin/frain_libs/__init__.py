@@ -6,7 +6,6 @@
 
 
 import mescin
-import project
 import paths_exp
 def frnames():#所有的工程名
         mescin.init( )
@@ -15,9 +14,8 @@ def frnames():#所有的工程名
 def fropen(name):#打开工程
     cfg, runtime = mescin.Config.get_by_name( name )
     if not (cfg and runtime):
-        return False
-    project.init( cfg, runtime)
-    return True
+        return False, False
+    return cfg, runtime
 
 def frfiles():#当前工程中的文件名
     return paths_exp.get_files()

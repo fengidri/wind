@@ -6,6 +6,9 @@
 import node
 import vim
 import logging
+class LISTHOOK(object):
+    def OnWinPost(self):
+        pass
 
 class LISTOPTIONS(object):
     def open(self):
@@ -47,7 +50,11 @@ class LISTOPTIONS(object):
 
         linenu = self.getlinenu(route[-1])
         if self.focus():
-            vim.current.window.cursor = (linenu+1, 0)
+            vim.current.window.cursor = (linenu + 1, 0)
+
+    def settitle(self, name):#设置vim 窗口的title
+        vim_title = name.replace( ' ', '\\ ')
+        vim.command( "set title titlestring=%s" % vim_title )
 
 
 
@@ -57,6 +64,8 @@ class LISTWIN(object):
         vim.command( "set ft=frain" )
         w = vim.current.window
         b = vim.current.buffer
+        self.OnWinPost()
+    
         return (w, b)
 
 class LISTNODS(object):
@@ -97,7 +106,7 @@ class LISTNODS(object):
 
 
 
-class LIST(LISTOPTIONS, LISTWIN, LISTNODS):#  list 窗口对象
+class LIST(LISTHOOK, LISTOPTIONS, LISTWIN, LISTNODS):#  list 窗口对象
     def __init__(self):
         self.win, self.buf = self.createwin()
         """
