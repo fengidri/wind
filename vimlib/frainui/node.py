@@ -91,11 +91,11 @@ class Node(LNode):
 
     def _open(self, linenu): # 回车 TODO
         if self.opened:
-            self.__close(linenu)
+            self.node_close(linenu)
         else:
-            self.__open(linenu)
+            self.node_open(linenu)
 
-    def __open(self, linenu):
+    def node_open(self, linenu):
         if self.opened: return
         self.opened = True
 
@@ -104,14 +104,14 @@ class Node(LNode):
         buf = self.ls.buf
         buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)
         for n in self.sub_nodes:
-            self.ls.buf.append(n.show(), linenu)
-            linenu += 1
             if hasattr(n, 'opened'):
                 n.opened = False
+            self.ls.buf.append(n.show(), linenu)
+            linenu += 1
 
         self.OpenPost()
 
-    def __close(self, linenu): #
+    def node_close(self, linenu): #
         if not self.opened: return
         self.opened = False
 
@@ -142,7 +142,7 @@ class Leaf(LNode):
         self.name  = name
 
     def show(self):
-        return "%s  %s<|>%s" % ("  " * (self.level  -1), self.name, self.ID)
+        return "%s %s<|>%s" % ("  " * (self.level  -1), self.name, self.ID)
 
     def _open(self, linenu):#TODO
         vim.command( "noautocmd wincmd p" )
@@ -151,11 +151,11 @@ class Leaf(LNode):
 
         if not self.OpenPre(): return
 
-        self.open()
+        self.edit()
 
         self.OpenPost()
 
-    def open(self):# upstream完成叶节点在编辑区的处理方式
+    def edit(self):# upstream完成叶节点在编辑区的处理方式
         pass
 
 

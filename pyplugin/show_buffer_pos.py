@@ -20,6 +20,6 @@ def show( ):
         return -1
 
     w = vim.current.window
-    vim.command("PathsExpFind")
+    vim.command("FrainFind")
     vim.current.window = w
     return 0

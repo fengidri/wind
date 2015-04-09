@@ -15,12 +15,16 @@ class LISTOPTIONS(object):
 
     def refresh(self):
         del self.buf[:]
+        self.root.node_close(1)
         vim.current.buffer[0] = "FrainUI"
-        self.root._open(1)
+        self.root.opened = False
+        self.root.node_open(1)
 
-    def focus(self, autocreate = True):
-        if self.win.valid():
-            vim.current.window = data.LISTWIN.win
+
+    def focus(self, autocreate = True):# 切换到list 窗口,
+        # 如果autocreate 为true, 在list窗口已经关闭的情况下, 会自动创建list窗口
+        if self.win.valid:
+            vim.current.window = self.win
             return True
         else:
             if autocreate:
@@ -28,10 +32,29 @@ class LISTOPTIONS(object):
                 return True
             return False
 
+    def find(self, names):
+        names.insert(0, 'root')
+        logging.error('names: %s', names)
+        leaf = self.root.find(names)
+        route = leaf.route()
+        if not route:
+            return
+
+        logging.error('route: %s', route)
+        for n in route[1:-1]:
+            linenu = self.getlinenu(n)
+            n.node_open(linenu+1)
+
+        linenu = self.getlinenu(route[-1])
+        if self.focus():
+            vim.current.window.cursor = (linenu+1, 0)
+
+
+
 class LISTWIN(object):
     def createwin(self):
-        vim.command( "topleft 25vnew frain" )
-        vim.command( "set ft=paths_exp" )
+        vim.command( "topleft 25vnew Frain" )
+        vim.command( "set ft=frain" )
         w = vim.current.window
         b = vim.current.buffer
         return (w, b)
@@ -56,11 +79,38 @@ class LISTNODS(object):
         except:
             logging.error('getnode: fail')
 
+    def getlinenu(self, node):
+        num = 0
+        for linenu, line in enumerate(self.buf):
+            try:
+                ID = int(line.split('<|>')[1])
+                if ID == node.ID:
+                    num = linenu
+                    break
+            except:
+                pass
+        return num
+
+    def getroots(self):
+        return self.root.sub_nodes
+
+
 
 
 class LIST(LISTOPTIONS, LISTWIN, LISTNODS):#  list 窗口对象
     def __init__(self):
         self.win, self.buf = self.createwin()
+        """
+            self.root(Node:root)
+                | ----------------selfNode(rootpath)
+                | ----------------selfNode(rootpath)
+                | ----------------selfNode(rootpath)
+                | ----------------selfNode(rootpath)
+        """
+
+
+
+
         self.root = node.Node('root')
         node.LNode.ls = self
 
