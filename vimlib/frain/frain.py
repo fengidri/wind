@@ -10,6 +10,7 @@ import libpath
 import logging
 import re
 import vim
+import pyvim
 
 blacklist_file=[
     "^\.",      "^tags$",
@@ -78,6 +79,9 @@ class FrainList(LIST):
     def OnWinPost(self):
         if self.title:
             self.settitle(self.title)
+        pyvim.addevent('BufWritePost', '*', libpath.push)
+
+
 
     def cur_root_path(self):
         path = libpath.bufferpath()
@@ -121,9 +125,10 @@ class FileNode(Leaf):
 
     def edit(self):
         vim.command( "update")
-        if self.path.startswith('/'):
-            pass
-        vim.command( "e %s" % self.path )
+        path = libpath.pull(self.path)
+        if not path:
+            return
+        vim.command( "e %s" % path )
 
 
 if __name__ == "__main__":

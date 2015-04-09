@@ -6,15 +6,18 @@
 import os
 import vim
 import libpathscp
+import logging
 basename = os.path.basename
 join     = os.path.join
 realpath = os.path.realpath
+
+TEMPFILES = {}
 
 def get_proctol(path):
     if path.startswith('scp://'):
         return libpathscp
     else:
-        return 
+        return
 
 def realpath(path):
     if get_proctol(path):
@@ -46,6 +49,10 @@ def bufferpath(buf = None):
     path = buf.name
     if not path:
         return
+
+    t = TEMPFILES.get(path)
+    if t:
+        return t
     return path
 
 
@@ -62,10 +69,26 @@ def getnames(root, path):  # 得到用于frainui 进行分析的names
     return names
 
 def editfile(path):
+    return pt.editfile(path)
+
+
+def pull(path):
     pt = get_proctol(path)
     if not pt:
         return path
-    return pt.editfile(path)
+    f = pt.pull(path)
+    if f:
+        TEMPFILES[f] = path
+        return f
+
+def push():
+    path = vim.current.buffer.name
+    logging.error('push %s' % path)
+    tp = TEMPFILES.get(path)
+    pt = get_proctol(tp)
+    if not tp:
+        return
+    pt.push(path, tp)
 
 if __name__ == "__main__":
     pass
