@@ -106,7 +106,7 @@ class DirNode(Node):
 
         dirs, names = libpath.listdir(self.path)
         names = black_filter_files(names)
-        dirs  = black_filter_files(dirs)
+        dirs  = sorted(black_filter_files(dirs))
         names = sorted_by_expand_name(names)
 
         for n in names:

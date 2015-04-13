@@ -69,8 +69,14 @@ def getchr():#getchr
 def redraw():#刷新窗口
     vim.command("redraw")
 
-def echoline(msg):#在命令行, 输出一行通知信息
-    vim.command('redraw| echomsg "%s"' % msg.replace('"', r'\"') )
+def echoline(msg, hl = False):#在命令行, 输出一行通知信息
+    hl_pre = ''
+    hl_post = ''
+    if hl:
+        hl_pre = 'echohl   WarningMsg | '
+        hl_post = ' | echohl None'
+    vim.command('redraw| %s echomsg "%s" %s' %
+            (hl_pre, msg.replace('"', r'\"'), hl_post) )
 
 
 

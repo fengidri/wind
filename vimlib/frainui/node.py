@@ -132,7 +132,7 @@ class Node(LNode):
 
 
         if end > start:
-            del self.ls.buf[start: end + 1]
+            del self.ls.buf[start: end]
 
 
 

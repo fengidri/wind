@@ -8,7 +8,6 @@ import os
 import commands
 import pyvim
 import logging
-import tempfile
 def paser(path):
     t = path[6:].split('/', 1)
     if len(t) != 2:
@@ -49,30 +48,23 @@ def listdir(path):
             fs.append(line)
     return (dirs, fs)
 
-def pull(scp_path):
+def pull(scp_path, tempfile):
     t = paser(scp_path)
     if not t:
         return
     user, host, path = t
-    sf = scp_path.split('.')
-    if len(sf) > 1:
-        sf = '.' + sf[-1]
-    else:
-        sf = ''
 
 
-    f = tempfile.mktemp(suffix = sf)
-
-    cmd = 'scp  %s%s:%s %s' % (user, host, path, f)
+    cmd = 'scp  %s%s:%s %s' % (user, host, path, tempfile)
     pyvim.echoline('start scp: %s' % scp_path)
     code, o  = commands.getstatusoutput(cmd)
     if code == 0:
-        pyvim.echoline('pull success scp: %s' % scp_path)
+        pyvim.echoline('Pull success: %s' % scp_path)
     else:
         logging.error(cmd)
-        pyvim.echoline('pull fail scp: %s' % scp_path)
+        pyvim.echoline('Pull fail: %s' % scp_path, hl=True)
         return
-    return f
+    return tempfile
 
 def push(tmp_file, scp_path):
     t = paser(scp_path)
@@ -84,10 +76,10 @@ def push(tmp_file, scp_path):
     pyvim.echoline('start scp: %s' % scp_path)
     code, o  = commands.getstatusoutput(cmd)
     if code == 0:
-        pyvim.echoline('push success scp: %s' % scp_path)
+        pyvim.echoline('Push success: %s' % scp_path)
     else:
         logging.error(cmd)
-        pyvim.echoline('push fail scp: %s' % scp_path)
+        pyvim.echoline('Push fail: %s' % scp_path, hl=True)
 
 
 

@@ -7,9 +7,25 @@ import os
 import vim
 import libpathscp
 import logging
+import tempfile
 basename = os.path.basename
 join     = os.path.join
 realpath = os.path.realpath
+
+
+TEMPID = None
+TEMPDIR = tempfile.mkdtemp()
+def mkstemp(path):
+    global TEMPID
+    global TEMPDIR
+    if TEMPID == None:
+        TEMPID = 1
+    else:
+        TEMPID += 1
+
+    bs = "%03d_%s" % (TEMPID, basename(path))
+    return os.path.join(TEMPDIR, bs)
+
 
 TEMPFILES = {}
 
@@ -76,15 +92,19 @@ def pull(path):
     pt = get_proctol(path)
     if not pt:
         return path
-    f = pt.pull(path)
+    f = pt.pull(path, mkstemp(path))
     if f:
         TEMPFILES[f] = path
         return f
 
 def push():
     path = vim.current.buffer.name
-    logging.error('push %s' % path)
+
+    logging.debug('push %s' % path)
+
     tp = TEMPFILES.get(path)
+    if not tp: return
+
     pt = get_proctol(tp)
     if not tp:
         return

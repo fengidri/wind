@@ -38,7 +38,11 @@ class LISTOPTIONS(object):
     def find(self, names):
         names.insert(0, 'root')
         logging.error('names: %s', names)
+
         leaf = self.root.find(names)
+        if not leaf:
+            return
+
         route = leaf.route()
         if not route:
             return
@@ -65,7 +69,7 @@ class LISTWIN(object):
         w = vim.current.window
         b = vim.current.buffer
         self.OnWinPost()
-    
+
         return (w, b)
 
 class LISTNODS(object):
