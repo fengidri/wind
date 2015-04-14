@@ -18,8 +18,12 @@ class LISTOPTIONS(object):
 
     def refresh(self):
         del self.buf[:]
-        self.root.node_close(1)
         vim.current.buffer[0] = "FrainUI"
+        node.LNode.nodes = {}
+        self.root = node.Node('root')
+        self.addlist()
+
+
         self.root.opened = False
         self.root.node_open(1)
 
@@ -57,6 +61,7 @@ class LISTOPTIONS(object):
             vim.current.window.cursor = (linenu + 1, 0)
 
     def settitle(self, name):#设置vim 窗口的title
+        # 如果没有设置name, 则使用第一个root的name
         vim_title = name.replace( ' ', '\\ ')
         vim.command( "set title titlestring=%s" % vim_title )
 
@@ -73,6 +78,8 @@ class LISTWIN(object):
         return (w, b)
 
 class LISTNODS(object):
+    def addlist(self): # 子类实现, 用于增加list窗口的内容
+        pass
     def getnode(self, linenu=None): # 从list窗口得到对应的node
         if vim.current.window != self.win:
             logging.error('getnode: current win is not list win')
@@ -112,6 +119,8 @@ class LISTNODS(object):
 
 class LIST(LISTHOOK, LISTOPTIONS, LISTWIN, LISTNODS):#  list 窗口对象
     def __init__(self):
+        node.LNode.ls = self
+
         self.win, self.buf = self.createwin()
         """
             self.root(Node:root)
@@ -124,8 +133,6 @@ class LIST(LISTHOOK, LISTOPTIONS, LISTWIN, LISTNODS):#  list 窗口对象
 
 
 
-        self.root = node.Node('root')
-        node.LNode.ls = self
 
 
     def append(self, node):

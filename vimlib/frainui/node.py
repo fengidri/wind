@@ -6,12 +6,12 @@
 import logging
 import vim
 class LNode(object):# Node与Leaf 的父类
-    ls = None # 指向list对象. 方便所有的node与leaf 得到这个对象
-    level = 0
-    father = None  # 指向father 对象
+    ls      = None # 指向list对象. 方便所有的node与leaf 得到这个对象
+    level   = 0
+    father  = None  # 指向father 对象
 
-    nodes = {}  # 所有的节点, 除了可以保存在树形的结构中外, 全部在这里有索引
-    ID = 0
+    nodes   = {}  # 所有的节点, 除了可以保存在树形的结构中外, 全部在这里有索引
+    ID      = 0
     def __init__(self):
         # 新的实例, 要生成ID, 并加入到nodes中去
         self.ID = LNode.ID
@@ -98,21 +98,26 @@ class Node(LNode):
     def node_open(self, linenu):
         if self.opened: return
         self.opened = True
+        logging.error(self.OpenPre)
 
         if not self.OpenPre(): return
+        logging.error('open2')
 
         buf = self.ls.buf
         buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)
+
         for n in self.sub_nodes:
             if hasattr(n, 'opened'):
                 n.opened = False
             self.ls.buf.append(n.show(), linenu)
             linenu += 1
 
+
         self.OpenPost()
 
     def node_close(self, linenu): #
         if not self.opened: return
+        logging.error('close')
         self.opened = False
 
         if not self.ClosePre(): return
@@ -130,11 +135,8 @@ class Node(LNode):
             linenu += 1
         end  = linenu
 
-
         if end > start:
             del self.ls.buf[start: end]
-
-
 
         self.ClosePost()
 

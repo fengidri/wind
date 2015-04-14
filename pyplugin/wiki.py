@@ -112,7 +112,7 @@ def post(tex, info):
             'post': info.get('post', 'true')
             }
 
-    url = 'http://%s/api/chapters' % SERVER
+    url = 'http://%s/fwikiapi/chapters' % SERVER
     req = urllib2.Request(url, json.dumps(j));
     req.add_header('Content-Type', "application/json");
     return urllib2.urlopen(req).read()
@@ -127,7 +127,7 @@ def put(tex, info):
             'class': info.get('class', ''),
             'post': info.get('post', '1')
             }
-    url = 'http://%s/api/chapters/%s' % (SERVER, ID)
+    url = 'http://%s/fwikiapi/chapters/%s' % (SERVER, ID)
 
     opener = urllib2.build_opener(urllib2.HTTPHandler)
     request = urllib2.Request(url, json.dumps(j));

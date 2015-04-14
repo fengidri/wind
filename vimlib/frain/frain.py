@@ -62,7 +62,7 @@ def sorted_by_expand_name( files ):
 
 
 class FrainList(LIST):
-    title = ''
+    data = []
     def find(self):
         path = libpath.bufferpath()
         for root in self.root.sub_nodes:
@@ -71,17 +71,14 @@ class FrainList(LIST):
                 LIST.find(self, names)
                 return
 
-    def append(self, path, name):
-        path = libpath.realpath(path)
-        n = DirNode(path, name)
-        LIST.append(self, n)
+    def addlist(self):
+        for path, name in self.data:
+            path = libpath.realpath(path)
+            LIST.append(self, DirNode(path, name))
 
     def OnWinPost(self):
-        if self.title:
-            self.settitle(self.title)
+        #self.settitle()
         pyvim.addevent('BufWritePost', '*', libpath.push)
-
-
 
     def cur_root_path(self):
         path = libpath.bufferpath()
@@ -99,10 +96,12 @@ class DirNode(Node):
             name = libpath.basename(path)
         Node.__init__(self, name)
         self.path = path
+        self.subnodes = False
 
     def OpenPre(self): # 打开节点前
-        if self.sub_nodes:# 这会使空目录不断刷新
+        if self.subnodes:
             return True
+        self.subnodes = True
 
         dirs, names = libpath.listdir(self.path)
         names = black_filter_files(names)

@@ -15,7 +15,7 @@ def frainopen():
     global frain
     frain = LIST()
     for path, name in frainpaths:
-        frain.append(path, name)
+        frain.data.append((path,name))
     frain.refresh()
 
 
@@ -90,7 +90,7 @@ class Project( pyvim.command ):
             global frain
             frain = LIST()
             for p in cfg.src_path:
-                frain.append(p.path, p.name)
+                frain.data.append((p.path, p.name))
             frain.refresh()
 
         client = VuiClient()
