@@ -8,17 +8,7 @@ import os
 import commands
 import pyvim
 import logging
-def paser(path):
-    t = path[6:].split('/', 1)
-    if len(t) != 2:
-        logging.error('scp: paser: fial: %s' % path)
-        return
-    host, path = t
-    user = ''
-    if host.find('@') > -1:
-        user, host = host.split('@', 1)
-        user = user + '@'
-    return (user, host, path)
+from utils import paser
 
 
 def runssh(path, command):
@@ -26,7 +16,7 @@ def runssh(path, command):
     if not p:
         return None, None
     user, host, path = p
-    cmd = 'ssh %s%s cd "%s;%s"' % (user, host, path, command)
+    cmd = 'ssh  -o ConnectTimeout=3 %s%s cd "%s && %s"' % (user, host, path, command)
     return commands.getstatusoutput(cmd)
 
 
@@ -35,7 +25,7 @@ def listdir(path):
     s, o = runssh(path, 'ls -L --color=never -1 -p')
     if s != 0:
         pyvim.echoline('ssh error: %s' % o)
-        return ([], [])
+        return None, None
     logging.error(o)
 
     lines = o.split('\n')
@@ -48,6 +38,9 @@ def listdir(path):
             fs.append(line)
     return (dirs, fs)
 
+def realpath(path):
+    return path
+
 def pull(scp_path, tempfile):
     t = paser(scp_path)
     if not t:
@@ -55,7 +48,7 @@ def pull(scp_path, tempfile):
     user, host, path = t
 
 
-    cmd = 'scp  %s%s:%s %s' % (user, host, path, tempfile)
+    cmd = 'scp -o ConnectTimeout=3 %s%s:%s %s' % (user, host, path, tempfile)
     pyvim.echoline('start scp: %s' % scp_path)
     code, o  = commands.getstatusoutput(cmd)
     if code == 0:
@@ -72,7 +65,7 @@ def push(tmp_file, scp_path):
         return
     user, host, path = t
 
-    cmd = 'scp %s  %s%s:%s ' % ( tmp_file, user, host, path)
+    cmd = 'scp -o ConnectTimeout=3 %s  %s%s:%s ' % ( tmp_file, user, host, path)
     pyvim.echoline('start scp: %s' % scp_path)
     code, o  = commands.getstatusoutput(cmd)
     if code == 0:

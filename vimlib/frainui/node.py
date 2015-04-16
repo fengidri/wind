@@ -21,6 +21,7 @@ class LNode(object):# Node与Leaf 的父类
 
 
     def find(self, names):# 查找一个节点, 目标如['etc', 'nginx', 'conf.d']
+
         # 好喜欢这个函数啊!! 哈哈, good
         if self.level >= len(names):#超出层级了
             return
@@ -35,6 +36,7 @@ class LNode(object):# Node与Leaf 的父类
             return
 
         # 这个处理是针对于node 节点的
+        self.InitSub()
         for n in self.sub_nodes: # node 在子节点中找
             m = n.find(names)
             if m:
@@ -68,7 +70,15 @@ class LNode(object):# Node与Leaf 的父类
 
 
 
+
 class Node(LNode):
+    def InitSub(self):# 初始sub_nodes数据, 不是事件
+        pass
+
+    def OpenPre(self):
+        self.InitSub()
+        return True
+
     def __init__(self, name):
         LNode.__init__(self)
         self.sub_nodes = []
@@ -98,10 +108,10 @@ class Node(LNode):
     def node_open(self, linenu):
         if self.opened: return
         self.opened = True
-        logging.error(self.OpenPre)
+
 
         if not self.OpenPre(): return
-        logging.error('open2')
+
 
         buf = self.ls.buf
         buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)

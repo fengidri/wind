@@ -11,6 +11,7 @@ import logging
 import re
 import vim
 import pyvim
+import utils
 
 blacklist_file=[
     "^\.",      "^tags$",
@@ -64,9 +65,9 @@ def sorted_by_expand_name( files ):
 class FrainList(LIST):
     data = []
     def find(self):
-        path = libpath.bufferpath()
+        path = utils.bufferpath()
         for root in self.root.sub_nodes:
-            names = libpath.getnames(root.path, path)
+            names = utils.getnames(root.path, path)
             if names:
                 LIST.find(self, names)
                 return
@@ -81,7 +82,7 @@ class FrainList(LIST):
         pyvim.addevent('BufWritePost', '*', libpath.push)
 
     def cur_root_path(self):
-        path = libpath.bufferpath()
+        path = utils.bufferpath()
         for r in self.root.sub_nodes:
             if path.startswith(r.path):
                 return r.path
@@ -98,15 +99,20 @@ class DirNode(Node):
         self.path = path
         self.subnodes = False
 
-    def OpenPre(self): # 打开节点前
+    def InitSub(self): #初始子节点的方法
         if self.subnodes:
             return True
-        self.subnodes = True
 
         dirs, names = libpath.listdir(self.path)
+        if not dirs:
+            return
+
         names = black_filter_files(names)
-        dirs  = sorted(black_filter_files(dirs))
         names = sorted_by_expand_name(names)
+
+        dirs  = sorted(black_filter_files(dirs))
+
+        self.subnodes = True
 
         for n in names:
             p = libpath.join(self.path, n)

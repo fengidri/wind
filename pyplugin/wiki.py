@@ -10,6 +10,7 @@ import json
 import urllib2
 import tempfile
 from textohtml import texstohtmls
+import logging
 ID = None
 SERVER="blog.fengidri.me"
 class WikiPost(pyvim.command):
@@ -120,6 +121,7 @@ def post(tex, info):
 def put(tex, info):
     if not ID:
         return
+    logging.error('put')
     j = {
             'title':info.get('title'),
             'tex': tex,
@@ -131,6 +133,7 @@ def put(tex, info):
 
     opener = urllib2.build_opener(urllib2.HTTPHandler)
     request = urllib2.Request(url, json.dumps(j));
+    logging.error('put1')
 
     request.add_header('Content-Type', 'application/json')
     request.add_header('Accept', 'application/json')
