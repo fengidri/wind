@@ -35,6 +35,15 @@ if __name__ == "__main__":
 #include <stddef.h>
 #include <unistd.h>
 
+>lua
+--
+-- author       :   {author}
+-- time         :   {time}
+-- email        :   {email}
+-- version      :   1.0.1
+-- description  :
+--
+
 >cpp
 /**
  *   author       :   {author}

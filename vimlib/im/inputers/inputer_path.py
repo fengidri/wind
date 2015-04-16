@@ -14,9 +14,18 @@ import logging
 class IM_Path(object):
     "处理输入路径的情况"
     def __init__(self):
-        self._path_regex = re.compile( """ 
+        self._path_regex = re.compile( """
           # 1 or more 'D:/'-like token or '/' or '~' or './' or '../'
-          (?:[A-z]+:/|[/~]|\./|\.+/)+
+          (?:[A-z]+:/|[/~]|\./|\.+/)
+
+          # any alphanumeric symbal and space literal
+          (?:[a-zA-Z0-9()$+_~.\x80-\xff-\[\]]|
+
+          # skip any special symbols
+          [^\x20-\x7E]|
+
+          # backslash and 1 char after it. + matches 1 or more of whole group
+          \\.)+
 
           # any alphanumeric symbal and space literal
           (?:[/a-zA-Z0-9()$+_~.\x80-\xff-\[\]]|
@@ -44,7 +53,7 @@ class IM_Path(object):
 
         return relative_dir
 
-        
+
     def im(self, key):
         s = imutils.key_to_see(key)
         if len(s)  != 1:
@@ -52,7 +61,7 @@ class IM_Path(object):
 
         s = pyvim.str_before_cursor() + s
 
-        
+
         match = self._path_regex.search(s)
         if not match:
             return False

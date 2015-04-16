@@ -47,5 +47,5 @@ imap <F11>         <esc>:GotoInc<cr>
 map  <F11>         <esc>:GotoInc<cr>
 
 map  <F4>          :ProjectSync<cr>
-map  <tab>         :PathsExpGo<cr>
+map  <tab>         :FrainFocus<cr>
 map  <F6>          :Project<cr>

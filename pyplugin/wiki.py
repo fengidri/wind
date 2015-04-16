@@ -9,8 +9,10 @@ import vim
 import json
 import urllib2
 import tempfile
+from textohtml import texstohtmls
+import logging
 ID = None
-SERVER="localhost"
+SERVER="blog.fengidri.me"
 class WikiPost(pyvim.command):
     def run(self):
         info, c = content()
@@ -21,13 +23,13 @@ class WikiPost(pyvim.command):
             return
 
         ID = post(c, info)
-        ID = int(ID) 
-        print ID
+        ID = int(ID)
+        pyvim.echoline('ID:%s' % ID)
 
 class WikiPut(pyvim.command):
     def run(self):
         global ID
-        if ID:
+        if ID == None:
             pyvim.echoline('ID:None, You should run WikiPost.')
             return
 
@@ -37,8 +39,8 @@ class WikiPut(pyvim.command):
             return
 
         ID =  put( c, info)
-        ID = int(ID) 
-        print ID
+        ID = int(ID)
+        pyvim.echoline('ID:%s' % ID)
 
 class WikiGet(pyvim.command):
     def run(self):
@@ -89,7 +91,7 @@ def content():
         content = '\n'.join(vim.current.buffer)
         return (info, content)
 def get(ID):
-    url = 'http://%s/blog/store/%s/index.mkiv' % (SERVER, ID)
+    url = 'http://%s/store/%s/index.mkiv' % (SERVER, ID)
     req = urllib2.Request(url)
     tmp = tempfile.mktemp(suffix='.mkiv', prefix='fwiki_%s_' % ID)
     try:
@@ -97,21 +99,21 @@ def get(ID):
     except Exception, e:
         print e
         return
-    open(tmp, 'w').write(c.encode('utf8'))
+    open(tmp, 'wb').write(res)
     return tmp
 
 
 
 def post(tex, info):
     j = {
-            'title':info.get('title'), 
-            'tex': tex, 
-            'html': tex, 
+            'title':info.get('title'),
+            'tex': tex,
+            'html': texstohtmls(tex),
             'class': info.get('class', ''),
             'post': info.get('post', 'true')
             }
 
-    url = 'http://%s/fwiki/chapters' % SERVER
+    url = 'http://%s/fwikiapi/chapters' % SERVER
     req = urllib2.Request(url, json.dumps(j));
     req.add_header('Content-Type', "application/json");
     return urllib2.urlopen(req).read()
@@ -119,17 +121,19 @@ def post(tex, info):
 def put(tex, info):
     if not ID:
         return
+    logging.error('put')
     j = {
-            'title':info.get('title'), 
-            'tex': tex, 
-            'html': tex, 
+            'title':info.get('title'),
+            'tex': tex,
+            'html': texstohtmls(tex),
             'class': info.get('class', ''),
             'post': info.get('post', '1')
             }
-    url = 'http://%s/fwiki/chapters/%s' % (SERVER, ID)
+    url = 'http://%s/fwikiapi/chapters/%s' % (SERVER, ID)
 
     opener = urllib2.build_opener(urllib2.HTTPHandler)
     request = urllib2.Request(url, json.dumps(j));
+    logging.error('put1')
 
     request.add_header('Content-Type', 'application/json')
     request.add_header('Accept', 'application/json')

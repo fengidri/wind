@@ -6,13 +6,14 @@
 from events import EventNames
 import os
 import vim
+import logging
 
 ###################################
 # Command Api
 ###################################
 """
     使用metaclass, 拦截了类对象的创建过程, 并在这个过程中自动创建实例.
-    使用这个方式取代了之前的实例化方法(通过扫描模块空间中的所有的对象, 
+    使用这个方式取代了之前的实例化方法(通过扫描模块空间中的所有的对象,
     找到command 与events 的子类, 并实例化)
 """
 
@@ -108,23 +109,7 @@ class events( object ):
                 continue
 
             callback = getattr( self, attr)
-            event = "%s %s" % (event ,self.pats.get(callback , '*')) 
-            self.add_event( event, callback )
-
-    def get_callback_list( self, event ):
-        callback_list=  self.event_callback.get( event )
-        if  callback_list:
-            return callback_list
-        else:
-            cmd = "au  %s py %s.event_callback('%s') " % \
-                    ( event, __name__, event )
-            vim.command( cmd )
-            self.event_callback[ event ] = [  ]
-            return self.event_callback[ event ]
-
-    def add_event( self, event,  call):
-        callback_list = self.get_callback_list( event )
-        callback_list.append( call )
+            addevent(event, self.pats.get(callback , '*'), callback)
 
     def set_pat(self, callback, pat):#为某个事件设置, 触发的文件条件
         self.pats[callback] = pat
@@ -139,7 +124,21 @@ def event_callback( event ):#事件回调函数  @event: 当前的事件
         for callback in callback_list:
             callback( )
 
-        
+def addevent(e, pat, cb):
+    event = '%s %s' % (e, pat)
+    cblist = events.event_callback.get(event)
+    if not cblist:
+        cmd = "au  %s py %s.event_callback('%s') " % \
+                ( event, __name__, event )
+        vim.command( cmd )
+        events.event_callback[ event ] = [ cb ]
+    else:
+        cblist.append(cb)
+
+
+
+
+
 def load_plugin( pyplugin_path ):
     modes = os.listdir( pyplugin_path )
     for mode in modes:
@@ -148,7 +147,9 @@ def load_plugin( pyplugin_path ):
         mode = mode.split( '.' )[ 0 ]
         try:
             mode = __import__( mode )
-        except Exception, why :
+        except Exception, why:
+            import traceback
+            logging.error(traceback.format_exc())
             print "pyplugin: Load Error:\n%s: %s" %( mode, why)
 
 if __name__ == "__main__":

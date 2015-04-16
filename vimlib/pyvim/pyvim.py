@@ -69,8 +69,14 @@ def getchr():#getchr
 def redraw():#刷新窗口
     vim.command("redraw")
 
-def echoline(msg):#在命令行, 输出一行通知信息
-    vim.command('redraw| echo "%s"' % msg.replace('"', r'\"') )
+def echoline(msg, hl = False):#在命令行, 输出一行通知信息
+    hl_pre = ''
+    hl_post = ''
+    if hl:
+        hl_pre = 'echohl   WarningMsg | '
+        hl_post = ' | echohl None'
+    vim.command('redraw| %s echomsg "%s" %s' %
+            (hl_pre, msg.replace('"', r'\"'), hl_post) )
 
 
 
@@ -126,11 +132,11 @@ class SelMenu( object ):
     "也可以指定omnicomplete function "
 
     omnifunc = "vimlib#SelMenuFunction"
-    def __new__(cls, *args, **kw):  
+    def __new__(cls, *args, **kw):
         "单例模式"
-        if not hasattr(cls, '_instance'):  
-            orig = super(SelMenu, cls)  
-            cls._instance = orig.__new__(cls, *args, **kw)  
+        if not hasattr(cls, '_instance'):
+            orig = super(SelMenu, cls)
+            cls._instance = orig.__new__(cls, *args, **kw)
         return cls._instance
 
     def check_omnifunc( self, func ):
@@ -153,7 +159,7 @@ class SelMenu( object ):
         vim.vars["omniresult"] = words
         vim.vars["omnicol"] = vim.current.window.cursor[1] - length + 1
         self.complete(self.omnifunc)
-        
+
 
     def complete(self, fun):
         "指定补全函数"
@@ -167,7 +173,7 @@ class SelMenu( object ):
 
     def cencel( self ):
         feedkeys('\<C-e>', 'n')
-   
+
 
 
 
@@ -207,7 +213,7 @@ def clear_buffer( ):
 def feedkeys(string, mode='m'):
     string = string.replace(r'"',r'\"')
     command='call feedkeys("%s", "%s")' %(string, mode)
-    
+
     vim.command(command)
 
 def pumvisible( ):
@@ -247,20 +253,20 @@ def current_word( from_vim=True ):
 
         for i in range(len(tmp) -1 , -1,-1):
             c = tmp[ i ]
-            
+
             if not (c.isalpha( ) or c == '_'):
                 buf.append( tmp[i+1:] )
                 break
             if i == 0:
                 buf.append( tmp)
 
-        
+
         for c in str_after_cursor( ):
             if (c.isalpha( ) or c == '_'):
                 buf.append( c )
             else:
                 break
-        
+
         return  ''.join( buf )
 
 #如果有错误文件,打开quickfix
@@ -278,7 +284,7 @@ def filepath( ):
     return _path
 
 def getchar( ):
-    return chr( vim.eval('getchar()') ) 
+    return chr( vim.eval('getchar()') )
 
 if __name__ == "__main__":
     pass

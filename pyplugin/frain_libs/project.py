@@ -16,6 +16,8 @@ class project( cfg_api ):
         处理同种的打开, 同步, 关闭
     """
     def __init__( self, cfg, runtime ):
+
+        self.git_branch = '' # 当前的git branch
         # 锁: 工程是否打开
         self.open_lock = False
 
@@ -24,7 +26,9 @@ class project( cfg_api ):
 
         # 运行状态对象
         self.runtime = runtime
+        self.git_init(self.cfg.src_path[0].path)
         self.open( )
+
 
     ############################################################################
     # 打开
@@ -42,6 +46,23 @@ class project( cfg_api ):
                 vim.command(self.cfg.events.OnEnter())
             except:
                 pass
+
+    def git_init(self, path):
+        git_path =  os.path.join(path, '.git')
+        if not os.path.exists(git_path):
+            return
+
+        # 得到当前的git branch
+        lines = os.popen('git  -C %s branch' % path).readlines()
+
+        for line in lines:
+            if line.startswith('*'):
+                self.git_branch = line[2:]
+                break
+        
+
+
+
 
 
 
@@ -67,7 +88,9 @@ class project( cfg_api ):
 
     def _open_set_name( self ):
         try:
-            vim_title=self.cfg.name.replace( ' ', '\\ ')
+            vim_title = self.cfg.name.replace( ' ', '\\ ')
+            if self.git_branch:
+                vim_title = '%s@%s' % (vim_title , self.git_branch)
             vim.command( "set title titlestring=%s" % vim_title )
         except:
             pass
