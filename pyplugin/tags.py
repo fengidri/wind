@@ -37,7 +37,7 @@ class TagList:
                 items.append( self.entry["name"] )
                 status = self.tagfile.findNext(self.entry)
             self.items = items
-        return self.items 
+        return self.items
     def get_funs( self ):
         if self.funs == None:
 
@@ -91,7 +91,7 @@ class class_tag:
     def __init__(self):
         self.inited = 1
         self.tagsfile_list = [  ]
-        for path in frain_libs.data.get_path( ):
+        for path in pyvim.Roots:
             self.tagsfile_list.append( TagList(path) )
 
     def refresh( self ):
@@ -103,7 +103,7 @@ class class_tag:
         w = vim.current.window
         stack = self.wstacks.get(w)
         if not stack :
-            stack = { 
+            stack = {
                     "tagstack":[],
                     "pos_for_stack": -1
                     }
@@ -120,7 +120,7 @@ class class_tag:
         return self.wstack()["tagstack"][index]
     def lasttag(self):
         "返回是的当前的tag相关的信息"
-        index = self.wstack()["pos_for_stack"] 
+        index = self.wstack()["pos_for_stack"]
         if index < 0:
             return None
         return self.wstack()["tagstack"][index]['tagname']
@@ -129,7 +129,7 @@ class class_tag:
         stack = self.wstack()
         stack["pos_for_stack"]   += 1
         pos = stack["pos_for_stack"]
-        tmp = { 
+        tmp = {
                 "taglist": taglist,
                 "tagname": tagname,
                 "num_total": num,
@@ -161,10 +161,10 @@ class class_tag:
             vim.command('normal zz')
             #vim.command('%foldopen!')
         except vim.error, e:
-            pyvim.log.error(e)
+            logging.error(e)
 
     def jumpui(self):
-        return 
+        return
         tags = self.tagsfile_list[0].get_funs( )
         request = gui_options.request( "/gui/tag_jump" )
         request.add( "tags", tags)
@@ -179,7 +179,7 @@ class class_tag:
             tag = tag.get( "tag")[ -1 ]
         else:
             return
-        
+
         "跳转入口"
         if tag == self.lasttag():
             #相同的tag  平行跳转
@@ -194,12 +194,12 @@ class class_tag:
             vim.command('normal zz')
             #vim.command('%foldopen!')
         except vim.error, e:
-            pyvim.log.error(e)
+            logging.error(e)
 
 
     def add_tag(self, tag):
         if not self.tagsfile_list:
-            pyvim.log.error( 'this is not a project context')
+            logging.error( 'this is not a project context')
             return 0
 
         for tagsfile in self.tagsfile_list:
@@ -222,11 +222,11 @@ class class_tag:
                 break
 
         #加入到stack中去
-        self.append(taglist, 
-                tag, 
-                num, 
+        self.append(taglist,
+                tag,
+                num,
                 pos,
-                start_file, 
+                start_file,
                 start_file_pos)
         return True
 
@@ -238,47 +238,47 @@ class class_tag:
             return 0
 
         pre_buffer_name=vim.current.buffer.name
-    
+
         vim.command('update')
         vim.command('silent edit %s'  %  taginfo["start_file"])
-    
+
         line_nu= taginfo["start_file_pos"][0]
         col_nu= taginfo["start_file_pos"][1]
         vim.current.window.cursor = (line_nu, 0)
         vim.command("normal %sl"  % col_nu)
-    
-    
-    
-    
+
+
+
+
         try:
             vim.command('%foldopen!')
         except vim.error, e:
             pass
-    
+
         try:
             vim.command('normal zz')
         except vim.error, e:
-            pyvim.log.error(e)
+            logging.error(e)
 
-    
+
     def open_tag(self):
         taginfo         = self.taginfo()
         taglist         = taginfo["taglist"]
         tagname         = taginfo["tagname"]
         num_total       = taginfo["num_total"]
         pos_for_taglist = taginfo["pos_for_taglist"]
-    
+
         if taginfo["num_total"]  == 0:
             vim.command("echo 'not find'")
             return 0
-    
+
         #echo
         vim.command("echo '%s %s %s/%s'"  % (
             taginfo['tagname'],
             taglist[pos_for_taglist]['kind'],
             pos_for_taglist  + 1,
             num_total))
-    
+
         taginfo_path = taglist[pos_for_taglist]['filename']
         if taginfo_path != vim.current.buffer.name:
                 #保存文件
@@ -287,7 +287,7 @@ class class_tag:
         #cmd  #go to the tag
         try:
             cmd = taglist[pos_for_taglist]['cmd']
-    
+
             #定位光标到tag上
             show_enco=vim.eval('&encoding')
             file_enco=vim.eval('&fileencoding')
@@ -307,24 +307,24 @@ class class_tag:
                     if line.startswith(patten):
                         found.append( line_nu  )
                     line_nu+=1
-    
+
             if found:
                 line_nu = found.pop( )
                 line = vim.current.buffer[line_nu]
                 col_nu = line.find(tagname)
                 if col_nu < 0:
                     col_nu = 0
-    
+
                 vim.current.window.cursor = (line_nu  + 1, 0)
                 vim.command("normal %sl"  % col_nu)
             else:
-                pyvim.log.info('patten'+patten)
-    
+                logging.info('patten'+patten)
+
         except vim.error, e:
-            pyvim.log.error(e)
+            logging.error(e)
             return  -1
 
-    
+
         pos_for_taglist+= 1
         if pos_for_taglist>= num_total:
             pos_for_taglist  = 0
@@ -345,14 +345,14 @@ class TagBack( pyvim.command ):
     def run( self ):
         global Tag
         if Tag == None:
-            return 
+            return
         Tag.back( )
 
 class TagRefresh( pyvim.command ):
     def run( self ):
         global Tag
         if Tag == None:
-            return 
+            return
         Tag.refresh( )
 
 

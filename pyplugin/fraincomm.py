@@ -28,7 +28,7 @@ class FrainStart( pyvim.command ):
         if len(self.params) > 0:#处理path, name 两个参数
             path = self.params[0]
         else:
-            return
+            path = '.'
 
         name = ''
         if len(self.params) > 1:
@@ -103,6 +103,7 @@ class Project( pyvim.command ):
 class ProjectTerminal(pyvim.command):
     def run(self):
         if not frain:
+            os.system('setsid xterm&')
             return
 
         path = frain.cur_root_path()

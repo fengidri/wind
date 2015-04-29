@@ -73,8 +73,10 @@ class FrainList(LIST):
                 return
 
     def addlist(self):
+        pyvim.Roots = []
         for path, name in self.data:
             path = libpath.realpath(path)
+            pyvim.Roots.append(path)
             LIST.append(self, DirNode(path, name))
 
     def OnWinPost(self):
@@ -104,7 +106,7 @@ class DirNode(Node):
             return True
 
         dirs, names = libpath.listdir(self.path)
-        if not dirs:
+        if dirs == None:
             return
 
         names = black_filter_files(names)

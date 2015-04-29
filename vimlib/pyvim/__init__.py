@@ -8,6 +8,8 @@ from plugin import command, events, load_plugin, addevent
 from pyvim import *
 import pyvim
 
+Roots = [] # 当前在编辑中的文件的根目录
+
 
 if __name__ == "__main__":
     pass
