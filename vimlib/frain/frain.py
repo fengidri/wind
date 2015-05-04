@@ -68,9 +68,16 @@ class FrainList(LIST):
         path = utils.bufferpath()
         for root in self.root.sub_nodes:
             names = utils.getnames(root.path, path)
-            if names:
-                LIST.find(self, names)
-                return
+            if not names:
+                continue
+            if LIST.find(self, names):
+                return True
+        else:
+            return 'NROOT' # not found root
+
+    def add_cur_path(self):
+        path = utils.bufferpath()
+        self.data.append((libpath.dirname(path), ''))
 
     def addlist(self):
         pyvim.Roots = []  # 整个vim 可用的变量

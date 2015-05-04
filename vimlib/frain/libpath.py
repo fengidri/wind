@@ -17,6 +17,7 @@ procts = {
         'disk': libpathdisk
         }
 
+dirname = os.path.dirname
 basename = os.path.basename
 join     = os.path.join
 

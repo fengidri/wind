@@ -66,7 +66,16 @@ class FrainOpen(FrainSUBCommand):
 
 class FrainFind(FrainSUBCommand):
     def _run( self ):
-        frain.find()
+        s = frain.find()
+        if s == 'NROOT':
+            frain.add_cur_path()
+            frain.refresh()
+            frain.find()
+
+
+
+
+
 
 class FrainFocus(FrainSUBCommand):
     def _run(self):

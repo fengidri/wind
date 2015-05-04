@@ -18,7 +18,7 @@ class LISTOPTIONS(object):
 
     def refresh(self):
         del self.buf[:]
-        vim.current.buffer[0] = "FrainUI"
+        self.buf[0] = "FrainUI"
         node.LNode.nodes = {}
         self.root = node.Node('root')
         self.addlist()
@@ -40,16 +40,20 @@ class LISTOPTIONS(object):
             return False
 
     def find(self, names):
+        if not self.focus():
+            return
         names.insert(0, 'root')
         logging.error('names: %s', names)
 
         leaf = self.root.find(names)
         if not leaf:
-            return
+            self.win.cursor = (1, 0)
+            return False
 
         route = leaf.route()
         if not route:
-            return
+            self.win.cursor = (1, 0)
+            return False
 
         logging.error('route: %s', route)
         for n in route[1:-1]:
@@ -57,8 +61,8 @@ class LISTOPTIONS(object):
             n.node_open(linenu+1)
 
         linenu = self.getlinenu(route[-1])
-        if self.focus():
-            vim.current.window.cursor = (linenu + 1, 0)
+        self.win.cursor = (linenu + 1, 0)
+        return True
 
     def settitle(self, name):#设置vim 窗口的title
         # 如果没有设置name, 则使用第一个root的name
