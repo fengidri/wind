@@ -73,9 +73,11 @@ class FrainList(LIST):
                 return
 
     def addlist(self):
-        pyvim.Roots = []
+        pyvim.Roots = []  # 整个vim 可用的变量
         for path, name in self.data:
             path = libpath.realpath(path)
+            if path in pyvim.Roots:
+                continue
             pyvim.Roots.append(path)
             LIST.append(self, DirNode(path, name))
 
