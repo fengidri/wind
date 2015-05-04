@@ -12,8 +12,6 @@ frain = None
 frainpaths   = []
 
 def frainopen():
-    global frain
-    frain = LIST()
     for path, name in frainpaths:
         frain.data.append((path,name))
     frain.refresh()
@@ -24,7 +22,7 @@ def frainopen():
 # path exp
 #############################
 class FrainStart( pyvim.command ):
-    def run( self ):
+    def add_path_from_param(self):
         if len(self.params) > 0:#处理path, name 两个参数
             path = self.params[0]
         else:
@@ -34,33 +32,48 @@ class FrainStart( pyvim.command ):
         if len(self.params) > 1:
             name = self.params[1]
 
-        frainpaths.append((path, name))
-        frainopen()
+        frain.data.append((path,name))
+
+
+    def run( self ):
+        global frain
+        if not frain:
+            frain = LIST()
+        #------------------------
+
+        self.add_path_from_param()
+        frain.refresh()
 
     def setting(self):
         self.set_complete(self.complete_file)#设置命令补全为文件
 
-class FrainOpen( pyvim.command ):
+class FrainAdd(FrainStart):
+    def run(self):
+        self.add_path_from_param()
+        frain.refresh()
+
+class FrainSUBCommand(pyvim.command):
     def run(self):
         if frain:
-            frain.open()
-
-class FrainFind(pyvim.command):
-    def run( self ):
-        if not frain:
+            self._run()
+        else:
             return
+
+
+class FrainOpen(FrainSUBCommand):
+    def _run(self):
+        frain.open()
+
+class FrainFind(FrainSUBCommand):
+    def _run( self ):
         frain.find()
 
-class FrainFocus(pyvim.command):
-    def run(self):
-        if not frain:
-            return
+class FrainFocus(FrainSUBCommand):
+    def _run(self):
         frain.focus()
 
-class FrainRefresh( pyvim.command ):
-    def run( self ):
-        if not frain:
-            return
+class FrainRefresh(FrainSUBCommand):
+    def _run( self ):
         frain.refresh()
         return
         #刷新path exp 窗口之后. 展开显示当前正在编辑的文件
@@ -68,17 +81,6 @@ class FrainRefresh( pyvim.command ):
             b = w.buffer
             if b.options['buftype'] != '':
                 continue
-
-
-class PathsExpFilter( pyvim.command ):
-    def run( self ):
-        paths_exp.blacklist_switch = not paths_exp.blacklist_switch
-        paths_exp.refresh_nodes( )
-        paths_exp.refresh_win( )
-
-
-
-
 
 class Project( pyvim.command ):
     def run( self ):
