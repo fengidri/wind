@@ -15,7 +15,8 @@ import utils
 
 blacklist_file=[
     "^\.",      "^tags$",
-    ".+\.ac$", ".+\.pyc$" , ".+\.so$", ".+\.o$"
+    ".+\.ac$", ".+\.pyc$" , ".+\.so$", ".+\.o$", ".+\.a$",
+    ".+\.lo$"
     ]
 
 blacklist_switch = True

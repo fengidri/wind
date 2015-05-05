@@ -7,7 +7,7 @@
 "针对于c  cpp 定义文件，使用相同的色彩，因为同个工程中一般不会同时使用cpp与c
 "并且其在工程中的作用是相同的
 syn match PATHS_TITLE           #^>>>[a-zA-Z0-9_ -.]\+#
-syntax match Index "<|>.*$" conceal cchar=\  
+syntax match Index "<|>.*$" conceal cchar=\
 
 syn match PATHS_EXPFileTypePy   #.\+\.py\>#
 syn match PATHS_EXPFileTypeLua   #.\+\.lua\>#
@@ -15,6 +15,7 @@ syn match PATHS_EXPFileTypeSh   #.\+\.mk\>#
 syn match PATHS_EXPFileTypeSh   #.\+\.sh\>#
 syn match PATHS_EXPFileTypeC    #.\+\.c\>#
 syn match PATHS_EXPFileTypeC    #.\+\.cpp\>#
+syn match PATHS_EXPFileTypeC    #.\+\.cc\>#
 syn match PATHS_EXPFileTypeH    #.\+\.h\>#
 syn match PATHS_EXPFileTypeJS   #.\+\.js\>#
 syn match PATHS_EXPFileTypeHtml #.\+\.html\>#
@@ -62,7 +63,7 @@ syn match PATHS_EXPTreeRO #.*\[RO\]#hs=s+2 contains=PATHS_EXPTreeFlag,PATHS_EXPT
 syn match PATHS_EXPTreeLink #[^-| `].* -> # contains=PATHS_EXPTreeBookmark,PATHS_EXPTreeOpenable,PATHS_EXPTreeClosable,PATHS_EXPTreeDirSlash
 
 "highlighing for directory nodes and file nodes
-syn match PATHS_EXPTreeDirSlash #/# 
+syn match PATHS_EXPTreeDirSlash #/#
 syn match PATHS_EXPTreeDir #[+-].*/# contains=PATHS_EXPTreeLink,PATHS_EXPTreeDirSlash,PATHS_EXPTreeOpenable,PATHS_EXPTreeClosable
 syn match PATHS_EXPTreeExecFile  #[|` ].*\*\($\| \)# contains=PATHS_EXPTreeLink,PATHS_EXPTreePart,PATHS_EXPTreeRO,PATHS_EXPTreePartFile,PATHS_EXPTreeBookmark
 syn match PATHS_EXPTreeFile  #|-.*# contains=PATHS_EXPTreeLink,PATHS_EXPTreePart,PATHS_EXPTreeRO,PATHS_EXPTreePartFile,PATHS_EXPTreeBookmark,PATHS_EXPTreeExecFile
@@ -88,7 +89,7 @@ hi def link PATHS_EXPTreeBookmark normal
 
 hi def link PATHS_EXPTreeHelp String
 hi def link PATHS_EXPTreeHelpKey Identifier
-hi def link PATHS_TITLE         Type 
+hi def link PATHS_TITLE         Type
 hi def link PATHS_EXPTreeHelpCommand Identifier
 hi def link PATHS_EXPTreeHelpTitle Macro
 hi def link PATHS_EXPTreeToggleOff WarningMsg
@@ -103,11 +104,11 @@ hi def link PATHS_EXPTreeRO WarningMsg
 hi def link PATHS_EXPTreeBookmark Statement
 
 hi def link PATHS_EXPFileTypeJS Statement
-hi def link PATHS_EXPFileTypeHtml Type 
+hi def link PATHS_EXPFileTypeHtml Type
 hi def link PATHS_EXPFileTypeC Identifier
-hi def link PATHS_EXPFileTypePy Function 
-hi def link PATHS_EXPFileTypeLua  Question 
-hi def link PATHS_EXPFileTypeSh Tag 
-hi def link PATHS_EXPFileTypeH Tag 
+hi def link PATHS_EXPFileTypePy Function
+hi def link PATHS_EXPFileTypeLua  Question
+hi def link PATHS_EXPFileTypeSh Tag
+hi def link PATHS_EXPFileTypeH Tag
 hi def link  Folded Normal
 

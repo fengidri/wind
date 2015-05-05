@@ -16,6 +16,18 @@ class LISTOPTIONS(object):
         node = self.getnode()
         node._open(l)
 
+    def close(self):  # 关闭父级目录
+        node = self.getnode()
+        route = node.route()
+        fa = route[-2]
+        if fa == self.root:
+            return # 已经是root 了, 不可以关闭
+
+        linenu = self.getlinenu(fa)
+        fa._open(linenu)
+        self.win.cursor = (linenu, 0)
+
+
     def refresh(self):
         del self.buf[:]
         self.buf[0] = "FrainUI"
@@ -57,11 +69,10 @@ class LISTOPTIONS(object):
 
         logging.error('route: %s', route)
         for n in route[1:-1]:
-            linenu = self.getlinenu(n)
-            n.node_open(linenu+1)
+            n.node_open(self.getlinenu(n))
 
         linenu = self.getlinenu(route[-1])
-        self.win.cursor = (linenu + 1, 0)
+        self.win.cursor = (linenu, 0)
         return True
 
     def settitle(self, name):#设置vim 窗口的title
@@ -113,7 +124,7 @@ class LISTNODS(object):
                     break
             except:
                 pass
-        return num
+        return num + 1
 
     def getroots(self):
         return self.root.sub_nodes

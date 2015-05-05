@@ -1,6 +1,7 @@
 map <buffer> <cr> :FrainOpen<cr>
 map <buffer> o :FrainOpen<cr>
 map <buffer> <2-LeftMouse> :FrainOpen<CR>
+map <buffer> <bs>  :FrainClose<CR>
 map <buffer> H :FrainFilter<CR>
 map <buffer> R :FrainRefresh<CR>
 setlocal cursorline

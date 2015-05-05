@@ -64,6 +64,10 @@ class FrainOpen(FrainSUBCommand):
     def _run(self):
         frain.open()
 
+class FrainClose(FrainSUBCommand):
+    def _run(self):
+        frain.close()
+
 class FrainFind(FrainSUBCommand):
     def _run( self ):
         s = frain.find()
