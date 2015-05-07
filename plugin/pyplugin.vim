@@ -11,6 +11,7 @@ import vim
 
 # add paths
 root = os.path.dirname(vim.eval('s:script_folder_path'))
+<<<<<<< HEAD
 pylib_path    = os.path.join(root, 'wind/vimlib' )
 exts_path = os.path.join(root, "wind/exts" )
 sys.path.insert( 0, pylib_path )
