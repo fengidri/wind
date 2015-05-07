@@ -286,6 +286,14 @@ def filepath( ):
 def getchar( ):
     return chr( vim.eval('getchar()') )
 
+
+def openfiles(files):
+    win = vim.current.window
+    vim.command('edit %s' % files[0])
+    for f in files[1:]:
+        vim.command('sp %s' % files[0])
+
+
 if __name__ == "__main__":
     pass
 

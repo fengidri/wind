@@ -12,6 +12,8 @@ import re
 import vim
 import pyvim
 import utils
+import os
+import json
 
 blacklist_file=[
     "^\.",      "^tags$",
@@ -61,8 +63,52 @@ def sorted_by_expand_name( files ):
             sorted(files_type[ 'py' ]) +\
             sorted(files_type[ 'other' ])
 
+class Session(object):
+    DBFile = os.path.join(os.environ.get("HOME"), '.cache/frain/session')
+    def __init__(self):
+        dbdir = os.path.dirname(self.DBFile)
+        if not os.path.exists(dbdir):
+            os.mkdir(dbdir)
+
+    def _load(self):
+        if not os.path.exists(self.DBFile):
+            return {}
+        else:
+            c = open(self.DBFile).read()
+            return json.loads(c)
+    def get(self, path):
+        return self._load().get(path)
+
+    def _save(self, se):
+        c = json.dumps(se)
+        open(self.DBFile, 'w').write(c)
+
+    def save(self):
+        session = self._load()
+        cur_session = self.getcurfile()
+        session.update(cur_session)
+        self._save(session)
+
+    def getcurfile(self):
+        fs = {}
+        for w in vim.windows:
+            name = w.buffer.name
+            if not name:
+                continue
+            for path in pyvim.Roots:
+                if name.startswith(path):
+                    l = fs.get(path)
+                    if l == None:
+                        fs[path] = [name]
+                    else:
+                        l.append(name)
+                    break
+
+        return fs
 
 
+
+############################ FrainList #########################################
 class FrainList(LIST):
     data = []
     def find(self):
@@ -89,9 +135,13 @@ class FrainList(LIST):
             pyvim.Roots.append(path)
             LIST.append(self, DirNode(path, name))
 
+    def OpenLastFiles(self):
+        pyvim.origin_win()
+        pyvim.openfiles(Session().get(pyvim.Roots[0]))
+
     def OnWinPost(self):
-        #self.settitle()
-        pyvim.addevent('BufWritePost', '*', libpath.push)
+        pyvim.addevent('BufWritePost', libpath.push)
+        pyvim.addevent('VimLeave',  Session().save)
 
     def cur_root_path(self):
         path = utils.bufferpath()

@@ -191,7 +191,7 @@ class events( object ):
                 continue
 
             callback = getattr( self, attr)
-            addevent(event, self.pats.get(callback , '*'), callback)
+            addevent(event,  callback, self.pats.get(callback , '*'))
 
     def set_pat(self, callback, pat):#为某个事件设置, 触发的文件条件
         self.pats[callback] = pat
@@ -206,13 +206,14 @@ def event_callback( event ):#事件回调函数  @event: 当前的事件
         for callback in callback_list:
             callback( )
 
-def addevent(e, pat, cb):
+def addevent(e, cb, pat='*'):
     event = '%s %s' % (e, pat)
     cblist = events.event_callback.get(event)
     if not cblist:
         cmd = "au  %s py %s.event_callback('%s') " % \
                 ( event, __name__, event )
-        vim.command( cmd )
+        logging.info(cmd)
+        vim.command(cmd)
         events.event_callback[ event ] = [ cb ]
     else:
         cblist.append(cb)

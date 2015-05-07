@@ -14,10 +14,15 @@ frain = None
 @pyvim.cmd(pyvim.complete.file)
 def Frain(path='.', name=''):
     global frain
+    flag = False
     if not frain:
         frain = LIST()
+        flag = True
     frain.data.append((path,name))
     frain.refresh()
+    if flag:
+        frain.OpenLastFiles()
+
 
 @pyvim.cmd()
 def FrainOpen():

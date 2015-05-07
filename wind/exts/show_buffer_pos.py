@@ -3,7 +3,6 @@ import pyvim
 import vim
 class ShowBufferPos( pyvim.events ):
     def on_BufEnter( self ):
-        #print "========"
         show( )
 
 
