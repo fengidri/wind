@@ -7,16 +7,124 @@ from events import EventNames
 import os
 import vim
 import logging
+class complete(object):
+    augroup       = "augroup"               # autocmd groups
+    buffer        = "buffer"                # buffer names
+    behave        = "behave"                # :behave suboptions
+    color         = "color"                 # color schemes
+    command       = "command"               # Ex command (and arguments)
+    compiler      = "compiler"              # compilers
+    cscope        = "cscope"                # |:cscope| suboptions
+    dir           = "dir"                   # directory names
+    environment   = "environment"           # environment variable names
+    event         = "event"                 # autocommand events
+    expression    = "expression"            # Vim expression
+    file          = "file"                  # file and directory names
+    file_in_path  = "file_in_path"          # file and directory names in |'path'|
+    filetype      = "filetype"              # filetype names |'filetype'|
+    function      = "function"              # function name
+    help          = "help"                  # help subjects
+    highlight     = "highlight"             # highlight groups
+    history       = "history"               # :history suboptions
+    locale        = "locale"                # locale names (as output of locale -a)
+    mapping       = "mapping"               # mapping name
+    menu          = "menu"                  # menus
+    option        = "option"                # options
+    shellcmd      = "shellcmd"              # Shell command
+    sign          = "sign"                  # |:sign| suboptions
+    syntax        = "syntax"                # syntax file names |'syntax'|
+    syntime       = "syntime"               # |:syntime| suboptions
+    tag           = "tag"                   # tags
+    tag_listfiles = "tag_listfiles"         # tags, file names are shown when CTRL-D is hit
+    user          = "user"                  # user names
+    var           = "var"                   # user variables
 
 ###################################
 # Command Api
 ###################################
+def funnargs(fun):
+    nargs = len(fun.func_code.co_varnames)
+    pargs = fun.func_code.co_argcount # pos args
+    dargs = 0
+    if fun.func_defaults:
+        dargs = len(fun.func_defaults)    # default args
+    _min = pargs - dargs
+    if nargs > pargs:
+        _max = 10000000
+    else:
+        _max = nargs
+    return (_min, _max)
+
+
+CMDS = []
+def __command(vimcmd, fun, complete):
+    vimcmd = vimcmd[0].upper() + vimcmd[1:]
+
+    _min, _max = funnargs(fun)
+    if _min == _max:
+        if _min == 0:
+            nargs = '-nargs=0'
+        elif _min == 1:
+            nargs = '-nargs=1'
+        else:
+            nargs = '-nargs=+'
+    elif _max == 0:
+        nargs = '-nargs=0'
+    elif _min == 0:
+        if _max == 1:
+            nargs = '-nargs=?'
+        else:
+            nargs = '-nargs=*'
+    else:
+        nargs = '-nargs=+'
+
+    command = "command {args} {complete} {vimcmd} " \
+                    "py {module}.cmd_cb({index}, '<args>')"
+
+    c = command.format(args = nargs, complete= complete, vimcmd = vimcmd,
+            module=__name__, index=len(CMDS))
+    CMDS.append(fun)
+    logging.error(c)
+    vim.command(c)
+
+
+def cmd_cb(index, args):
+    fun  = CMDS[index]
+    args =  args.split()
+
+    _min, _max = funnargs(fun)
+    if len(args) >= _min and len(args) <= _max:
+        fun(*args)
+    else:
+        logging.error("fun:%s args should [%s, %s]. Now %s", _min, _max,
+                ' '.join(args))
+
+
+
+
+def cmd(complete = None):
+    if isinstance(complete, list):
+        complete = "-complete=%s" % ','.join(complete)
+
+    elif isinstance(complete, basestring):
+        complete = "-complete=%s" % complete
+
+    else:
+        complete = ""
+
+    def _cmd(fun):
+        __command(fun.func_code.co_name, fun, complete)
+
+    return _cmd
+
+
+
+
 """
     使用metaclass, 拦截了类对象的创建过程, 并在这个过程中自动创建实例.
     使用这个方式取代了之前的实例化方法(通过扫描模块空间中的所有的对象,
     找到command 与events 的子类, 并实例化)
 """
-
 class CommandMetaClass(type):
     objs = [  ]
     def __new__(cls, name, bases, dct):
@@ -30,40 +138,13 @@ def command_callback(index, argv):
 
 class command( object ):
     __metaclass__ = CommandMetaClass
-    complete_augroup       = "-complete=augroup"               # autocmd groups
-    complete_buffer        = "-complete=buffer"                # buffer names
-    complete_behave        = "-complete=behave"                # :behave suboptions
-    complete_color         = "-complete=color"                 # color schemes
-    complete_command       = "-complete=command"               # Ex command (and arguments)
-    complete_compiler      = "-complete=compiler"              # compilers
-    complete_cscope        = "-complete=cscope"                # |:cscope| suboptions
-    complete_dir           = "-complete=dir"                   # directory names
-    complete_environment   = "-complete=environment"           # environment variable names
-    complete_event         = "-complete=event"                 # autocommand events
-    complete_expression    = "-complete=expression"            # Vim expression
-    complete_file          = "-complete=file"                  # file and directory names
-    complete_file_in_path  = "-complete=file_in_path"          # file and directory names in |'path'|
-    complete_filetype      = "-complete=filetype"              # filetype names |'filetype'|
-    complete_function      = "-complete=function"              # function name
-    complete_help          = "-complete=help"                  # help subjects
-    complete_highlight     = "-complete=highlight"             # highlight groups
-    complete_history       = "-complete=history"               # :history suboptions
-    complete_locale        = "-complete=locale"                # locale names (as output of locale -a)
-    complete_mapping       = "-complete=mapping"               # mapping name
-    complete_menu          = "-complete=menu"                  # menus
-    complete_option        = "-complete=option"                # options
-    complete_shellcmd      = "-complete=shellcmd"              # Shell command
-    complete_sign          = "-complete=sign"                  # |:sign| suboptions
-    complete_syntax        = "-complete=syntax"                # syntax file names |'syntax'|
-    complete_syntime       = "-complete=syntime"               # |:syntime| suboptions
-    complete_tag           = "-complete=tag"                   # tags
-    complete_tag_listfiles = "-complete=tag_listfiles"         # tags, file names are shown when CTRL-D is hit
-    complete_user          = "-complete=user"                  # user names
-    complete_var           = "-complete=var"                   # user variables
 
     def __init__( self, index ):
         self.complete_type = ""
         self.setting( )
+
+        if self.complete_type != '':
+            self.complete_type = "-complete=%s" % self.complete_type
         self.params = [  ]
 
         cmd_name = self.__class__.__name__
@@ -151,6 +232,13 @@ def load_plugin( pyplugin_path ):
             import traceback
             logging.error(traceback.format_exc())
             print "pyplugin: Load Error:\n%s: %s" %( mode, why)
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     pass
