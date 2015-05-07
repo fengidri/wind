@@ -1,15 +1,8 @@
 #encoding:utf8
 import pyvim
 import vim
-class ShowBufferPos( pyvim.events ):
-    def on_BufEnter( self ):
-        show( )
 
-
-
-
-
-
+@pyvim.event('BufEnter')
 def show( ):
     #在NERDTree窗口中找到当前文件的位置
     """显示出当前文件的位置.

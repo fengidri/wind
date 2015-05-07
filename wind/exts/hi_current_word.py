@@ -28,7 +28,8 @@ class _input_post( ):
                 pass
         self.match_id = vim.eval( "matchadd('CurrentWord', '\<%s\>')" % current)
 input_post = _input_post( )
-class HiCurrentWord( pyvim.events ):
-    def on_CursorMovedI( self ):
-        input_post.input_post(  )
+
+@pyvim.event("CursorMovedI")
+def run():
+    input_post.input_post(  )
 

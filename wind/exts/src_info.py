@@ -59,7 +59,7 @@ if __name__ == "__main__":
  *   time         :   {time}
  *   email        :   {email}
  *   version      :   1.0.1
- *   description  :   
+ *   description  :
  */
 #ifndef  __{ufilename}__
 #define __{ufilename}__
@@ -76,13 +76,12 @@ def get_infos():
         for ft in lines[0].split(','):
             tmp[ft] = info
     return tmp
-        
 
 
-class SrcInfo(pyvim.events):
-    def on_FileType(self):
-        if pyvim.is_empty():
-            add_src_info()
+@pyvim.event("FileType")
+def run():
+    if pyvim.is_empty():
+        add_src_info()
 
 class SrcInfoAdd(pyvim.command):
     def run(self):
@@ -103,7 +102,7 @@ def add_src_info():
 
     index = 0
     for l in info:
-        l = l.format(time = ntime, 
+        l = l.format(time = ntime,
                 ufilename=ufilename,
                 author=author,
                 email = email)
