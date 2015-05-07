@@ -1,0 +1,27 @@
+Metadata-Version: 1.0
+Name: python-ctags
+Version: 1.0.5
+Summary: Exuberant Ctags indexing python bindings
+Home-page: http://code.google.com/p/python-ctags/
+Author: Aaron H. K. Diep
+Author-email: ahkdiep@gmail.com
+License: LGPL
+Description: Exuberant Ctags supports indexing of many modern programming languages. Python
+        is a powerful scriptable dynamic language. Using Python to access Ctags index
+        file is a natural fit in extending an application's capability to examine source
+        code.
+        
+        This project wrote a wrapper for readtags.c. I have been using the package in
+        a couple of projects and it has been shown that it could easily handle hundreds
+        source files.
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: C
+Classifier: License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
