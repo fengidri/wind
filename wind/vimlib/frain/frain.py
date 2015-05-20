@@ -132,12 +132,15 @@ class FrainList(LIST):
 
     def addlist(self):
         pyvim.Roots = []  # 整个vim 可用的变量
+        data = []
         for path, name in self.data:
             path = libpath.realpath(path)
             if path in pyvim.Roots:
                 continue
             pyvim.Roots.append(path)
+            data.append((path, name))
             LIST.append(self, DirNode(path, name))
+        self.data = data
 
     def OpenLastFiles(self):
         pyvim.origin_win()
