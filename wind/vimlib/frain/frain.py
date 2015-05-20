@@ -113,14 +113,18 @@ class FrainList(LIST):
     data = []
     def find(self):
         path = utils.bufferpath()
+        if not path:
+            return
         for root in self.root.sub_nodes:
-            names = utils.getnames(root.path, path)
-            if not names:
-                continue
-            if LIST.find(self, names):
-                return True
+            if path.startswith(root.path):
+                break
         else:
             return 'NROOT' # not found root
+
+
+        names = utils.getnames(root.path, path)
+        if LIST.find(self, names):
+            return True
 
     def add_cur_path(self):
         path = utils.bufferpath()
@@ -137,7 +141,9 @@ class FrainList(LIST):
 
     def OpenLastFiles(self):
         pyvim.origin_win()
-        pyvim.openfiles(Session().get(pyvim.Roots[0]))
+        files = Session().get(pyvim.Roots[0])
+        if files:
+            pyvim.openfiles(files)
 
     def OnWinPost(self):
         pyvim.addevent('BufWritePost', libpath.push)

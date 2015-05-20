@@ -46,6 +46,10 @@ def FrainFind():
         frain.refresh()
         frain.find()
 
+    if not s:
+        frain.refresh()
+        frain.find()
+
 @pyvim.cmd()
 def FrainFocus():
     if not frain:

@@ -4,6 +4,8 @@ map <buffer> <2-LeftMouse> :FrainOpen<CR>
 map <buffer> <bs>  :FrainClose<CR>
 map <buffer> H :FrainFilter<CR>
 map <buffer> R :FrainRefresh<CR>
+let b:frain_status_path = 'root'
+setlocal statusline=%{b:frain_status_path}
 setlocal cursorline
 setlocal foldmethod=manual
 setlocal foldminlines=0

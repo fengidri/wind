@@ -6,6 +6,7 @@
 import node
 import vim
 import logging
+import copy
 class LISTHOOK(object):
     def OnWinPost(self):
         pass
@@ -51,9 +52,11 @@ class LISTOPTIONS(object):
                 return True
             return False
 
-    def find(self, names):
+    def find(self, _names):
         if not self.focus():
             return
+        names = copy.copy(_names)
+
         names.insert(0, 'root')
         logging.error('names: %s', names)
 
@@ -73,6 +76,7 @@ class LISTOPTIONS(object):
 
         linenu = self.getlinenu(route[-1])
         self.win.cursor = (linenu, 0)
+        self.buf.vars['frain_status_path'] = '/'.join(_names[0:-1])
         return True
 
     def settitle(self, name):#设置vim 窗口的title
