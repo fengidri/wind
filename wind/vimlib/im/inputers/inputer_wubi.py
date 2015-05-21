@@ -99,6 +99,10 @@ class IM_Wubi( IM_Base, _wubi_seach):
 
     def cb_enter(self):
         if pyvim.pumvisible():
+            bs = pyvim.str_before_cursor()
+            if len(bs) > 0:
+                if ord(bs[-1]) > 178:
+                    pyvim.feedkeys(r'\<space>', 'n')
             pyvim.feedkeys(r'%s\<C-e>' % self.patten,'n')
             del self.buffer[ : ]
             return 0
@@ -107,7 +111,14 @@ class IM_Wubi( IM_Base, _wubi_seach):
     def cb_space(self):
         del self.buffer[:]
         if pyvim.pumvisible():
-            self.pmenu.select( 1 )
+            word = self.pmenu.getselect(1).get('word')
+            bs = pyvim.str_before_cursor()
+            if len(bs) > 0:
+                o = ord(bs[-1])
+                if o <= 127 and o != 32 :
+                    logging.error(o)
+                    pyvim.feedkeys('\<space>', 'n')
+            pyvim.feedkeys(word, 'n')
             return 0
         pyvim.feedkeys('\<space>', 'n')
 
@@ -149,7 +160,8 @@ class IM_Wubi( IM_Base, _wubi_seach):
         if pyvim.pumvisible():
 
             self.setcount(self.patten, int(self.key) -1)
-            self.pmenu.select( int(self.key) )
+            word = self.pmenu.getselect(int(self.key)).get('word')
+            pyvim.feedkeys(word, 'n')
             del self.buffer[:]
             return 0
         pyvim.feedkeys( self.key ,'n')
