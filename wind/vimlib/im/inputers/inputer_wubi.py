@@ -114,9 +114,12 @@ class IM_Wubi( IM_Base, _wubi_seach):
             word = self.pmenu.getselect(1).get('word')
             bs = pyvim.str_before_cursor()
             if len(bs) > 0:
-                o = ord(bs[-1])
-                if o <= 127 and o != 32 :
-                    logging.error(o)
+                c = bs[-1]
+                o = ord(c)
+                if c in ',.!:;?' or \
+                       65<= o <=90 or\
+                       97<= o <=122 :
+                       #48<= o <=57 or\
                     pyvim.feedkeys('\<space>', 'n')
             pyvim.feedkeys(word, 'n')
             return 0

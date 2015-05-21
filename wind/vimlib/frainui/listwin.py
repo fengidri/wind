@@ -89,7 +89,7 @@ class LISTOPTIONS(object):
 class LISTWIN(object):
     def createwin(self):
         vim.command( "topleft 25vnew Frain" )
-        vim.command( "set ft=frain" )
+        vim.command( "set ft=frainlist" )
         w = vim.current.window
         b = vim.current.buffer
         self.OnWinPost()

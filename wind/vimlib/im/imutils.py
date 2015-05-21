@@ -51,11 +51,10 @@ def key_feed(key):
 
 class filetype(object):
     def im_append(self, im):
-        
+
         if not hasattr(self, '_ims'):
             self._ims = []
         self._ims.append(im)
-        logging.error(self._ims)
 
     def im(self, key):
         #logging.debug(self._ims)
@@ -63,7 +62,7 @@ class filetype(object):
             if m.im(key):
                 return True
 
-            
+
 
 
 

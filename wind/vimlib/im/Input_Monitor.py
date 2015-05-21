@@ -17,8 +17,8 @@ class Input_Monitor(object):
         ftpath = os.path.dirname(ftpath)
         ftpath = os.path.join(ftpath, 'filetype')
         mds = os.listdir(ftpath)
-        logging.error(mds)
         sys.path.insert(0, ftpath)
+
         for m in mds:
             if not m.endswith('.py'):
                 continue
@@ -26,18 +26,15 @@ class Input_Monitor(object):
                 continue
             try:
                 md = __import__(m[0:-3])
-                logging.error(md)
                 self.load_ftmode(md)
             except Exception, e:
                 logging.exception(e)
-
                 continue
 
         del sys.path[0]
 
-        #logging.debug("Input Mointer: ftmode: %s", self.ftmode)
-
-
+        for ft, cls in self.ftmode.items():
+            logging.error('%s: %s' % (ft, cls))
 
     def load_ftmode(self, m):
         if not hasattr(m, 'im_ft'):
@@ -46,7 +43,6 @@ class Input_Monitor(object):
 
         for ft in f.im_ft:
             self.ftmode[ft] = f
-
 
     def im( self, key ):
         imrc.count += 1#记数器, 统计输入
