@@ -3,7 +3,7 @@
 #    time      :   2015-02-16 14:57:20
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
-from inputer_base import IM_Base 
+from inputer_base import IM_Base
 import pyvim
 import re
 
@@ -38,7 +38,7 @@ class IM_Code( IM_Base ):
 
     def cb_mark( self ):
         self.double_out("'", "'")
-    
+
     def cb_double_mark( self ):
         self.double_out('"', '"')
 
@@ -51,14 +51,14 @@ class IM_Code( IM_Base ):
         else:
             o = '\<C-X>\<C-O>\<C-P>'
         self.output(o)
-    
+
     def cb_brace( self ):#{  }
         if pyvim.str_after_cursor(  ) == '' and \
             pyvim.str_before_cursor( ).endswith(')'):
                 self.output('\<cr>{\<cr>}\<up>\<cr>')
                 return
         self.double_out('{', '}')
-    
+
     def cb_dot(self):
         if pyvim.str_before_cursor( ).endswith('.'):
             pyvim.feedkeys('\<bs>->' ,'n' )

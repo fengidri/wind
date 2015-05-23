@@ -64,11 +64,11 @@ def sorted_by_expand_name( files ):
             sorted(files_type[ 'other' ])
 
 class Session(object):
-    DBFile = os.path.join(os.environ.get("HOME"), '.cache/frain/session')
+    DBFile = os.path.join(os.environ.get("HOME"), 'local/share/frain/session')
     def __init__(self):
         dbdir = os.path.dirname(self.DBFile)
         if not os.path.exists(dbdir):
-            os.mkdir(dbdir)
+            os.mkdirs(dbdir)
 
     def _load(self):
         if not os.path.exists(self.DBFile):
