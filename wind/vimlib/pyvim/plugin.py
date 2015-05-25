@@ -238,7 +238,7 @@ def load_plugin( pyplugin_path ):
         except Exception, why:
             import traceback
             logging.error(traceback.format_exc())
-            print "pyplugin: Load Error:\n%s: %s" %( mode, why)
+            #print "pyplugin: Load Error:\n%s: %s" %( mode, why)
 
 
 
