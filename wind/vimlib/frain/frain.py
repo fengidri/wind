@@ -68,7 +68,7 @@ class Session(object):
     def __init__(self):
         dbdir = os.path.dirname(self.DBFile)
         if not os.path.exists(dbdir):
-            os.mkdirs(dbdir)
+            os.makedirs(dbdir)
 
     def _load(self):
         if not os.path.exists(self.DBFile):
