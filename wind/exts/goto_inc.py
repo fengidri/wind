@@ -1,4 +1,3 @@
-import frain_libs.data
 import vim
 import pyvim
 import re
@@ -26,10 +25,9 @@ def goto_include( ):
             target_files.append( model_name + '.' + t )
 
 
-    paths = frain_libs.data.get_path( )
     cur_paths = vim.current.buffer.name
     project_path = None
-    for path in paths:
+    for path in pyvim.Roots:
         if cur_paths.startswith( path ):
             project_path = path
     if not project_path:
