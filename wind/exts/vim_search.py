@@ -3,7 +3,6 @@ import pyvim
 import vim
 import os
 import re
-from frain_libs import data
 class FSearch( pyvim.command ):
     def run( self ):
         word, filter = deal_argv(self.params)
@@ -21,7 +20,7 @@ class FSearch( pyvim.command ):
         lines = f_popen.readlines()
         if lines:
             filter_quick( lines, path, command )
-    
+
 
 """
     处理编码问题
@@ -44,7 +43,7 @@ def deal_argv( argvs ):
     filter = ""
     word = ""
 
-    ii = 0 
+    ii = 0
     while ii < len( argvs ):
         arg = argvs[ ii ]
         if arg in [ "filter", "|" ]:
@@ -72,26 +71,23 @@ def context(word, filter=""):
     cur_path = vim.current.buffer.name
     if not cur_path:
         return None, None
-    
-    project_path = None
-    for path in data.get_path():
+
+    for path in pyvim.Roots:
         if cur_path.startswith( path ):
-            project_path = path
+            include = " --include='*.[ch]' --include='*.cpp' --include='*.py' "
+            dirname = path
+            break
+    else:
+        target =  os.path.basename( cur_path )
+        dirname = os.path.dirname( cur_path )
 
     if filter:
         filter = " | %s" % filter
-    
 
-    if not project_path:
-        target =  os.path.basename( cur_path )
-        dirname = os.path.dirname( cur_path )
-    else:
-        include = " --include='*.[ch]' --include='*.cpp' --include='*.py' "
-        dirname = project_path
     if  dirname in [ "/", "/home", os.environ.get("HOME") ]:
         return None,None
 
-    cmd = "cd {dirname};grep -RHn {include} '\<{word}\>' {target} {filter}".format( 
+    cmd = "cd {dirname};grep -RHn {include} '\<{word}\>' {target} {filter}".format(
             dirname = dirname,
             include = include,
             word    = word,
@@ -112,7 +108,7 @@ def filter_quick( lines, path, command ):
         line = byte_to_unicode( l )
         if not line:
             vim.command( "echom  'I do not know this code [%s]'" % l)
-            return 
+            return
 
         if re.search(r"^[^ ]+\| \s*//", line):
             continue
