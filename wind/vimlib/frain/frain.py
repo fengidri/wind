@@ -137,9 +137,17 @@ class FrainList(LIST):
             path = libpath.realpath(path)
             if path in pyvim.Roots:
                 continue
+
             pyvim.Roots.append(path)
             data.append((path, name))
-            LIST.append(self, DirNode(path, name))
+
+
+            root = DirNode(path, name)
+            if not self.Title:
+                self.Title = root.name
+
+
+            LIST.append(self, root)
         self.data = data
 
     def OpenLastFiles(self):

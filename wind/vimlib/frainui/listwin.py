@@ -40,6 +40,9 @@ class LISTOPTIONS(object):
         self.root.opened = False
         self.root.node_open(1)
 
+        if self.Title:
+            vim.command( "set title titlestring=%s" % self.Title )
+
 
     def focus(self, autocreate = True):# 切换到list 窗口,
         # 如果autocreate 为true, 在list窗口已经关闭的情况下, 会自动创建list窗口
@@ -87,6 +90,7 @@ class LISTOPTIONS(object):
 
 
 class LISTWIN(object):
+    Title = None
     def createwin(self):
         vim.command( "topleft 25vnew Frain" )
         vim.command( "set ft=frainlist" )
