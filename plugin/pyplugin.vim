@@ -49,3 +49,5 @@ map  <F11>         <esc>:GotoInc<cr>
 map  <F4>          :ProjectSync<cr>
 map  <tab>         :FrainFocus<cr>
 map  <F6>          :Project<cr>
+map *              viw""y/<C-R>0<CR>
+vnoremap /         ""y/<C-R>0<CR>

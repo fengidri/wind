@@ -7,6 +7,7 @@ import node
 import vim
 import logging
 import copy
+import pyvim
 class LISTHOOK(object):
     def OnWinPost(self):
         pass
@@ -79,8 +80,20 @@ class LISTOPTIONS(object):
 
         linenu = self.getlinenu(route[-1])
         self.win.cursor = (linenu, 0)
-        self.buf.vars['frain_status_path'] = '/'.join(_names[0:-1])
+        self.update_status()
         return True
+
+    def update_status(self):
+        node = self.getnode()
+        if not node:
+            return
+
+        route = node.route()
+        if not route:
+            return
+
+        path = '/'.join([r.name for r in route[1:]])
+        self.buf.vars['frain_status_path'] = path
 
     def settitle(self, name):#设置vim 窗口的title
         # 如果没有设置name, 则使用第一个root的name
@@ -154,6 +167,7 @@ class LIST(LISTHOOK, LISTOPTIONS, LISTWIN, LISTNODS):#  list 窗口对象
         """
 
 
+        pyvim.addevent('CursorMoved', self.update_status)
 
 
 
