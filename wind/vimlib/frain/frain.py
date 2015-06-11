@@ -14,6 +14,7 @@ import pyvim
 import utils
 import os
 import json
+import gitinfo
 
 blacklist_file=[
     "^\.",      "^tags$",
@@ -144,7 +145,11 @@ class FrainList(LIST):
 
             root = DirNode(path, name)
             if not self.Title:
-                self.Title = root.name
+                info = gitinfo.gitinfo(path)
+                if not info:
+                    self.Title = root.name
+                else:
+                    self.Title = "%s(%s)" % (root.name, info["branch"])
 
 
             LIST.append(self, root)

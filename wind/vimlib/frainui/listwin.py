@@ -42,7 +42,7 @@ class LISTOPTIONS(object):
         self.root.node_open(1)
 
         if self.Title:
-            vim.command( "set title titlestring=%s" % self.Title )
+            self.settitle(self.Title)
 
 
     def focus(self, autocreate = True):# 切换到list 窗口,
