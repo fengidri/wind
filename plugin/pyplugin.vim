@@ -2,10 +2,15 @@
 "
 let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\' )
 
+" 如果是 C 项目的情况下, 用于保存头文件所在的目录
+" 使用 vim 接口是为了方便与其它的项目进行数据交换
+let g:frain_include_dirs = []
+
 python <<EOF
 import sys
 import os
 import vim
+
 
 "增加基础python lib 路径, 增加pyplugin 路径"
 

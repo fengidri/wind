@@ -31,6 +31,7 @@ class SearchInputWin(object):# 过滤条件的输入
         self.w = w
         self.b = b
         self.select = select
+
     def input(self, key):
         pass
 
@@ -38,6 +39,7 @@ class SearchSelectWin(object):
     def __init__(self, w, b):
         self.w = w
         self.b = b
+
     def input(self, key):
         pass
 

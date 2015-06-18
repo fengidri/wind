@@ -98,3 +98,25 @@ def Project():
     client.sethandle(200, popen)
     client.request("/open/project", {"values":frnames()})
     client.response()
+
+@pyvim.cmd(pyvim.complete.file)
+def FrainAddInclude(path):
+    if not os.path.isdir(path):
+        pyvim.echoline('%s is not dir' % path)
+    path = os.path.realpath(path)
+
+
+    t = []
+    for d in vim.vars['frain_include_dirs']:
+        t.append(d)
+
+    if not path in t:
+        t.append(path)
+    else:
+        return
+
+    vim.vars['frain_include_dirs'] = t
+
+    # try cache Ycm's flag cache
+    vim.command('silent YcmCompleter ClearCompilationFlagCache')
+
