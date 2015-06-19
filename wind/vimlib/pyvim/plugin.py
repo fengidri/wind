@@ -207,6 +207,8 @@ def event_callback( event ):#事件回调函数  @event: 当前的事件
             callback( )
 
 def addevent(e, cb, pat='*'):
+    #TODO 一些不再用到的事件要进行删除: 如 <buffer> 的事件在 buffer 退出后
+    # 如果回调来自于实例, 是不是要进行释放
     event = '%s %s' % (e, pat)
     cblist = events.event_callback.get(event)
     if not cblist:

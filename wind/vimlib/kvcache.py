@@ -14,6 +14,12 @@ class KvCache(object):
             os.makedirs(dbdir)
         self.data = self._load()
 
+    def __new__(cls, *args, **kw):
+        if not hasattr(cls, '_instance'):
+            orig = super(KvCache, cls)
+            cls._instance = orig.__new__(cls, *args, **kw)
+        return cls._instance
+
     def _load(self):
         try:
             c = open(self.DBFile).read()
@@ -24,10 +30,12 @@ class KvCache(object):
     def _save(self, se):
         open(self.DBFile, 'w').write(json.dumps(se))
 
-    def get(self, k, prefix = None):
-        if prefix:
-            k = "%s:%s" % (prefix, k)
-        v = self.data.get(k)
+    def get(self, k, ns = None):
+        space = self.data.get(ns)
+        if not space:
+            return None
+
+        v = space.get(k)
         if not v:
             return None
 
@@ -37,11 +45,13 @@ class KvCache(object):
 
         return data
 
-    def set(self, k, v, prefix = None):
-        if prefix:
-            k = "%s:%s" % (prefix, k)
+    def set(self, k, v, ns = None):
+        space = self.data.get(ns)
+        if not space:
+            self.data[ns] = {k: {"data": v}}
 
-        self.data[k] = {"data": v}
+        else:
+            space[k] = {"data": v}
 
     def save(self):
         self._save(self.data)

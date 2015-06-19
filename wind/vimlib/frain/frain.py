@@ -83,10 +83,23 @@ def save_curfile():
                 break
 
     for p, v in fs.items():
-        kvcache.set(p, v, prefix='lastopen')
+        kvcache.set(p, v, ns ='lastopen')
     kvcache.save()
     return fs
 
+def set_cinclude():
+    kvcache = KvCache()
+
+    cinclude = {}
+    for r in pyvim.Roots:
+        incs = kvcache.get(r, ns="cinclude")
+        if not incs:
+            continue
+        cinclude[r] = incs
+    vim.vars['frain_include_dirs'] = json.dumps(cinclude)
+
+    # try cache Ycm's flag cache
+    vim.command('silent YcmCompleter ClearCompilationFlagCache')
 
 
 ############################ FrainList #########################################
@@ -136,10 +149,17 @@ class FrainList(LIST):
         self.data = data
 
     def OpenLastFiles(self):
+        kvcache = KvCache()
+
+        #设置 cinclude
+        set_cinclude()
+
         pyvim.origin_win()
-        files = KvCache().get(pyvim.Roots[0], prefix="lastopen")
+        files = kvcache.get(pyvim.Roots[0], ns = "lastopen")
         if files:
             pyvim.openfiles(files)
+
+
 
     def OnWinPost(self):
         pyvim.addevent('BufWritePost', libpath.push)

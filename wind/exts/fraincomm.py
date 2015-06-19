@@ -8,7 +8,8 @@ import os
 import pyvim
 
 import vim
-from frain import LIST
+from frain import LIST, set_cinclude
+from kvcache import KvCache
 frain = None
 
 @pyvim.cmd(pyvim.complete.file)
@@ -101,22 +102,26 @@ def Project():
 
 @pyvim.cmd(pyvim.complete.file)
 def FrainAddInclude(path):
-    if not os.path.isdir(path):
-        pyvim.echoline('%s is not dir' % path)
-    path = os.path.realpath(path)
-
-
-    t = []
-    for d in vim.vars['frain_include_dirs']:
-        t.append(d)
-
-    if not path in t:
-        t.append(path)
-    else:
+    if not frain:
         return
 
-    vim.vars['frain_include_dirs'] = t
+    if not os.path.isdir(path):
+        pyvim.echoline('%s is not dir' % path)
 
-    # try cache Ycm's flag cache
-    vim.command('silent YcmCompleter ClearCompilationFlagCache')
+    kv = KvCache()
+    path = os.path.realpath(path)
+
+    root = frain.cur_root_path()
+    incs = kv.get(root, ns="cinclude")
+    if incs == None:
+        incs = []
+
+    if path in incs:
+        return
+
+    incs.append(path)
+    kv.set(root, incs, ns='cinclude')
+    kv.save()
+
+    set_cinclude()
 
