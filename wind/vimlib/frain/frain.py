@@ -15,6 +15,7 @@ import utils
 import os
 import json
 import gitinfo
+from kvcache import KvCache
 
 blacklist_file=[
     "^\.",      "^tags$",
@@ -64,47 +65,27 @@ def sorted_by_expand_name( files ):
             sorted(files_type[ 'py' ]) +\
             sorted(files_type[ 'other' ])
 
-class Session(object):
-    DBFile = os.path.join(os.environ.get("HOME"), 'local/share/frain/session')
-    def __init__(self):
-        dbdir = os.path.dirname(self.DBFile)
-        if not os.path.exists(dbdir):
-            os.makedirs(dbdir)
+def save_curfile():
+    kvcache = KvCache()
+    fs = {}
+    for w in vim.windows:
+        name = w.buffer.name
+        if not name:
+            continue
 
-    def _load(self):
-        if not os.path.exists(self.DBFile):
-            return {}
-        else:
-            c = open(self.DBFile).read()
-            return json.loads(c)
-    def get(self, path):
-        return self._load().get(path)
+        for path in pyvim.Roots:
+            if name.startswith(path):
+                l = fs.get(path)
+                if l == None:
+                    fs[path] = [name]
+                else:
+                    l.append(name)
+                break
 
-    def _save(self, se):
-        c = json.dumps(se)
-        open(self.DBFile, 'w').write(c)
-
-    def save(self):
-        session = self._load()
-        cur_session = self.getcurfile()
-        session.update(cur_session)
-        self._save(session)
-
-    def getcurfile(self):
-        fs = {}
-        for w in vim.windows:
-            name = w.buffer.name
-            if not name:
-                continue
-            for path in pyvim.Roots:
-                if name.startswith(path):
-                    l = fs.get(path)
-                    if l == None:
-                        fs[path] = [name]
-                    else:
-                        l.append(name)
-                    break
-        return fs
+    for p, v in fs.items():
+        kvcache.set(p, v, prefix='lastopen')
+    kvcache.save()
+    return fs
 
 
 
@@ -156,19 +137,20 @@ class FrainList(LIST):
 
     def OpenLastFiles(self):
         pyvim.origin_win()
-        files = Session().get(pyvim.Roots[0])
+        files = KvCache().get(pyvim.Roots[0], prefix="lastopen")
         if files:
             pyvim.openfiles(files)
 
     def OnWinPost(self):
         pyvim.addevent('BufWritePost', libpath.push)
-        pyvim.addevent('VimLeave',  Session().save)
+        pyvim.addevent('VimLeave',  save_curfile)
 
     def cur_root_path(self):
         path = utils.bufferpath()
         for r in self.root.sub_nodes:
             if path.startswith(r.path):
                 return r.path
+
 
 
 
