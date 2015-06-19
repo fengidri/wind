@@ -220,6 +220,7 @@ def addevent(e, cb, pat='*'):
     else:
         cblist.append(cb)
 
+
 def event(e, pat='*'):
     def _f(func):
         addevent(e, func, pat)

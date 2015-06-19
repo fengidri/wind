@@ -125,3 +125,37 @@ def FrainAddInclude(path):
 
     set_cinclude()
 
+
+
+import vim
+
+def setup():
+    vim.current.buffer[0] = 'hello ==============='
+
+def over():
+    open('/tmp/xxxx', 'w').write('------')
+    open('/tmp/xxxx', 'w').write('\n'.join(vim.current.buffer))
+from frainui import tmpedit
+
+@pyvim.cmd()
+def TmpEdit():
+
+    t = tmpedit.TmpEdit()
+
+    t.entry_hook = setup
+    t.close_hook = over
+    t.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
