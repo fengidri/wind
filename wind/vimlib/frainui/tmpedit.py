@@ -22,7 +22,7 @@ class TmpEdit(object):
 
         if self.close_hook:
            # pyvim.addevent('BufUnload', self.close_hook, '<buffer>')
-            pyvim.addevent('QuitPre', self.close_hook, '<buffer>')
+            pyvim.addevent('QuitPre', self.close_hook, self.b)
 
 
 if __name__ == "__main__":

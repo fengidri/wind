@@ -167,7 +167,7 @@ class LIST(LISTHOOK, LISTOPTIONS, LISTWIN, LISTNODS):#  list 窗口对象
         """
 
 
-        pyvim.addevent('CursorMoved', self.update_status, '<buffer>')
+        pyvim.addevent('CursorMoved', self.update_status, self.buf)
 
 
 

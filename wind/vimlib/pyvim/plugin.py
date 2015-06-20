@@ -162,6 +162,7 @@ class command( object ):
         pass
     def set_complete( self, key ):
         self.complete_type = key
+
 ###################################
 # event Api
 ###################################
@@ -199,26 +200,39 @@ class events( object ):
     def setting(self):
         pass
 
+__Event_Map = {}
+__Event_Index = 0
 
-def event_callback( event ):#事件回调函数  @event: 当前的事件
-    callback_list = events.event_callback.get( event )
-    if  callback_list:
-        for callback in callback_list:
-            callback( )
+def event_callback( cbid ):#事件回调函数  @event: 当前的事件
+    cb = __Event_Map.get(cbid)
+    if not cb:
+        logging.error("Not Found cb for: %s" % cbid)
+    cb()
 
-def addevent(e, cb, pat='*'):
+
+
+def addevent(event, cb, pat='*'):
     #TODO 一些不再用到的事件要进行删除: 如 <buffer> 的事件在 buffer 退出后
     # 如果回调来自于实例, 是不是要进行释放
-    event = '%s %s' % (e, pat)
-    cblist = events.event_callback.get(event)
-    if not cblist:
-        cmd = "au  %s py %s.event_callback('%s') " % \
-                ( event, __name__, event )
-        logging.info(cmd)
-        vim.command(cmd)
-        events.event_callback[ event ] = [ cb ]
-    else:
-        cblist.append(cb)
+    global __Event_Index
+    __Event_Index += 1
+
+
+    autocmd_cmd_format = "autocmd {event} {pat} {cmd}"
+
+    es = event.split(',')
+
+    cbid = "%s_%s" % (__Event_Index, cb.func_code.co_name)
+    cmd = "py %s.event_callback('%s')" % (__name__, cbid)
+    __Event_Map[cbid] = cb
+
+    if not isinstance(pat, basestring):
+        pat = "<buffer=%s>" % pat.number
+
+    for e in es:
+        autocmd_cmd =  autocmd_cmd_format.format(
+                event = e, pat = pat, cmd = cmd)
+        vim.command(autocmd_cmd)
 
 
 def event(e, pat='*'):
