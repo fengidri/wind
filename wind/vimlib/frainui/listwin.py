@@ -168,9 +168,12 @@ class LIST(LISTHOOK, LISTOPTIONS, LISTWIN, LISTNODS):#  list 窗口对象
 
 
         pyvim.addevent('CursorMoved', self.update_status, self.buf)
-
-
-
+        
+    def __new__(cls, *args, **kw):  
+        if not hasattr(cls, '_instance'):  
+            orig = super(LIST, cls)  
+            cls._instance = orig.__new__(cls, *args, **kw)  
+        return cls._instance
 
     def append(self, node):
         self.root.append(node)
