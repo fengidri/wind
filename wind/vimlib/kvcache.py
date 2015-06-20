@@ -7,6 +7,7 @@ import os
 import json
 
 class KvCache(object):
+    Singleton = False
     DBFile = os.path.join(os.environ.get("HOME"), '.vim/config/kv.db')
     def __init__(self):
         dbdir = os.path.dirname(self.DBFile)
@@ -15,6 +16,8 @@ class KvCache(object):
         self.data = self._load()
 
     def __new__(cls, *args, **kw):
+        if not cls.Singleton:
+            return super(KvCache, cls)__new__(cls, *args, **kw)
         if not hasattr(cls, '_instance'):
             orig = super(KvCache, cls)
             cls._instance = orig.__new__(cls, *args, **kw)
@@ -74,6 +77,6 @@ class KvCache(object):
         return fs
 
 
+
 if __name__ == "__main__":
     pass
-
