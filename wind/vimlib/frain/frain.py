@@ -103,30 +103,11 @@ def set_cinclude():
 
 
 ############################ FrainList #########################################
-class FrainList(LIST):
-    data = []
-    def find(self):
-        path = utils.bufferpath()
-        if not path:
-            return
-        for root in self.root.sub_nodes:
-            if path.startswith(root.path):
-                break
-        else:
-            return 'NROOT' # not found root
-
-
-        names = utils.getnames(root.path, path)
-        if LIST.find(self, names):
-            return True
-
-    def add_cur_path(self):
-        path = utils.bufferpath()
-        self.data.append((libpath.dirname(path), ''))
-
-    def addlist(self):
+class FrainListSub(LIST):
+    def LS_GetRoots(self):
         pyvim.Roots = []  # 整个vim 可用的变量
         data = []
+        roots = []
         for path, name in self.data:
             path = libpath.realpath(path)
             if path in pyvim.Roots:
@@ -145,8 +126,9 @@ class FrainList(LIST):
                     self.Title = "%s(%s)" % (root.name, info["branch"])
 
 
-            LIST.append(self, root)
+            roots.append(root)
         self.data = data
+        return roots
 
     def OpenLastFiles(self):
         kvcache = KvCache()
@@ -161,9 +143,35 @@ class FrainList(LIST):
 
 
 
-    def OnWinPost(self):
+    def LS_WinOpen_Hook(self):
         pyvim.addevent('BufWritePost', libpath.push)
         pyvim.addevent('VimLeave',  save_curfile)
+
+class FrainList(FrainListSub):
+    data = []
+    def find(self):
+        path = utils.bufferpath()
+        logging.error('1')
+        if not path:
+            return
+        logging.error('2')
+        for root in self.root.sub_nodes:
+            if path.startswith(root.path):
+                break
+        else:
+            logging.error('3')
+            return 'NROOT' # not found root
+
+        logging.error('4')
+
+        names = utils.getnames(root.path, path)
+        if LIST.LS_Find(self, names):
+            return True
+
+    def add_cur_path(self):
+        path = utils.bufferpath()
+        self.data.append((libpath.dirname(path), ''))
+
 
     def cur_root_path(self):
         path = utils.bufferpath()
@@ -184,7 +192,7 @@ class DirNode(Node):
         self.path = path
         self.subnodes = False
 
-    def InitSub(self): #初始子节点的方法
+    def LS_Node_Init(self): #初始子节点的方法
         if self.subnodes:
             return True
 
@@ -213,7 +221,7 @@ class FileNode(Leaf):
         Leaf.__init__(self, libpath.basename(path))
         self.path = path
 
-    def edit(self):
+    def LS_Leaf_Edit(self):
         vim.command( "update")
         path = libpath.pull(self.path)
         if not path:

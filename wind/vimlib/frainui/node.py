@@ -5,8 +5,8 @@
 #    version   :   1.0.1
 import logging
 import vim
-class LNode(object):# Node与Leaf 的父类
-    ls      = None # 指向list对象. 方便所有的node与leaf 得到这个对象
+class Item(object):# Node与Leaf 的父类
+    lswin      = None # 指向list.win对象.
     level   = 0
     father  = None  # 指向father 对象
 
@@ -14,13 +14,35 @@ class LNode(object):# Node与Leaf 的父类
     ID      = 0
     def __init__(self):
         # 新的实例, 要生成ID, 并加入到nodes中去
-        self.ID = LNode.ID
-        LNode.nodes[self.ID] = self
-        LNode.ID += 1
+        self.ID = Item.ID
+        Item.nodes[self.ID] = self
+        Item.ID += 1
+
+    @classmethod
+    def getnode(cls, linenu = None):
+        if not cls.lswin:
+            return
+        if not cls.lswin.is_focus():
+            return
+
+        if linenu == None: # 没有输入行号, 使用当前行
+            line = vim.current.line
+        else:
+            if linenu >= cls.lswin.linenu:
+                return
+            line = cls.lswin.getline(linenu)
+
+        line = line.decode('utf8')
+        try:
+            node_index = int(line.split('<|>')[1])
+            return cls.nodes.get(node_index)
+        except:
+            logging.error('getnode: fail')
 
 
 
-    def find(self, names):# 查找一个节点, 目标如['etc', 'nginx', 'conf.d']
+    def find(self, names):
+        " 查找一个节点, 目标如['etc', 'nginx', 'conf.d']"
 
         # 好喜欢这个函数啊!! 哈哈, good
         if self.level >= len(names):#超出层级了
@@ -36,7 +58,7 @@ class LNode(object):# Node与Leaf 的父类
             return
 
         # 这个处理是针对于node 节点的
-        self.InitSub()
+        self.LS_Node_Init()
         for n in self.sub_nodes: # node 在子节点中找
             m = n.find(names)
             if m:
@@ -71,16 +93,17 @@ class LNode(object):# Node与Leaf 的父类
 
 
 
-class Node(LNode):
-    def InitSub(self):# 初始sub_nodes数据, 不是事件
+class Node(Item):
+    def LS_Node_Init(self):# 初始sub_nodes数据, 不是事件
         pass
 
+
     def OpenPre(self):
-        self.InitSub()
+        self.LS_Node_Init()
         return True
 
     def __init__(self, name):
-        LNode.__init__(self)
+        Item.__init__(self)
         self.sub_nodes = []
         self.name = name
         self.opened = False
@@ -113,13 +136,13 @@ class Node(LNode):
         if not self.OpenPre(): return
 
 
-        buf = self.ls.buf
+        buf = self.lswin.b
         buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)
 
         for n in self.sub_nodes:
             if hasattr(n, 'opened'):
                 n.opened = False
-            self.ls.buf.append(n.show(), linenu)
+            self.lswin.b.append(n.show(), linenu)
             linenu += 1
 
 
@@ -132,12 +155,12 @@ class Node(LNode):
 
         if not self.ClosePre(): return
 
-        buf = self.ls.buf
+        buf = self.lswin.b
         buf[linenu - 1] = buf[linenu - 1].replace('-', '+', 1)
 
         start = linenu
         while True:
-            node = self.ls.getnode(linenu)
+            node = Item.getnode(linenu)
             if not node:
                 break
             if node.level <= self.level:
@@ -146,13 +169,13 @@ class Node(LNode):
         end  = linenu
 
         if end > start:
-            del self.ls.buf[start: end]
+            del self.lswin.b[start: end]
 
         self.ClosePost()
 
-class Leaf(LNode):
+class Leaf(Item):
     def __init__(self, name):
-        LNode.__init__(self)
+        Item.__init__(self)
         self.name  = name
 
     def show(self):
@@ -160,16 +183,16 @@ class Leaf(LNode):
 
     def _open(self, linenu):#TODO
         vim.command( "noautocmd wincmd p" )
-        if self.ls.win == vim.current.window:
+        if self.lswin.is_focus():
             return
 
         if not self.OpenPre(): return
 
-        self.edit()
+        self.LS_Leaf_Edit()
 
         self.OpenPost()
 
-    def edit(self):# upstream完成叶节点在编辑区的处理方式
+    def LS_Leaf_Edit(self):# upstream完成叶节点在编辑区的处理方式
         pass
 
 

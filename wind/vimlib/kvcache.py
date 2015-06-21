@@ -17,7 +17,7 @@ class KvCache(object):
 
     def __new__(cls, *args, **kw):
         if not cls.Singleton:
-            return super(KvCache, cls)__new__(cls, *args, **kw)
+            return super(KvCache, cls).__new__(cls, *args, **kw)
         if not hasattr(cls, '_instance'):
             orig = super(KvCache, cls)
             cls._instance = orig.__new__(cls, *args, **kw)
