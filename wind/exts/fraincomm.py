@@ -62,9 +62,9 @@ def ProjectTerminal():
         os.system('setsid xterm&')
         return
 
-    path = frain.cur_root_path()
-    if path:
-        os.system('cd %s;setsid xterm&' % path)
+    p = frain.cur_project()
+    if p:
+        os.system('cd %s;setsid xterm&' % p.root)
     else:
         os.system('setsid xterm&')
 

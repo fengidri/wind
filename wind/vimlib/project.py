@@ -15,7 +15,6 @@ import pyvim
 
 class Project(object):
     All = []
-    cincs = {}
     @classmethod
     def emit(cls, single):
         func = 'Hook_%s' % single
