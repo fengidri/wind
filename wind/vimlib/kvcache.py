@@ -9,11 +9,15 @@ import json
 class KvCache(object):
     Singleton = False
     DBFile = os.path.join(os.environ.get("HOME"), '.vim/config/kv.db')
-    def __init__(self):
+    def __init__(self, dbfile = None):
+        if dbfile:
+            self.DBFile = dbfile
+
         dbdir = os.path.dirname(self.DBFile)
         if not os.path.exists(dbdir):
             os.makedirs(dbdir)
         self.data = self._load()
+
 
     def __new__(cls, *args, **kw):
         if not cls.Singleton:
@@ -33,7 +37,7 @@ class KvCache(object):
     def _save(self, se):
         open(self.DBFile, 'w').write(json.dumps(se))
 
-    def get(self, k, ns = None):
+    def get(self, k, ns = 'null'):
         space = self.data.get(ns)
         if not space:
             return None
@@ -48,7 +52,7 @@ class KvCache(object):
 
         return data
 
-    def set(self, k, v, ns = None):
+    def set(self, k, v, ns = 'null'):
         space = self.data.get(ns)
         if not space:
             self.data[ns] = {k: {"data": v}}

@@ -15,7 +15,7 @@ import utils
 import os
 import json
 import gitinfo
-from kvcache import KvCache
+from project import Project
 
 blacklist_file=[
     "^\.",      "^tags$",
@@ -65,108 +65,59 @@ def sorted_by_expand_name( files ):
             sorted(files_type[ 'py' ]) +\
             sorted(files_type[ 'other' ])
 
-def save_curfile():
-    kvcache = KvCache()
-    fs = {}
-    for w in vim.windows:
-        name = w.buffer.name
-        if not name:
-            continue
-
-        for path in pyvim.Roots:
-            if name.startswith(path):
-                l = fs.get(path)
-                if l == None:
-                    fs[path] = [name]
-                else:
-                    l.append(name)
-                break
-
-    for p, v in fs.items():
-        kvcache.set(p, v, ns ='lastopen')
-    kvcache.save()
-    return fs
-
-def set_cinclude():
-    kvcache = KvCache()
-
-    cinclude = {}
-    for r in pyvim.Roots:
-        incs = kvcache.get(r, ns="cinclude")
-        if not incs:
-            continue
-        cinclude[r] = incs
-    vim.vars['frain_include_dirs'] = json.dumps(cinclude)
-
-    # try cache Ycm's flag cache
-    vim.command('silent YcmCompleter ClearCompilationFlagCache')
 
 
 ############################ FrainList #########################################
 class FrainListSub(LIST):
+    first_fresh = True
     def LS_GetRoots(self):
         pyvim.Roots = []  # 整个vim 可用的变量
-        data = []
         roots = []
-        for path, name in self.data:
-            path = libpath.realpath(path)
-            if path in pyvim.Roots:
-                continue
-
-            pyvim.Roots.append(path)
-            data.append((path, name))
-
-
-            root = DirNode(path, name)
+        for p in Project.All:
+            pyvim.Roots.append(p.root)
+            root = DirNode(p.root, p.name)
             if not self.Title:
-                info = gitinfo.gitinfo(path)
+                info = p.info
                 if not info:
                     self.Title = root.name
                 else:
                     self.Title = "%s(%s)" % (root.name, info["branch"])
 
-
             roots.append(root)
-        self.data = data
         return roots
 
-    def OpenLastFiles(self):
-        kvcache = KvCache()
-
-        #设置 cinclude
-        set_cinclude()
-
-        pyvim.origin_win()
-        files = kvcache.get(pyvim.Roots[0], ns = "lastopen")
-        if files:
-            pyvim.openfiles(files)
-
-
+    def LS_Refresh_Hook(self):
+        if self.first_fresh:
+            self.first_fresh = False
+            Project.emit("FrainEntry")
+            return
 
     def LS_WinOpen_Hook(self):
+        def vimleave():
+            Project.emit("FrainLeave")
+
         pyvim.addevent('BufWritePost', libpath.push)
-        pyvim.addevent('VimLeave',  save_curfile)
+        pyvim.addevent('VimLeave',  vimleave)
 
 class FrainList(FrainListSub):
     data = []
     def find(self):
         path = utils.bufferpath()
-        logging.error('1')
         if not path:
             return
-        logging.error('2')
         for root in self.root.sub_nodes:
             if path.startswith(root.path):
                 break
         else:
-            logging.error('3')
             return 'NROOT' # not found root
-
-        logging.error('4')
 
         names = utils.getnames(root.path, path)
         if LIST.LS_Find(self, names):
             return True
+
+    def add(self, path, name):
+        path = libpath.realpath(path)
+        Project(path, name)
 
     def add_cur_path(self):
         path = utils.bufferpath()
@@ -178,11 +129,6 @@ class FrainList(FrainListSub):
         for r in self.root.sub_nodes:
             if path.startswith(r.path):
                 return r.path
-
-
-
-
-
 
 class DirNode(Node):
     def __init__(self, path, name = ''):

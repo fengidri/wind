@@ -50,14 +50,13 @@ class LISTOPTIONS(object):
         for r in self.LS_GetRoots():
             self.root.append(r)
 
-        self.LS_Refresh_Hook()
-
-
         self.root.opened = False
         self.root.node_open(1)
 
         if self.Title:
             self.settitle(self.Title)
+
+        self.LS_Refresh_Hook()
 
 
     def focus(self):# 切换到list 窗口,
@@ -130,6 +129,17 @@ class LISTNODS(object):
 
 class LIST(LISTHOOK, LISTOPTIONS, LISTNODS):#  list 窗口对象
     Title = None
+    @staticmethod
+    def get_instance():
+        if hasattr(LIST, '_instance'):
+            return LIST._instance
+
+    def __new__(cls, *args, **kw):
+        if not hasattr(LIST, '_instance'):
+            orig = super(LIST, cls)
+            LIST._instance = orig.__new__(cls, *args, **kw)
+        return LIST._instance
+
     def __init__(self):
         """
             self.root(Node:root)
@@ -138,6 +148,8 @@ class LIST(LISTHOOK, LISTOPTIONS, LISTNODS):#  list 窗口对象
                 | ----------------selfNode(rootpath)
                 | ----------------selfNode(rootpath)
         """
+        if hasattr(self, 'win'):
+            return
         import Buffer
         self.win = Buffer.Buffer(
                 vertical = True,
@@ -152,11 +164,6 @@ class LIST(LISTHOOK, LISTOPTIONS, LISTNODS):#  list 窗口对象
 
         pyvim.addevent('CursorMoved', self.update_status, self.win.b)
 
-    def __new__(cls, *args, **kw):
-        if not hasattr(cls, '_instance'):
-            orig = super(LIST, cls)
-            cls._instance = orig.__new__(cls, *args, **kw)
-        return cls._instance
 
 
 if __name__ == "__main__":
