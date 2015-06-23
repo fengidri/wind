@@ -10,6 +10,7 @@ import pyvim
 import vim
 from frain import LIST
 from kvcache import KvCache
+from project import Project
 
 @pyvim.cmd(pyvim.complete.file)
 def Frain(path='.', name=''):
@@ -58,7 +59,7 @@ def FrainRefresh():
 
 @pyvim.cmd()
 def ProjectTerminal():
-    if not frain:
+    if not LIST.get_instance():
         os.system('setsid xterm&')
         return
 
@@ -70,7 +71,7 @@ def ProjectTerminal():
 
 
 @pyvim.cmd()
-def Project():
+def ProjectX():
     from frain_libs import frnames, fropen
     from vuirpc import VuiClient
     def popen(response):
@@ -89,41 +90,21 @@ def Project():
 
 @pyvim.cmd(pyvim.complete.file)
 def FrainAddInclude(path):
-    if not frain:
+    if not LIST.get_instance():
+        return
+
+    project = LIST().cur_project()
+    if not project:
         return
 
     if not os.path.isdir(path):
         pyvim.echoline('%s is not dir' % path)
-
-    kv = KvCache()
-    path = os.path.realpath(path)
-
-    root = frain.cur_root_path()
-    incs = kv.get(root, ns="cinclude")
-    if incs == None:
-        incs = []
-
-    if path in incs:
         return
 
-    incs.append(path)
-    kv.set(root, incs, ns='cinclude')
-    kv.save()
+    path = os.path.realpath(path)
 
-    set_cinclude()
-
-
-
-
-
-
-
-
-
-
-
-
-
+    project.add_c_include(path)
+    Project.update_c_include()
 
 
 
