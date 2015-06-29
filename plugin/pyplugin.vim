@@ -6,6 +6,7 @@ let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\' )
 " 使用 vim 接口是为了方便与其它的项目进行数据交换
 let g:frain_include_dirs = ''
 
+"------------------------------ python -----------------------------------------
 python <<EOF
 import sys
 import os
@@ -30,6 +31,7 @@ from im import Input_Monitor
 IM = Input_Monitor.Input_Monitor( )
 IM.init_monitor_keys( )
 EOF
+"-------------------------------------------------------------------------------
 
 function! Input_Monitor( key )
     py IM.im( vim.eval("a:key"))

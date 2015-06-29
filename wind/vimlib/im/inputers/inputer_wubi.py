@@ -83,6 +83,54 @@ class IM_Wubi( IM_Base, _wubi_seach):
         self.pmenu = pyvim.SelMenu()
         self.AREAS = areas
 
+
+    def im(self, key):
+        area = pyvim.syntax_area()
+
+        if not (area in self.AREAS or '*' in self.AREAS):
+            return
+        logging.error("wubi:area: %s, %s", area, self.AREAS)
+
+        self.key = key
+        if imrc.count - self.index!= 1:  # 保证连续输入
+            del self.buffer[:]
+        self.index = imrc.count
+
+        if key in self.cbs: #如果有对应的重载方法
+            self.cbs.get(key)()
+
+        elif key in imrc.digits:
+            self.digit()
+
+        elif key in imrc.lowerletter:
+            self.lower_letter()
+
+        elif key in imrc.upperletter:
+            self.upper_letter()
+
+        elif key in imrc.puncs: # 符号key
+            self.output(imrc.puncs[key][0])
+        return True
+
+    def digit( self ):
+        if pyvim.pumvisible():
+
+            self.setcount(self.patten, int(self.key) -1)
+            word = self.pmenu.getselect(int(self.key)).get('word')
+            pyvim.feedkeys(word, 'n')
+            del self.buffer[:]
+            return 0
+        pyvim.feedkeys( self.key ,'n')
+
+    def upper_letter( self ):
+        del self.buffer[:]
+        pyvim.feedkeys( self.key  ,'n' )
+
+    def lower_letter( self ):
+        self.buffer.append( self.key )
+        self.patten = ''.join(self.buffer)
+        self.pmenu.show(self.wubi(self.patten), 0)
+
     def cb_backspace(self):
         if not pyvim.pumvisible():
             pyvim.feedkeys('\<bs>', 'n')
@@ -128,55 +176,6 @@ class IM_Wubi( IM_Base, _wubi_seach):
     def cb_esc( self ):
         del self.buffer[:]
         pyvim.feedkeys( '\<esc>','n')
-
-    def im(self, key):
-        area = pyvim.syntax_area()
-
-        if not (area in self.AREAS or '*' in self.AREAS):
-            return
-        logging.error("wubi:area: %s, %s", area, self.AREAS)
-
-
-
-        self.key = key
-        if imrc.count - self.index!= 1:  # 保证连续输入
-            del self.buffer[:]
-        self.index = imrc.count
-
-        if key in self.cbs: #如果有对应的重载方法
-            self.cbs.get(key)()
-
-        elif key in imrc.digits:
-            self.digit()
-
-        elif key in imrc.lowerletter:
-            self.lower_letter()
-
-        elif key in imrc.upperletter:
-            self.upper_letter()
-
-        elif key in imrc.puncs: # 符号key
-            self.output(imrc.puncs[key][0])
-        return True
-
-    def digit( self ):
-        if pyvim.pumvisible():
-
-            self.setcount(self.patten, int(self.key) -1)
-            word = self.pmenu.getselect(int(self.key)).get('word')
-            pyvim.feedkeys(word, 'n')
-            del self.buffer[:]
-            return 0
-        pyvim.feedkeys( self.key ,'n')
-
-    def upper_letter( self ):
-        del self.buffer[:]
-        pyvim.feedkeys( self.key  ,'n' )
-
-    def lower_letter( self ):
-        self.buffer.append( self.key )
-        self.patten = ''.join(self.buffer)
-        self.pmenu.show(self.wubi(self.patten), 0)
 
 
 if __name__ == "__main__":

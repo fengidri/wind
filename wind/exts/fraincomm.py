@@ -63,7 +63,7 @@ def ProjectTerminal():
         os.system('setsid xterm&')
         return
 
-    p = frain.cur_project()
+    p = LIST().cur_project()
     if p:
         os.system('cd %s;setsid xterm&' % p.root)
     else:
