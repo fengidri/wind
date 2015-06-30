@@ -216,11 +216,14 @@ def clear_buffer( ):
     "清空当前缓冲区"
     del vim.current.buffer[ : ]
 
-def feedkeys(string, mode='m'):
-    string = string.replace(r'"',r'\"')
-    command='call feedkeys("%s", "%s")' %(string, mode)
-
-    vim.command(command)
+def feedkeys(key, mode='n'):
+    if isinstance(key, list):
+        for s in key:
+            feedkeys(s, mode)
+    else:
+        key = key.replace(r'"',r'\"')
+        command='call feedkeys("%s", "%s")' %(key, mode)
+        vim.command(command)
 
 def pumvisible( ):
     "返回当前的pmenu是否弹出"

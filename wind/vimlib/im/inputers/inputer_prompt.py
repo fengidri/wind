@@ -5,8 +5,10 @@
 #    version   :   1.0.1
 import pyvim
 import imrc
+from imrc import feedkeys
 
 __handle = None
+__follow_mode = True # 跟随模式
 def emit(event, *k):
     pass
 
@@ -36,7 +38,27 @@ class SelMenu( object ):
             words.append({"word": w})
         self.show(words, length)
 
-    def show( self, words, length ):
+
+
+    def complete(self, fun):
+        "指定补全函数"
+        self.check_omnifunc(fun)
+        imrc.feedkeys.append('\<C-X>\<C-O>\<C-P>')
+
+    def select(self, nu):
+        if pumvisible( ):
+            feedkeys((nu + 1) * '\<C-N>' , 'n' )
+            imrc.feedkeys.append('\<C-Y>')
+
+    def getselect(self, nu):
+        if pumvisible( ):
+            imrc.feedkeys.append('\<C-Y>')
+        return self.words[nu]
+
+    def cencel( self ):
+        imrc.feedkeys.append('\<C-e>')
+
+    def show(self, words, length):
         """使用内部的补全函数进行输出
                 @words:   vim 格式的数据结构
                 @length:  光标前要进行补全的字符长度
@@ -47,23 +69,28 @@ class SelMenu( object ):
         self.complete(self.omnifunc)
 
 
-    def complete(self, fun):
-        "指定补全函数"
-        self.check_omnifunc(fun)
-        feedkeys('\<C-X>\<C-O>\<C-P>',  'n')
+    def result(self, patten, words, associate):
+        '组成vim 智能补全要求的形式，这一步只是py形式的数据，vim要求是vim的形式'
 
-    def select(self, nu):
-        if pumvisible( ):
-            feedkeys((nu + 1) * '\<C-N>' , 'n' )
-            feedkeys( '\<C-Y>', 'n' )
+        items=[{"word": " " ,"abbr":"%s                  " %  patten }]
 
-    def getselect(self, nu):
-        if pumvisible( ):
-            feedkeys( '\<C-Y>', 'n' )
-        return self.words[nu]
+        if len( patten ) > 4:
+            return items
 
-    def cencel( self ):
-        feedkeys('\<C-e>', 'n')
+        i = 0
+        for w in words:
+            i += 1
+            items.append({"word":w, "abbr":"%s.%s"%(i, w)})
+
+        for w, k, c  in associate:
+            i += 1
+            items.append(
+                    {"word":w,
+                        "abbr":"%s.%s %s"%(i, w, k)}
+                    )
+
+        return items
+
 
 class prompt_handle(object):
     def cb_backspace(self):
@@ -76,7 +103,8 @@ class prompt_handle(object):
 
 
     def cb_enter(self):
-        pyvim.feedkeys(r'%s\<C-e>' % self.patten,'n')
+        patten = ''.join(self.buffer)
+        pyvim.feedkeys(r'%s\<C-e>' % patten,'n')
         self.close()
 
     def cb_space(self):
@@ -88,7 +116,7 @@ class prompt_handle(object):
 
     def cb_esc( self ):
         self.close()
-        pyvim.feedkeys('\<esc>', 'n')
+        imrc.feedkeys.append('\<esc>')
 
     def digit( self ):
         word = self.pmenu.getselect(int(self.key)).get('word')

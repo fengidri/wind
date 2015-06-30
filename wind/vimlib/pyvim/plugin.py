@@ -244,26 +244,9 @@ def event(e, pat='*'):
 
 
 
-def load_plugin( pyplugin_path ):
-    modes = os.listdir( pyplugin_path )
-    for mode in modes:
-        if not mode.endswith( ".py" ):
-            continue
-        mode = mode.split( '.' )[ 0 ]
-        try:
-            mode = __import__( mode )
-        except Exception, why:
-            import traceback
-            logging.error(traceback.format_exc())
-            #print "pyplugin: Load Error:\n%s: %s" %( mode, why)
-
-
-
-
-
-
-
-
+def load_plugin( ext_path ):
+    from plugins import Plugins
+    Plugins(ext_path).loads()
 if __name__ == "__main__":
     pass
 

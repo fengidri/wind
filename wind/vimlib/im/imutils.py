@@ -6,6 +6,25 @@
 import pyvim
 import imrc
 import logging
+
+__event_cb = {}
+
+def emit_event(event):
+    cblist = __event_cb.get(event)
+    if not cblist:
+        return
+    for cb in cblist:
+        cb()
+
+def add_hook(event, cb):
+    cblist = __event_cb.get(event)
+    if not cblist:
+        __event_cb[event] = [cb]
+    else:
+        cblist.append(cb)
+
+
+
 def key_all():
     keys = []
     for k in imrc.digits + imrc.lowerletter + imrc.upperletter:

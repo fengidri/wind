@@ -7,6 +7,25 @@
 
 import os
 import string
+import pyvim
+
+class Feedkeys(object):
+    def __new__(cls, *args, **kw):
+        "单例模式"
+        if not hasattr(cls, '_instance'):
+            orig = super(Feedkeys, cls)
+            cls._instance = orig.__new__(cls, *args, **kw)
+            Feedkeys._feed_ = []
+        return cls._instance
+    def __init__(self):
+        del Feedkeys._feed_[:]
+
+    def append(self, k):
+        Feedkeys._feed_.append(k)
+
+    def feed(self):
+        pyvim.feedkeys(Feedkeys._feed_)
+feedkeys = None
 
 wbcpickle = os.path.join(os.path.dirname(__file__), 'wbtree.cpickle').replace('\\','/')
 wbtxt = os.path.join(os.path.dirname(__file__), 'wubi.txt').replace('\\','/')
