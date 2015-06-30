@@ -81,6 +81,11 @@ class LISTOPTIONS(object):
             self.win.cursor = (1, 0)
             return False
 
+        w = None
+        if vim.current.window != self.win.w:
+            w = vim.current.window
+            vim.current.window = self.win.w
+
         logging.error('route: %s', route)
         for n in route[1:-1]:
             n.node_open(self.getlinenu(n))
@@ -88,6 +93,11 @@ class LISTOPTIONS(object):
         linenu = self.getlinenu(route[-1])
         self.win.cursor = (linenu, 0)
         self.update_status()
+        vim.command('normal zz')
+
+        if w:
+            vim.current.window = w
+
         return True
 
     def update_status(self):

@@ -8,6 +8,7 @@ from inputer_base import IM_Base
 import pyvim
 import re
 from im import imutils
+from im.imrc import feedkeys
 
 class IM_Tex( object ):
     def __init__(self):
@@ -26,7 +27,7 @@ class IM_Tex( object ):
             return False
 
 
-        imutils.key_feed(key)
+        feedkeys(key)
 
         return True
 

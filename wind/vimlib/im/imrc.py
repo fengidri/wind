@@ -25,10 +25,10 @@ class Feedkeys(object):
 
     def feed(self):
         pyvim.feedkeys(Feedkeys._feed_)
-feedkeys = None
+_feedkeys = None
+def feedkeys(k):
+       _feedkeys.append(k)
 
-wbcpickle = os.path.join(os.path.dirname(__file__), 'wbtree.cpickle').replace('\\','/')
-wbtxt = os.path.join(os.path.dirname(__file__), 'wubi.txt').replace('\\','/')
 fa_rule = """
 
 >*
@@ -94,7 +94,5 @@ puncs = {
 mults = {
             "jump"  :  ['<c-j>',        '\<c-j>'     ],
         }
-
-
 
 count = 0  # 

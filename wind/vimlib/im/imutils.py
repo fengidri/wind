@@ -32,6 +32,7 @@ def key_all():
     for k,n in imrc.puncs.items() + imrc.mults.items():
         keys.append((n[0], k))
     return keys
+
 def key_to_feed(key):
     if key in imrc.digits:
         return key

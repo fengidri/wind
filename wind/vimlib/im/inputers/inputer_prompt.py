@@ -43,20 +43,20 @@ class SelMenu( object ):
     def complete(self, fun):
         "指定补全函数"
         self.check_omnifunc(fun)
-        imrc.feedkeys.append('\<C-X>\<C-O>\<C-P>')
+        imrc.feedkeys('\<C-X>\<C-O>\<C-P>')
 
     def select(self, nu):
         if pumvisible( ):
             feedkeys((nu + 1) * '\<C-N>' , 'n' )
-            imrc.feedkeys.append('\<C-Y>')
+            imrc.feedkeys('\<C-Y>')
 
     def getselect(self, nu):
         if pumvisible( ):
-            imrc.feedkeys.append('\<C-Y>')
+            imrc.feedkeys('\<C-Y>')
         return self.words[nu]
 
     def cencel( self ):
-        imrc.feedkeys.append('\<C-e>')
+        imrc.feedkeys('\<C-e>')
 
     def show(self, words, length):
         """使用内部的补全函数进行输出
@@ -116,7 +116,7 @@ class prompt_handle(object):
 
     def cb_esc( self ):
         self.close()
-        imrc.feedkeys.append('\<esc>')
+        imrc.feedkeys('\<esc>')
 
     def digit( self ):
         word = self.pmenu.getselect(int(self.key)).get('word')

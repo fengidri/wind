@@ -2,11 +2,13 @@
 import os
 import sys
 import logging
-import pyvim
+
 import vim
+import pyvim
 from imutils import key_all, key_feed, emit_event
 import imrc
 from plugins import Plugins
+import ext
 
 ftmode = {} # 记录每一种文件类型对应的处理类
 
@@ -39,14 +41,10 @@ def IM_Init():
 
 def IM(key):
     emit_event('start')
-    imrc.feedkeys = imrc.Feedkeys()
-
-    imrc.count += 1#记数器, 统计输入
-    ft = vim.eval('&ft')
-
-    im = ftmode.get(ft, None)# 按照文件类型得到对应的filetype 处理方法
 
     emit_event('ft_pre')
+    ft = vim.eval('&ft')
+    im = ftmode.get(ft, None)# 按照文件类型得到对应的filetype 处理方法
 
     if im == None:
         key_feed(key)
@@ -54,7 +52,6 @@ def IM(key):
         im.im(key)
     emit_event('ft_post')
 
-    imrc.feedkeys.feed()
     emit_event('stop')
 
 if __name__ != "__main__":

@@ -7,6 +7,7 @@ from inputer_base import IM_Base
 import pyvim
 import re
 import logging
+from im.imrc import feedkeys
 class IM_Code( IM_Base ):
     def __init__(self, areas = ['*'] ):
         super(IM_Code, self).__init__()
@@ -62,9 +63,9 @@ class IM_Code( IM_Base ):
 
     def cb_dot(self):
         if pyvim.str_before_cursor( ).endswith('.'):
-            pyvim.feedkeys('\<bs>->' ,'n' )
+            feedkeys('\<bs>->')
         else:
-            pyvim.feedkeys('.' ,'n' )
+            feedkeys('.')
 
     def is_comp_char(self, key):
         if len(key) != 1:

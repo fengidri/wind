@@ -8,6 +8,7 @@ import json
 
 import pyvim
 import im.imrc as imrc
+from im.imrc import feedkeys
 
 from inputer_base import IM_Base
 import logging
@@ -165,7 +166,7 @@ class IM_Wubi( IM_Base, _wubi_seach):
                 c = bs[-1]
                 o = ord(c)
                 if c in ',.!:;?' or \
-                       65<= o <=90 or\
+                       65<= o <=90 or \
                        97<= o <=122 :
                        #48<= o <=57 or\
                     pyvim.feedkeys('\<space>', 'n')
