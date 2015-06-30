@@ -241,12 +241,10 @@ def event(e, pat='*'):
         return func
     return _f
 
-
-
-
 def load_plugin( ext_path ):
     from plugins import Plugins
     Plugins(ext_path).loads()
+
 if __name__ == "__main__":
     pass
 

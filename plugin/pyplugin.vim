@@ -12,9 +12,6 @@ import sys
 import os
 import vim
 
-
-"增加基础python lib 路径, 增加pyplugin 路径"
-
 # add paths
 root = os.path.dirname(vim.eval('s:script_folder_path'))
 pylib_path    = os.path.join(root, 'wind/vimlib' )
@@ -25,14 +22,12 @@ exts_path = os.path.join(root, "wind/exts" )
 pyvim.load_plugin( exts_path )
 
 #init im
-from im import Input_Monitor
-IM = Input_Monitor.Input_Monitor( )
-IM.init_monitor_keys( )
+from im import IM
 EOF
 "-------------------------------------------------------------------------------
 
 function! Input_Monitor( key )
-    py IM.im( vim.eval("a:key"))
+    py IM(vim.eval("a:key"))
     return ''
 endfunction
 
