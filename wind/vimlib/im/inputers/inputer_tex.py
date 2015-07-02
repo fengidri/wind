@@ -4,16 +4,22 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-from inputer_base import IM_Base 
+from inputer_base import IM_Base
 import pyvim
 import re
 from im import imutils
 from im.imrc import feedkeys
-
+#import time
+#import urllib
+#import urllib2
+#import vim
+#import logging
+#
 class IM_Tex( object ):
     def __init__(self):
         self.pmenu = pyvim.SelMenu()
         self.regex = re.compile(r"\\[a-zA-Z]+$")
+
 
     def im(self, key):
 

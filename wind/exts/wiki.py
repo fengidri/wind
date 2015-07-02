@@ -7,14 +7,18 @@
 import pyvim
 import vim
 import json
+import urllib
 import urllib2
 import tempfile
 from textohtml import texstohtmls
 import logging
 ID = None
 SERVER="blog.fengidri.me"
+is_wiki = False
 class WikiPost(pyvim.command):
     def run(self):
+        if not is_wiki:
+            return
         info, c = content()
 
         global ID
@@ -28,6 +32,8 @@ class WikiPost(pyvim.command):
 
 class WikiPut(pyvim.command):
     def run(self):
+        if not is_wiki:
+            return
         global ID
         if ID == None:
             pyvim.echoline('ID:None, You should run WikiPost.')
@@ -45,6 +51,8 @@ class WikiPut(pyvim.command):
 class WikiGet(pyvim.command):
     def run(self):
         global ID
+        global is_wiki
+        is_wiki = True
         if not self.params:
             print "should input the ID of the cachpter"
             return
@@ -56,6 +64,8 @@ class WikiGet(pyvim.command):
         vim.command("edit %s" % tmp)
 class WikiNew(pyvim.command):
     def run(self):
+        global is_wiki
+        is_wiki = True
         tmp = tempfile.mktemp(suffix='.mkiv', prefix='fwiki_')
         vim.command('e %s' % tmp)
         vim.current.buffer.append('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', 0)
@@ -63,6 +73,19 @@ class WikiNew(pyvim.command):
         vim.current.buffer.append('%Class:', 0)
         vim.current.buffer.append('%Title:', 0)
         vim.current.buffer.append('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', 0)
+
+@pyvim.cmd()
+def SendBuf():
+    ShowUrl = 'http://localhost/autofresh/data'
+    data = urllib.urlencode(
+            {   "data": '\n'.join(vim.current.buffer),
+                "type": "mkiv"})
+
+    req = urllib2.Request(ShowUrl, data)
+    try:
+        urllib2.urlopen(req).read()
+    except Exception, e:
+        logging.error(e)
 
 def getv(line):
     tmp = line[1:].split(':')

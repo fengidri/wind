@@ -8,6 +8,7 @@
 import os
 import string
 import pyvim
+import logging
 
 class Feedkeys(object):
     def __new__(cls, *args, **kw):
@@ -25,6 +26,7 @@ class Feedkeys(object):
 
     def feed(self):
         pyvim.feedkeys(Feedkeys._feed_)
+
 _feedkeys = None
 def feedkeys(k):
        _feedkeys.append(k)
@@ -95,4 +97,4 @@ mults = {
             "jump"  :  ['<c-j>',        '\<c-j>'     ],
         }
 
-count = 0  # 
+count = 0  #

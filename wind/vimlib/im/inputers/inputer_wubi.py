@@ -12,6 +12,8 @@ from im.imrc import feedkeys
 
 from inputer_base import IM_Base
 import logging
+
+from im.imutils import SelMenu
 class _wubi_seach( object ):
     def __init__(self):
         self.cache={  }
@@ -81,7 +83,7 @@ class IM_Wubi( IM_Base, _wubi_seach):
         _wubi_seach.__init__(self)
         self.index = 0
         self.buffer=[]
-        self.pmenu = pyvim.SelMenu()
+        self.pmenu = SelMenu()
         self.AREAS = areas
 
 
