@@ -50,19 +50,15 @@ class IM_Tex( object ):
         #    logging.error('send.........')
         #    self.send()
 
-        s = imutils.key_to_see(key)
-        if not (len(s) == 1 and s.isalpha()):
-            return
-
-        s = pyvim.str_before_cursor() + s
+        s = pyvim.str_before_cursor() + key
         match = self.regex.search(s)
         if not match:
             return False
 
-
         feedkeys(key)
-
         return True
+
+    im_upper = im_lower = im
 
 if __name__ == "__main__":
     pass

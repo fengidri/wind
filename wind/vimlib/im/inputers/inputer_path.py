@@ -55,10 +55,8 @@ class IM_Path(object):
         return relative_dir
 
 
+
     def im(self, key):
-        s = imutils.key_to_see(key)
-        if len(s)  != 1:
-            return
 
         s = pyvim.str_before_cursor() + s
 
@@ -66,6 +64,7 @@ class IM_Path(object):
         match = self._path_regex.search(s)
         if not match:
             return False
+
         feedkeys(key)
         # path complete start
 
@@ -82,6 +81,7 @@ class IM_Path(object):
         self.pmenu.showlist(relative_dir, l)
         return True
 
+    im_digit = im_upper = im_punc = im
     def try_abbreviation(self, path):
         # 路径缩写补全: /u/l/b ===> /usr/local/bin
         if path.startswith('/'):

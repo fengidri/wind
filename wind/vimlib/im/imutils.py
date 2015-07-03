@@ -30,8 +30,8 @@ def add_hook(event, cb):
 
 def key_all():
     keys = []
-    for k in imrc.digits + imrc.lowerletter + imrc.upperletter:
-        keys.append((k,k))
+    #for k in imrc.digits + imrc.lowerletter + imrc.upperletter:
+    #    keys.append((k,k))
     for k,n in imrc.puncs.items() + imrc.mults.items():
         keys.append((n[0], k))
     return keys
@@ -81,16 +81,24 @@ class filetype(object):
 
     def im(self, key, event):
         #logging.debug(self._ims)
-        if 'key' == event:
+        if 'digit' == event:
             for m in self._ims:
-                if m.im(key):
+                if m.im_digit(key):
+                    return True
+
+        elif 'lower' == event:
+            for m in self._ims:
+                if m.im_lower(key):
+                    return True
+
+        elif 'upper' == event:
+            for m in self._ims:
+                if m.im_upper(key):
                     return True
 
         elif 'event' == event:
             for m in self._ims:
-                if not hasattr(m, 'event'):
-                    continue
-                if m.event(key):
+                if m.im_event(key):
                     return True
 
 

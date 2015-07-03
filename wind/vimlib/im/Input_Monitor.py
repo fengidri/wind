@@ -10,6 +10,8 @@ import imrc
 from plugins import Plugins
 import ext
 
+import string
+
 ftmode = {} # 记录每一种文件类型对应的处理类
 
 def load_ftmode(m):
@@ -33,10 +35,22 @@ def IM_Init():
     for ft, cls in ftmode.items():
         logging.error('%s: %s' % (ft, cls))
 
-    keys = key_all()
-    for map_key, name in keys:
-        command='inoremap <expr> %s Input_Monitor( "%s" )' % ( map_key, name)
-        vim.command(command)
+    keys = {
+            'digit': string.digits,
+            'lower': string.ascii_lowercase,
+            'upper': string.ascii_uppercase,
+            'punc': string.punctuation,
+            'mult': ['<tab>', '<bs>', '<cr>', '<space>', '<esc>', '<c-j>']
+            }
+
+    for cls, v in keys.items():
+        for k in v:
+            if cls == 'mult' or v == '"': pre = '\\'
+            else: pre = ''
+
+            command='inoremap <expr> %s Input_Monitor("%s%s", "%s")' % 
+                            (k, pre, k, cls)
+            vim.command(command)
 
 
 def IM(event, tp='key'):

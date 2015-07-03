@@ -102,35 +102,26 @@ class IM_Wubi( IM_Base, _wubi_seach):
         if key in self.cbs: #如果有对应的重载方法
             self.cbs.get(key)()
 
-        elif key in imrc.digits:
-            self.digit()
 
-        elif key in imrc.lowerletter:
-            self.lower_letter()
 
-        elif key in imrc.upperletter:
-            self.upper_letter()
-
-        elif key in imrc.puncs: # 符号key
-            self.output(imrc.puncs[key][0])
         return True
 
-    def digit( self ):
+    def im_digit(self, key):
         if pyvim.pumvisible():
 
-            self.setcount(self.patten, int(self.key) -1)
-            word = self.pmenu.getselect(int(self.key)).get('word')
+            self.setcount(self.patten, int(key) -1)
+            word = self.pmenu.getselect(int(key)).get('word')
             pyvim.feedkeys(word, 'n')
             del self.buffer[:]
             return 0
         pyvim.feedkeys( self.key ,'n')
 
-    def upper_letter( self ):
+    def im_upper(self, key):
         del self.buffer[:]
-        pyvim.feedkeys( self.key  ,'n' )
+        pyvim.feedkeys(key  ,'n')
 
-    def lower_letter( self ):
-        self.buffer.append( self.key )
+    def im_lower(self, key ):
+        self.buffer.append(key)
         self.patten = ''.join(self.buffer)
         self.pmenu.show(self.wubi(self.patten), 0)
 

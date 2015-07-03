@@ -26,8 +26,8 @@ from im import IM
 EOF
 "-------------------------------------------------------------------------------
 
-function! Input_Monitor( key )
-    py IM(vim.eval("a:key"), 'key')
+function! Input_Monitor(key, tp)
+    py IM(vim.eval("a:key"), vim.eval("a:tp"))
     return ''
 endfunction
 

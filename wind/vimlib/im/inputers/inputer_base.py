@@ -7,15 +7,50 @@ import pyvim
 import im.imrc as imrc
 from im.imrc import feedkeys
 
+keyname = {
+ "parenthess"       :      "("      ,
+ "bracket"          :      "["      ,
+ "brace"            :      "{"      ,
+ "mark"             :      "'"      ,
+ "comma"            :      ","      ,
+ "semicolon"        :      ";"      ,
+ "minus"            :      "-"      ,
+ "underline"        :      "_"      ,
+ "add"              :      "+"      ,
+ "precent"          :      "%"      ,
+ "and_"             :      "&"      ,
+ "lt"               :      "<"      ,
+ "gt"               :      ">"      ,
+ "cat"              :      "^"      ,
+ "not_"             :      "!"      ,
+ "dot"              :      "."      ,
+ "slash"            :      "/"      ,
+ "eq"               :      "="      ,
+ "double_mark"      :      '"'      ,
+ "tab"              :      '<tab>'  ,
+ "backspace"        :      '<bs>'   ,
+ "enter"            :      '<cr>'   ,
+ "space"            :      '<space>' ,
+ "esc"              :      '<esc>'  ,
+ 'jump'             :      '<c-j>'  ,
+}
+
+
+
+
+
 class IM_Base( object ):
     def __init__(self):
+        pass
         #处理重载的key
         self.cbs = {}
-        self.simple_key = imrc.digits + imrc.lowerletter + imrc.upperletter
         for attr in dir(self):
             if not attr.startswith('cb_'):
                 continue
-            vname = attr[3:]
+
+            vname = keyname.get(attr[3:])
+            if not vname:
+                continue
 
             self.cbs[vname] = getattr(self, attr)
 
@@ -23,36 +58,35 @@ class IM_Base( object ):
     def output(self, out):
         feedkeys(out)
 
-    def im( self, key):
-        if key in self.cbs: #如果有对应的重载方法
-            self.cbs.get(key)()
+    im_digit = output
+    im_upper = output
+    im_lower = output
 
-        elif key in self.simple_key: # 简单的key
-            self.output(key)
-
-        elif key in imrc.puncs: # 符号key
-            self.output(imrc.puncs.get(key)[1])
-        return  True
-
-    def cb_tab(self):
-        if pyvim.pumvisible():
-            o = '\<C-n>'
+    def im_punc(self, k):
+        cb = self.cbs.get(k)
+        if cb:
+            cb()
+            return True
         else:
-            o = '    '
-        self.output(o)
+            feedkeys(k)
+            return True
 
-    def cb_jump(self):
-        string=pyvim.str_after_cursor( )
-        tag=r'\'"([{}])'
+    def im_mult(self, k):
+        cb = self.cbs.get(k)
+        if cb:
+            cb()
+            return True
+        else:
+            feedkeys('\%s' % k)
+            return True
 
-        n_list=[ ]
-        for i in tag:
-            t=string.find( i )
-            if t > -1:
-                n_list.append( t )
 
-        if len( n_list ) > 0:
-            feedkeys( '\<right>' * ( min( n_list ) +1), 'n')
+
+    def im_event(self, ev):
+        pass
+
+
+
 
 if __name__ == "__main__":
     pass
