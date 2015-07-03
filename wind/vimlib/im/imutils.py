@@ -79,11 +79,22 @@ class filetype(object):
             self._ims = []
         self._ims.append(im)
 
-    def im(self, key):
+    def im(self, key, event):
         #logging.debug(self._ims)
-        for m in self._ims:
-            if m.im(key):
-                return True
+        if 'key' == event:
+            for m in self._ims:
+                if m.im(key):
+                    return True
+
+        elif 'event' == event:
+            for m in self._ims:
+                if not hasattr(m, 'event'):
+                    continue
+                if m.event(key):
+                    return True
+
+
+
 
 class SelMenu( object ):
     "基于omnicomplete 包装成的SelMenu"

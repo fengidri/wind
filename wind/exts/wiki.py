@@ -75,18 +75,6 @@ class WikiNew(pyvim.command):
         vim.current.buffer.append('%Title:', 0)
         vim.current.buffer.append('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', 0)
 
-@pyvim.cmd()
-def SendBuf():
-    ShowUrl = 'http://localhost/autofresh/data'
-    data = urllib.urlencode(
-            {   "data": '\n'.join(vim.current.buffer),
-                "type": "mkiv"})
-
-    req = urllib2.Request(ShowUrl, data)
-    try:
-        urllib2.urlopen(req).read()
-    except Exception, e:
-        logging.error(e)
 
 def getv(line):
     tmp = line[1:].split(':')
@@ -114,6 +102,7 @@ def content():
             return
         content = '\n'.join(vim.current.buffer)
         return (info, content)
+
 def get(ID):
     url = 'http://%s/store/%s/index.mkiv' % (SERVER, ID)
     req = urllib2.Request(url)

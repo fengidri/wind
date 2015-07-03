@@ -46,14 +46,11 @@ def IM(event, tp='key'):
     ft = vim.eval('&ft')
     im = ftmode.get(ft, None)# 按照文件类型得到对应的filetype 处理方法
 
-    if tp == 'event':
-        if im and hasattr(im, 'event'):
-            im.event(event)
-    elif tp == 'key': # key
-        if im == None:
+    if im == None:
+        if tp == 'key':
             key_feed(event)
-        else:
-            im.im(event)
+    else:
+        im.im(event, tp)
 
     emit_event('ft_post')
 
