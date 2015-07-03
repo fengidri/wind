@@ -39,17 +39,22 @@ def IM_Init():
         vim.command(command)
 
 
-def IM(key):
+def IM(event, tp='key'):
     emit_event('start')
 
     emit_event('ft_pre')
     ft = vim.eval('&ft')
     im = ftmode.get(ft, None)# 按照文件类型得到对应的filetype 处理方法
 
-    if im == None:
-        key_feed(key)
-    else:
-        im.im(key)
+    if tp == 'event':
+        if im and hasattr(im, 'event'):
+            im.event(event)
+    elif tp == 'key': # key
+        if im == None:
+            key_feed(event)
+        else:
+            im.im(event)
+
     emit_event('ft_post')
 
     emit_event('stop')

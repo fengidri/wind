@@ -62,6 +62,7 @@ class WikiGet(pyvim.command):
             return
         ID = _ID
         vim.command("edit %s" % tmp)
+
 class WikiNew(pyvim.command):
     def run(self):
         global is_wiki

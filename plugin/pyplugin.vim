@@ -27,9 +27,12 @@ EOF
 "-------------------------------------------------------------------------------
 
 function! Input_Monitor( key )
-    py IM(vim.eval("a:key"))
+    py IM(vim.eval("a:key"), 'key')
     return ''
 endfunction
+
+auto CursorHold  *  py IM("CursorHold", 'event')
+auto CursorHoldI *  py IM("CursorHoldI", 'event')
 
 map  <F2>          :update<cr>
 imap <F2>          <esc>:update<cr>
