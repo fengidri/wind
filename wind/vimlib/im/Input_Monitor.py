@@ -1,7 +1,7 @@
 #encoding:utf8
 import os
 import sys
-import logging
+from pyvim import log as logging
 
 import vim
 import pyvim
@@ -70,9 +70,10 @@ def call(handle, key, tp):
        调用 handle, 依赖于 tp 调用不同的接口
     """
     attr_nm = "im_%s" % tp
-    attr = getattr(handle, attr_nm)
-    if attr:
-        return attr(key)
+    if not hasattr(handle, attr_nm):
+        return
+
+    return getattr(handle, attr_nm)(key)
 
 def redirect(key, tp):
     """

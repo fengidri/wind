@@ -5,7 +5,7 @@
 #    version   :   1.0.1
 import pyvim
 import imrc
-import logging
+from pyvim import log as logging
 import vim
 from im.imrc import feedkeys
 from pyvim import  pumvisible

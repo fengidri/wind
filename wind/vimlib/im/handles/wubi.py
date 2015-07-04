@@ -11,7 +11,7 @@ import im.imrc as imrc
 from im.imrc import feedkeys
 
 from im.handle_base import IM_Base
-import logging
+from pyvim import log as logging
 
 from im.imutils import SelMenu
 class _wubi_seach( object ):

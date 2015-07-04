@@ -8,7 +8,7 @@
 import os
 import string
 import pyvim
-import logging
+from pyvim import log as logging
 
 class Feedkeys(object):
     def __new__(cls, *args, **kw):
@@ -31,40 +31,5 @@ _feedkeys = None
 def feedkeys(k):
        _feedkeys.append(k)
 
-digits = [ d for d in string.digits ]
-lowerletter = [ c for c in string.ascii_lowercase ]
-upperletter = [ c for c in string.ascii_uppercase ]
-# TODO 要对于key 更加详细的划分
-puncs = {
-             # "vim name"  "see"      "feed"
-      "parenthess"         : ["("       ,  "("          ] ,
-      "bracket"            : ["["       ,  "["          ] ,
-      "brace"              : ["{"       ,  "{"          ] ,
-      "mark"               : ["'"       ,  "'"          ] ,
-      "comma"              : [","       ,  ","          ] ,
-      "semicolon"          : [";"       ,  ";"          ] ,
-      "minus"              : ["-"       ,  "-"          ] ,
-      "underline"          : ["_"       ,  "_"          ] ,
-      "add"                : ["+"       ,  "+"          ] ,
-      "precent"            : ["%"       ,  "%"          ] ,
-      "and_"               : ["&"       ,  "&"          ] ,
-      "lt"                 : ["<"       ,  "<"          ] ,
-      "gt"                 : [">"       ,  ">"          ] ,
-      "cat"                : ["^"       ,  "^"          ] ,
-      "not_"               : ["!"       ,  "!"          ] ,
-      "dot"                : ["."       ,  "."          ] ,
-      "slash"              : ["/"       ,  "/"          ] ,
-      "eq"                 : ["="       ,  "="          ] ,
-      "double_mark"        : ['"'       ,  '"'          ] ,
-      "tab"                : ['<tab>'   ,  '\<tab>'     ] ,
-      "backspace"          : ['<bs>'    ,  '\<bs>'      ] ,
-      "enter"              : ['<cr>'    ,  '\<cr>'      ] ,
-      "space"              : ['<space>' ,  '\<space>'   ] ,
-      "esc"                : ['<esc>'   ,  '\<esc>'     ] ,
-        }
-
-mults = {
-            "jump"  :  ['<c-j>',        '\<c-j>'     ],
-        }
 
 count = 0  #

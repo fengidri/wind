@@ -6,7 +6,7 @@
 from events import EventNames
 import os
 import vim
-import logging
+from pyvim import log as logging
 class complete(object):
     augroup       = "augroup"               # autocmd groups
     buffer        = "buffer"                # buffer names

@@ -5,7 +5,6 @@
 
 import imutils
 import imrc
-import logging
 def start():
     imrc._feedkeys = imrc.Feedkeys()
     imrc.count += 1

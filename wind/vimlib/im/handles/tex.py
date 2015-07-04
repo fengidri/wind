@@ -4,7 +4,6 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-import logging
 import pyvim
 import time
 import re
@@ -14,6 +13,7 @@ from im.imrc import feedkeys
 import urllib
 import urllib2
 import vim
+from pyvim import log as logging
 
 ShowUrl = 'http://localhost/autofresh/data'
 

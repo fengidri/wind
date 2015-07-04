@@ -41,7 +41,6 @@ keyname = {
 
 class IM_Base( object ):
     def __init__(self):
-        pass
         #处理重载的key
         self.cbs = {}
         for attr in dir(self):

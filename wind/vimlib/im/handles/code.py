@@ -6,10 +6,10 @@
 from im.handle_base import IM_Base
 import pyvim
 import re
-import logging
 from im.imrc import feedkeys
 import vim
 from im.imutils import SelMenu
+from pyvim import log as logging
 
 class handle(object):
     def double_out(self, d, b):
@@ -31,10 +31,7 @@ class handle(object):
         self.double_out('"', '"')
 
     def cb_tab( self ):
-        if pyvim.pumvisible():
-            o = '\<C-n>'
-
-        elif re.search(r'^\s*$',pyvim.str_before_cursor( )):
+        if re.search(r'^\s*$',pyvim.str_before_cursor( )):
             o = '    '
         else:
             o = '\<C-X>\<C-O>\<C-P>'
@@ -59,12 +56,6 @@ class handle(object):
         feedkeys('_')
         self.complete()
 
-    def cb_tab(self):
-        if pyvim.pumvisible():
-            o = '\<C-n>'
-        else:
-            o = '    '
-        feedkeys(o)
 
     def cb_jump(self):
         string=pyvim.str_after_cursor( )
