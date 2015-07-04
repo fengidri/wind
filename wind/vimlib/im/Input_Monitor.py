@@ -5,7 +5,7 @@ import logging
 
 import vim
 import pyvim
-from imutils import key_all, key_feed, emit_event
+from imutils import key_feed, emit_event
 import imrc
 from plugins import Plugins
 import ext

@@ -9,6 +9,7 @@ import logging
 import vim
 from im.imrc import feedkeys
 from pyvim import  pumvisible
+import os
 
 __event_cb = {}
 
@@ -26,15 +27,74 @@ def add_hook(event, cb):
     else:
         cblist.append(cb)
 
+class Rule(object):
+    def __init__(self, lines):
+        self.default_fsm = None
+        self.fm = {}
+        lines = [line.split() for line in lines]
+        try:
+            for syn, fn in lines:
+                if syn == "*":
+                    self.default_fsm = fn
+                    continue
+                self.fm[syn] = fn
+        except:
+            pass
+    def get(self, syn):
+        return self.fm.get(syn, self.default_fsm)
+
+class Redirect(object):
+    def __init__(self):
+        self.ft = {}
+        path = os.path.realpath(__file__)
+        path = os.path.dirname(path)
+        path = os.path.join(path, 'redirect.conf')
+        if os.path.exists(path):
+            return
+        self.load_reds(path)
+
+    def load_reds(self, path):
+        "load redirects"
+
+        tmp = []
+        lines = open(path).readlines()
+        for line in lines:
+            if line[0] == '>':
+                self.handle_block(tmp)
+                if tmp:
+                    handle()
+                del tmp[:]
+                tmp.append(line[1:])
 
 
-def key_all():
-    keys = []
-    #for k in imrc.digits + imrc.lowerletter + imrc.upperletter:
-    #    keys.append((k,k))
-    for k,n in imrc.puncs.items() + imrc.mults.items():
-        keys.append((n[0], k))
-    return keys
+        blocks = ct.split('>')
+        for b in blocks:
+            self.handle_block(b)
+
+    def handle_block(self, block):
+        lines = block.split('\n')
+        ft = lines
+
+        self.rules = {}
+        self.default_fsm = None
+        rules = fa_rule.split("\n>")
+        for rule in rules:
+            lines = rule.split('\n')
+            tmp = Rule(lines[1:])
+            for f in lines[0].split(','):
+                if f == "*":
+                    self.default_fsm = tmp
+                    continue
+                self.rules[f] = tmp
+    def get(self, f, syn):
+        r = self.rules.get(f, self.default_fsm)
+        if not r:
+            return 'base'
+        m =  r.get(syn)
+        if not m:
+            return 'base'
+        return m
+
 
 def key_to_feed(key):
     if key in imrc.digits:
