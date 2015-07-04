@@ -4,8 +4,8 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 import pyvim
-import imrc
-from imrc import feedkeys
+import im.imrc
+from im.imrc import feedkeys
 
 __handle = None
 __follow_mode = True # 跟随模式
@@ -132,7 +132,7 @@ class prompt_handle(object):
         self.patten = ''.join(self.buffer)
         self.pmenu.show(self.get_prompt(), 0)
 
-class IM_Wubi(prompt_handle):
+class IM_prompt(prompt_handle):
     def __init__(self):
         self.index = 0
         self.buffer=[]

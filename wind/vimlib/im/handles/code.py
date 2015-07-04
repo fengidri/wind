@@ -3,7 +3,7 @@
 #    time      :   2015-02-16 14:57:20
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
-from inputer_base import IM_Base
+from im.handle_base import IM_Base
 import pyvim
 import re
 import logging
@@ -77,7 +77,7 @@ class handle(object):
                 n_list.append( t )
 
         if len( n_list ) > 0:
-            feedkeys( '\<right>' * ( min( n_list ) +1), 'n')
+            feedkeys( '\<right>' * ( min( n_list ) +1))
 
 
 
@@ -89,12 +89,12 @@ class IM_Code(IM_Base, handle):
         self.complete_cmd = 'youcompleteme#OmniComplete'
 
     def im_upper(self, key):
-        IM_Base.im_upper(key)
-        self.complete(key)
+        IM_Base.im_upper(self, key)
+        self.complete()
 
     def im_lower(self, key):
-        IM_Base.im_lower(key)
-        self.complete(key)
+        IM_Base.im_lower(self, key)
+        self.complete()
 
 
 #    def im(self, key):
@@ -115,7 +115,7 @@ class IM_Code(IM_Base, handle):
             return True
         return False
 
-    def complete( self):
+    def complete(self):
         before = pyvim.str_before_cursor()
         if len(before) < 2:
             return

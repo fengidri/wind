@@ -4,7 +4,6 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-from inputer_base import IM_Base
 import logging
 import pyvim
 import time

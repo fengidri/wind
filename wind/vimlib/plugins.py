@@ -30,7 +30,7 @@ class Plugins(object):
             sys_name = module_path.replace('.', '_')
             module_loaded = imp.load_source(sys_name, module_path)
             if self.hook_init:
-                self.hook_init(module_loaded)
+                self.hook_init(module_name, module_loaded)
 
 
 if __name__ == "__main__":

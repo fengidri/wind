@@ -10,7 +10,7 @@ import pyvim
 import im.imrc as imrc
 from im.imrc import feedkeys
 
-from inputer_base import IM_Base
+from im.handle_base import IM_Base
 import logging
 
 from im.imutils import SelMenu

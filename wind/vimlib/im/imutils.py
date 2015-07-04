@@ -27,29 +27,24 @@ def add_hook(event, cb):
     else:
         cblist.append(cb)
 
-class Rule(object):
-    def __init__(self, lines):
-        self.default_fsm = None
-        self.fm = {}
-        lines = [line.split() for line in lines]
-        try:
-            for syn, fn in lines:
-                if syn == "*":
-                    self.default_fsm = fn
-                    continue
-                self.fm[syn] = fn
-        except:
-            pass
-    def get(self, syn):
-        return self.fm.get(syn, self.default_fsm)
 
 class Redirect(object):
+    def __new__(cls, *args, **kw):
+        "单例模式"
+        if not hasattr(cls, '_instance'):
+            orig = super(Redirect, cls)
+            cls._instance = orig.__new__(cls, *args, **kw)
+        return cls._instance
+
     def __init__(self):
+        if hasattr(self, 'ft'):
+            return
+
         self.ft = {}
         path = os.path.realpath(__file__)
         path = os.path.dirname(path)
         path = os.path.join(path, 'redirect.conf')
-        if os.path.exists(path):
+        if not os.path.exists(path):
             return
         self.load_reds(path)
 
@@ -61,39 +56,53 @@ class Redirect(object):
         for line in lines:
             if line[0] == '>':
                 self.handle_block(tmp)
-                if tmp:
-                    handle()
                 del tmp[:]
                 tmp.append(line[1:])
+            tmp.append(line)
+        self.handle_block(tmp)
 
 
-        blocks = ct.split('>')
-        for b in blocks:
-            self.handle_block(b)
+    def handle_block(self, lines):
+        if not lines: return
 
-    def handle_block(self, block):
-        lines = block.split('\n')
-        ft = lines
+        fts = [ft.strip() for ft in lines[0].split(',')]
 
-        self.rules = {}
-        self.default_fsm = None
-        rules = fa_rule.split("\n>")
-        for rule in rules:
-            lines = rule.split('\n')
-            tmp = Rule(lines[1:])
-            for f in lines[0].split(','):
-                if f == "*":
-                    self.default_fsm = tmp
-                    continue
-                self.rules[f] = tmp
-    def get(self, f, syn):
-        r = self.rules.get(f, self.default_fsm)
-        if not r:
-            return 'base'
-        m =  r.get(syn)
-        if not m:
-            return 'base'
-        return m
+        syntax = {}
+        for line in lines[1:]:
+            tt = line.split(':')
+            if len(tt) != 2:
+                continue
+            syn = [t.strip() for t in tt[0].split(',')]
+            handle_list = [t.strip() for t in tt[1].split(',')]
+            for s in syn:
+                syntax[s] = handle_list
+
+        for f in fts:
+            self.ft[f] = syntax
+
+
+    def get(self, ft, syntax):
+        reds = self.ft.get(ft)
+        if not reds:
+            ft = '*'
+
+        reds = self.ft.get(ft)
+        if not reds:
+            return ["base"]
+
+        handle_list = reds.get(syntax)
+        if not handle_list:
+            syntax = '*'
+
+        handle_list = reds.get(syntax)
+        if not handle_list:
+            return ["base"]
+
+        return handle_list
+
+    def log(self):
+        for ft, v in self.ft.items():
+            logging.info("Redirects: %s: %s", ft, v)
 
 
 def key_to_feed(key):
@@ -125,42 +134,6 @@ def key_to_see(key):
         return imrc.puncs.get(key)[0]
     elif key in imrc.mults:
         return imrc.mults.get(key)[0]
-
-def key_feed(key):
-    k = key_to_feed(key)
-    if k:
-        pyvim.feedkeys(k, 'n')
-
-
-class filetype(object):
-    def im_append(self, im):
-
-        if not hasattr(self, '_ims'):
-            self._ims = []
-        self._ims.append(im)
-
-    def im(self, key, event):
-        #logging.debug(self._ims)
-        if 'digit' == event:
-            for m in self._ims:
-                if m.im_digit(key):
-                    return True
-
-        elif 'lower' == event:
-            for m in self._ims:
-                if m.im_lower(key):
-                    return True
-
-        elif 'upper' == event:
-            for m in self._ims:
-                if m.im_upper(key):
-                    return True
-
-        elif 'event' == event:
-            for m in self._ims:
-                if m.im_event(key):
-                    return True
-
 
 
 

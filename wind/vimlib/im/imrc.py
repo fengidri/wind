@@ -31,36 +31,6 @@ _feedkeys = None
 def feedkeys(k):
        _feedkeys.append(k)
 
-fa_rule = """
-
->*
-    *            base
-    String       wubi
-
->c,cpp,python,javascript,ch,vim
-    *            code
-    CCommentDesc wubi
-    CCommentArg  wubi
-    Constant     wubi
-    Comment      wubi
-    String       wubi
-
->html
-    *            wubi
-    String       wubi
-    cssStyle     code
-    Statement    code
-    Function     html
-    Type         code
->context
-    *            wubi
-    Identifier   code
-    Statement    code
->svn,gitcommit,markdown
-    *            wubi
-
-"""
-
 digits = [ d for d in string.digits ]
 lowerletter = [ c for c in string.ascii_lowercase ]
 upperletter = [ c for c in string.ascii_uppercase ]

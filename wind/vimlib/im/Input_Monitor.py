@@ -5,35 +5,41 @@ import logging
 
 import vim
 import pyvim
-from imutils import key_feed, emit_event
+from imutils import emit_event, Redirect
 import imrc
 from plugins import Plugins
 import ext
+import handle_base
 
 import string
 
-ftmode = {} # 记录每一种文件类型对应的处理类
+__Handles = {}
 
-def load_ftmode(m):
-    if not hasattr(m, 'im_ft'):
-        return
+def load_handles(m_name, module):
+    m_name = m_name.lower()
+    t_attr = "im_%s" % m_name
+    for attr in dir(module):
+        if attr.lower() != t_attr:
+            continue
 
-    f = m.im_ft()
-
-    for ft in f.im_ft:
-        ftmode[ft] = f
+        name = attr[3:].lower()
+        handle = getattr(module, attr)()
+        __Handles[name] = handle
+        logging.info("load handle: %s : %s", name, handle)
 
 def IM_Init():
     ftpath = os.path.realpath(__file__)
     ftpath = os.path.dirname(ftpath)
-    ftpath = os.path.join(ftpath, 'filetype')
+    ftpath = os.path.join(ftpath, 'handles')
+
+    load_handles('base', handle_base)
 
     plugins = Plugins(ftpath)
-    plugins.hook_init = load_ftmode
+    plugins.hook_init = load_handles
     plugins.loads()
 
-    for ft, cls in ftmode.items():
-        logging.error('%s: %s' % (ft, cls))
+    Redirect().log()
+
 
     keys = {
             'digit': string.digits,
@@ -45,28 +51,59 @@ def IM_Init():
 
     for cls, v in keys.items():
         for k in v:
-            if cls == 'mult' or v == '"': pre = '\\'
-            else: pre = ''
+            key = k
+            name = k
+            if k == '|': key = '\\%s' % k
 
-            command='inoremap <expr> %s Input_Monitor("%s%s", "%s")' % 
-                            (k, pre, k, cls)
+            if key == '"' : name = '\\%s' % key
+
+            if cls == 'mult':
+                name = name.replace('<', '<lt>')
+
+            command='inoremap <expr> %s Input_Monitor("%s", "%s")' % \
+                            (key, name, cls)
+            #logging.debug(command)
             vim.command(command)
 
+def call(handle, key, tp):
+    """
+       调用 handle, 依赖于 tp 调用不同的接口
+    """
+    attr_nm = "im_%s" % tp
+    attr = getattr(handle, attr_nm)
+    if attr:
+        return attr(key)
+
+def redirect(key, tp):
+    """
+       重定向处理
+    """
+    ft = vim.eval('&ft')
+    syn = pyvim.syntax_area()
+
+    handle_list = Redirect().get(ft, syn)
+    for hd in handle_list:
+        handle = __Handles.get(hd)
+        if not handle:
+            logging.error('not found handle: %s' % hd)
+            continue
+        logging.error('redirct to handle: %s:%s', hd, handle)
+        if call(handle, key, tp):
+            break
 
 def IM(event, tp='key'):
+    """
+       处理事件.
+       @tp: 表示当前的收到的事件的类型
+       @event: 收到的事件
+
+       tp 可以是 digit, upper, lower, punc, mult 也可以是 event
+    """
+    logging.error('key: %s', event)
+
     emit_event('start')
 
-    emit_event('ft_pre')
-    ft = vim.eval('&ft')
-    im = ftmode.get(ft, None)# 按照文件类型得到对应的filetype 处理方法
-
-    if im == None:
-        if tp == 'key':
-            key_feed(event)
-    else:
-        im.im(event, tp)
-
-    emit_event('ft_post')
+    redirect(event, tp)
 
     emit_event('stop')
 
