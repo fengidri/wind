@@ -8,9 +8,12 @@ import json
 
 import pyvim
 import im.imrc as imrc
+from im.imrc import feedkeys
 
 from inputer_base import IM_Base
 import logging
+
+from im.imutils import SelMenu
 class _wubi_seach( object ):
     def __init__(self):
         self.cache={  }
@@ -80,40 +83,9 @@ class IM_Wubi( IM_Base, _wubi_seach):
         _wubi_seach.__init__(self)
         self.index = 0
         self.buffer=[]
-        self.pmenu = pyvim.SelMenu()
+        self.pmenu = SelMenu()
         self.AREAS = areas
 
-    def cb_backspace(self):
-        if not pyvim.pumvisible():
-            pyvim.feedkeys('\<bs>', 'n')
-            return 0
-
-        if len( self.buffer ) > 1:
-            self.buffer.pop()
-            self.patten = ''.join(self.buffer)
-            self.pmenu.show(self.wubi(self.patten), 0)
-        else:
-            del self.buffer[:]
-            self.pmenu.cencel( )
-
-
-    def cb_enter(self):
-        if pyvim.pumvisible():
-            pyvim.feedkeys(r'%s\<C-e>' % self.patten,'n')
-            del self.buffer[ : ]
-            return 0
-        pyvim.feedkeys(r'\<cr>' ,'n')
-
-    def cb_space(self):
-        del self.buffer[:]
-        if pyvim.pumvisible():
-            self.pmenu.select( 1 )
-            return 0
-        pyvim.feedkeys('\<space>', 'n')
-
-    def cb_esc( self ):
-        del self.buffer[:]
-        pyvim.feedkeys( '\<esc>','n')
 
     def im(self, key):
         area = pyvim.syntax_area()
@@ -121,8 +93,6 @@ class IM_Wubi( IM_Base, _wubi_seach):
         if not (area in self.AREAS or '*' in self.AREAS):
             return
         logging.error("wubi:area: %s, %s", area, self.AREAS)
-
-
 
         self.key = key
         if imrc.count - self.index!= 1:  # 保证连续输入
@@ -149,7 +119,8 @@ class IM_Wubi( IM_Base, _wubi_seach):
         if pyvim.pumvisible():
 
             self.setcount(self.patten, int(self.key) -1)
-            self.pmenu.select( int(self.key) )
+            word = self.pmenu.getselect(int(self.key)).get('word')
+            pyvim.feedkeys(word, 'n')
             del self.buffer[:]
             return 0
         pyvim.feedkeys( self.key ,'n')
@@ -162,6 +133,52 @@ class IM_Wubi( IM_Base, _wubi_seach):
         self.buffer.append( self.key )
         self.patten = ''.join(self.buffer)
         self.pmenu.show(self.wubi(self.patten), 0)
+
+    def cb_backspace(self):
+        if not pyvim.pumvisible():
+            pyvim.feedkeys('\<bs>', 'n')
+            return 0
+
+        if len( self.buffer ) > 1:
+            self.buffer.pop()
+            self.patten = ''.join(self.buffer)
+            self.pmenu.show(self.wubi(self.patten), 0)
+        else:
+            del self.buffer[:]
+            self.pmenu.cencel( )
+
+
+    def cb_enter(self):
+        if pyvim.pumvisible():
+            bs = pyvim.str_before_cursor()
+            if len(bs) > 0:
+                if ord(bs[-1]) > 178:
+                    pyvim.feedkeys(r'\<space>', 'n')
+            pyvim.feedkeys(r'%s\<C-e>' % self.patten,'n')
+            del self.buffer[ : ]
+            return 0
+        pyvim.feedkeys(r'\<cr>' ,'n')
+
+    def cb_space(self):
+        del self.buffer[:]
+        if pyvim.pumvisible():
+            word = self.pmenu.getselect(1).get('word')
+            bs = pyvim.str_before_cursor()
+            if len(bs) > 0:
+                c = bs[-1]
+                o = ord(c)
+                if c in ',.!:;?' or \
+                       65<= o <=90 or \
+                       97<= o <=122 :
+                       #48<= o <=57 or\
+                    pyvim.feedkeys('\<space>', 'n')
+            pyvim.feedkeys(word, 'n')
+            return 0
+        pyvim.feedkeys('\<space>', 'n')
+
+    def cb_esc( self ):
+        del self.buffer[:]
+        pyvim.feedkeys( '\<esc>','n')
 
 
 if __name__ == "__main__":

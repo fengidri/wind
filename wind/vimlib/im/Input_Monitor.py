@@ -2,66 +2,59 @@
 import os
 import sys
 import logging
-import pyvim
+
 import vim
-from imutils import key_all, key_feed
+import pyvim
+from imutils import key_all, key_feed, emit_event
 import imrc
+from plugins import Plugins
+import ext
+
+ftmode = {} # 记录每一种文件类型对应的处理类
+
+def load_ftmode(m):
+    if not hasattr(m, 'im_ft'):
+        return
+
+    f = m.im_ft()
+
+    for ft in f.im_ft:
+        ftmode[ft] = f
+
+def IM_Init():
+    ftpath = os.path.realpath(__file__)
+    ftpath = os.path.dirname(ftpath)
+    ftpath = os.path.join(ftpath, 'filetype')
+
+    plugins = Plugins(ftpath)
+    plugins.hook_init = load_ftmode
+    plugins.loads()
+
+    for ft, cls in ftmode.items():
+        logging.error('%s: %s' % (ft, cls))
+
+    keys = key_all()
+    for map_key, name in keys:
+        command='inoremap <expr> %s Input_Monitor( "%s" )' % ( map_key, name)
+        vim.command(command)
 
 
+def IM(event, tp='key'):
+    emit_event('start')
 
-class Input_Monitor(object):
-    def __init__(self):
-        self.ftmode = {} # 记录每一种文件类型对应的处理类
+    emit_event('ft_pre')
+    ft = vim.eval('&ft')
+    im = ftmode.get(ft, None)# 按照文件类型得到对应的filetype 处理方法
 
-        ftpath = os.path.realpath(__file__)
-        ftpath = os.path.dirname(ftpath)
-        ftpath = os.path.join(ftpath, 'filetype')
-        mds = os.listdir(ftpath)
-        logging.error(mds)
-        sys.path.insert(0, ftpath)
-        for m in mds:
-            if not m.endswith('.py'):
-                continue
-            if m.startswith('.'):
-                continue
-            try:
-                md = __import__(m[0:-3])
-                logging.error(md)
-                self.load_ftmode(md)
-            except Exception, e:
-                logging.exception(e)
+    if im == None:
+        if tp == 'key':
+            key_feed(event)
+    else:
+        im.im(event, tp)
 
-                continue
+    emit_event('ft_post')
 
-        del sys.path[0]
+    emit_event('stop')
 
-        #logging.debug("Input Mointer: ftmode: %s", self.ftmode)
-
-
-
-    def load_ftmode(self, m):
-        if not hasattr(m, 'im_ft'):
-            return
-        f = m.im_ft()
-
-        for ft in f.im_ft:
-            self.ftmode[ft] = f
-
-
-    def im( self, key ):
-        imrc.count += 1#记数器, 统计输入
-        ft = vim.eval('&ft')
-
-        im = self.ftmode.get(ft, None)# 按照文件类型得到对应的filetype 处理方法
-
-        if im == None:
-            key_feed(key)
-        else:
-            im.im(key)
-
-    def init_monitor_keys( self ):
-        keys=key_all()
-        for map_key, name in keys:
-            command='inoremap <expr> %s Input_Monitor( "%s" )' % ( map_key, name)
-            vim.command(command)
-
+if __name__ != "__main__":
+    IM_Init()

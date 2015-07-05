@@ -156,6 +156,7 @@ class SelMenu( object ):
                 @words:   vim 格式的数据结构
                 @length:  光标前要进行补全的字符长度
         """
+        self.words = words
         vim.vars["omniresult"] = words
         vim.vars["omnicol"] = vim.current.window.cursor[1] - length + 1
         self.complete(self.omnifunc)
@@ -171,6 +172,11 @@ class SelMenu( object ):
             feedkeys((nu + 1) * '\<C-N>' , 'n' )
             feedkeys( '\<C-Y>', 'n' )
 
+    def getselect(self, nu):
+        if pumvisible( ):
+            feedkeys( '\<C-Y>', 'n' )
+        return self.words[nu]
+
     def cencel( self ):
         feedkeys('\<C-e>', 'n')
 
@@ -181,13 +187,13 @@ def str_before_cursor():
     "返回光标前的字符串"
     col_nu_cursor=vim.current.window.cursor[1]
     cur_line=vim.current.line
-    return cur_line[0:col_nu_cursor]
+    return cur_line[0:col_nu_cursor].decode(vim.eval('&encoding'))
 
 def str_after_cursor():
     "返回光标后的字符串"
     col_nu_cursor=vim.current.window.cursor[1]
     cur_line=vim.current.line
-    return cur_line[col_nu_cursor:]
+    return cur_line[col_nu_cursor:].decode(vim.eval('&encoding'))
 
 def getline( ):
     return vim.current.line
@@ -210,11 +216,14 @@ def clear_buffer( ):
     "清空当前缓冲区"
     del vim.current.buffer[ : ]
 
-def feedkeys(string, mode='m'):
-    string = string.replace(r'"',r'\"')
-    command='call feedkeys("%s", "%s")' %(string, mode)
-
-    vim.command(command)
+def feedkeys(key, mode='n'):
+    if isinstance(key, list):
+        for s in key:
+            feedkeys(s, mode)
+    else:
+        key = key.replace(r'"',r'\"')
+        command='call feedkeys("%s", "%s")' %(key, mode)
+        vim.command(command)
 
 def pumvisible( ):
     "返回当前的pmenu是否弹出"

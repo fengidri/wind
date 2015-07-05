@@ -6,6 +6,7 @@
 
 import pyvim
 import vim
+from frainui import tmpedit
 class CFunComment(pyvim.command):
     def run(self):
         Comment().fun_comment()
@@ -77,6 +78,7 @@ class Comment(object):
 
         vim.current.buffer.append(lines, self.funline)
         vim.current.window.cursor = (self.funline + 2, len(lines[1]))
+
 
 
 

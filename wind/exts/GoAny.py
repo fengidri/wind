@@ -3,7 +3,6 @@ import pyvim
 import os
 import vim
 from vuirpc import VuiClient
-from frain_libs import frfiles
 
 class GoAny( pyvim.command ):
     def run( self ):
@@ -12,15 +11,15 @@ class GoAny( pyvim.command ):
         gototag()
         return
 
-class GoFile(pyvim.command):
-    def run(self):
-        gotofile()
-
+#class GoFile(pyvim.command):
+#    def run(self):
+#        gotofile()
+#
 
 
 def get_file_tag( file_name ):
     flag = {"f":"<span color='blue'>ℵ</span> ",
-            "m":"<span color='green'>✢</span> ", 
+            "m":"<span color='green'>✢</span> ",
             'v':"<span color='red'>⋎</span> "}
     all_var = [  ]
     if not file_name:
@@ -41,9 +40,9 @@ def get_file_tag( file_name ):
             keyword = "%s:%s" % (tmp[ 4 ]  , keyword)
 
         pre = flag.get(keyword_type, " ")
-        all_var.append( ( 
+        all_var.append( (
             pre,  # for display
-            keyword ,# for filter 
+            keyword ,# for filter
             linenu , # the value
             None
             ) )
@@ -82,19 +81,19 @@ def gototag():
         pyvim.echoline("Quit")
 
 
-def gotofile():
-    curfile = vim.current.buffer.name
-    msg = {"values": frfiles()}
-
-    client = VuiClient()
-    client.sethandle(110, showfile)
-    client.sethandle(200, showfile)
-    client.request("/open/file", msg)
-
-    response = client.response()
-    if response.code > 200:
-        vim.command("silent edit %s" % curfile)
-        pyvim.echoline("Quit")
-
-
+#def gotofile():
+#    curfile = vim.current.buffer.name
+#    msg = {"values": frfiles()}
+#
+#    client = VuiClient()
+#    client.sethandle(110, showfile)
+#    client.sethandle(200, showfile)
+#    client.request("/open/file", msg)
+#
+#    response = client.response()
+#    if response.code > 200:
+#        vim.command("silent edit %s" % curfile)
+#        pyvim.echoline("Quit")
+#
+#
 

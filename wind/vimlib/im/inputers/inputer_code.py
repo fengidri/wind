@@ -7,10 +7,16 @@ from inputer_base import IM_Base
 import pyvim
 import re
 import logging
+from im.imrc import feedkeys
+import vim
+from im.imutils import SelMenu
+
+
+
 class IM_Code( IM_Base ):
     def __init__(self, areas = ['*'] ):
         super(IM_Code, self).__init__()
-        self.pmenu = pyvim.SelMenu()
+        self.pmenu = SelMenu()
         self.AREAS = areas
         self.complete_cmd = 'youcompleteme#OmniComplete'
 
@@ -62,9 +68,9 @@ class IM_Code( IM_Base ):
 
     def cb_dot(self):
         if pyvim.str_before_cursor( ).endswith('.'):
-            pyvim.feedkeys('\<bs>->' ,'n' )
+            feedkeys('\<bs>->')
         else:
-            pyvim.feedkeys('.' ,'n' )
+            feedkeys('.')
 
     def is_comp_char(self, key):
         if len(key) != 1:
@@ -85,11 +91,12 @@ class IM_Code( IM_Base ):
             if not self.is_comp_char(before[-2]):
                 return
         if self.complete_cmd:
+#            self.pmenu.complete(self.complete_cmd)
             try:
                 self.pmenu.complete(self.complete_cmd)
             except:
-                self.complete_cmd = ''
                 logging.error('not found command: %s' , self.complete_cmd)
+                self.complete_cmd = ''
 
 if __name__ == "__main__":
     pass

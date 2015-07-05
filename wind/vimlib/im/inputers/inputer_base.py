@@ -5,6 +5,7 @@
 #    version   :   1.0.1
 import pyvim
 import im.imrc as imrc
+from im.imrc import feedkeys
 
 class IM_Base( object ):
     def __init__(self):
@@ -20,7 +21,7 @@ class IM_Base( object ):
 
 
     def output(self, out):
-        pyvim.feedkeys( out ,'n' )
+        feedkeys(out)
 
     def im( self, key):
         if key in self.cbs: #如果有对应的重载方法
@@ -51,7 +52,7 @@ class IM_Base( object ):
                 n_list.append( t )
 
         if len( n_list ) > 0:
-            pyvim.feedkeys( '\<right>' * ( min( n_list ) +1), 'n')
+            feedkeys( '\<right>' * ( min( n_list ) +1), 'n')
 
 if __name__ == "__main__":
     pass

@@ -4,7 +4,6 @@ import os
 import pyvim
 import ctags
 import sys
-import frain_libs.data
 import logging
 
 

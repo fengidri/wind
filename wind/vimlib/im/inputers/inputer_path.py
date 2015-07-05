@@ -9,6 +9,7 @@ import os
 import pyvim
 from im import imutils
 import logging
+from im.imrc import feedkeys
 
 
 class IM_Path(object):
@@ -65,7 +66,7 @@ class IM_Path(object):
         match = self._path_regex.search(s)
         if not match:
             return False
-        imutils.key_feed(key)
+        feedkeys(key)
         # path complete start
 
         path = os.path.expanduser(match.group())

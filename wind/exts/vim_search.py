@@ -64,9 +64,9 @@ def deal_argv( argvs ):
     分析上下文
 """
 def context(word, filter=""):
-    include = ""
     target = ""
     dirname = ""
+    include = ['*.[ch]', '*.cpp', '*.cc', '*.py']
 
     cur_path = vim.current.buffer.name
     if not cur_path:
@@ -74,7 +74,7 @@ def context(word, filter=""):
 
     for path in pyvim.Roots:
         if cur_path.startswith( path ):
-            include = " --include='*.[ch]' --include='*.cpp' --include='*.py' "
+            include = " --include='%s' " * len(include) % include
             dirname = path
             break
     else:

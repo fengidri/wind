@@ -4,21 +4,32 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 import node
+from node import Item
 import vim
 import logging
 import copy
+import pyvim
 class LISTHOOK(object):
-    def OnWinPost(self):
+    def LS_WinOpen_Hook(self):
+        "事件: 窗口创建"
+        pass
+
+    def LS_GetRoots(self):
+        "返回 roots"
+        pass
+
+    def LS_Refresh_Hook(self):
+        "事件: 刷新"
         pass
 
 class LISTOPTIONS(object):
     def open(self):
         l, c = vim.current.window.cursor
-        node = self.getnode()
+        node = Item.getnode()
         node._open(l)
 
     def close(self):  # 关闭父级目录
-        node = self.getnode()
+        node = Item.getnode()
         route = node.route()
         fa = route[-2]
         if fa == self.root:
@@ -30,31 +41,31 @@ class LISTOPTIONS(object):
 
 
     def refresh(self):
-        del self.buf[:]
-        self.buf[0] = "FrainUI"
-        node.LNode.nodes = {}
+        self.win.clear()
+        self.win.b[0] = "FrainUI"
+        Item.nodes = {}
         self.root = node.Node('root')
-        self.addlist()
 
+        # hooks
+        for r in self.LS_GetRoots():
+            self.root.append(r)
 
         self.root.opened = False
         self.root.node_open(1)
 
+        if self.Title:
+            self.settitle(self.Title)
 
-    def focus(self, autocreate = True):# 切换到list 窗口,
-        # 如果autocreate 为true, 在list窗口已经关闭的情况下, 会自动创建list窗口
-        if self.win.valid:
-            vim.current.window = self.win
-            return True
-        else:
-            if autocreate:
-                self.createwin()
-                return True
-            return False
+        self.LS_Refresh_Hook()
 
-    def find(self, _names):
-        if not self.focus():
-            return
+
+    def focus(self):# 切换到list 窗口,
+        self.win.show()
+
+    def LS_Find(self, _names):
+        """
+          在 list win 中显示由_names 指定的条目
+        """
         names = copy.copy(_names)
 
         names.insert(0, 'root')
@@ -70,14 +81,36 @@ class LISTOPTIONS(object):
             self.win.cursor = (1, 0)
             return False
 
+        w = None
+        if vim.current.window != self.win.w:
+            w = vim.current.window
+            vim.current.window = self.win.w
+
         logging.error('route: %s', route)
         for n in route[1:-1]:
             n.node_open(self.getlinenu(n))
 
         linenu = self.getlinenu(route[-1])
         self.win.cursor = (linenu, 0)
-        self.buf.vars['frain_status_path'] = '/'.join(_names[0:-1])
+        self.update_status()
+        vim.command('normal zz')
+
+        if w:
+            vim.current.window = w
+
         return True
+
+    def update_status(self):
+        node = Item.getnode()
+        if not node:
+            return
+
+        route = node.route()
+        if not route:
+            return
+
+        path = '/'.join([r.name for r in route[1:]])
+        self.win.b.vars['frain_status_path'] = path
 
     def settitle(self, name):#设置vim 窗口的title
         # 如果没有设置name, 则使用第一个root的name
@@ -86,41 +119,11 @@ class LISTOPTIONS(object):
 
 
 
-class LISTWIN(object):
-    def createwin(self):
-        vim.command( "topleft 25vnew Frain" )
-        vim.command( "set ft=frain" )
-        w = vim.current.window
-        b = vim.current.buffer
-        self.OnWinPost()
-
-        return (w, b)
 
 class LISTNODS(object):
-    def addlist(self): # 子类实现, 用于增加list窗口的内容
-        pass
-    def getnode(self, linenu=None): # 从list窗口得到对应的node
-        if vim.current.window != self.win:
-            logging.error('getnode: current win is not list win')
-            return
-
-        if linenu == None: # 没有输入行号, 使用当前行
-            line = vim.current.line
-        else:
-            if linenu >= len(self.buf):
-                return
-            line = self.buf[linenu]
-
-        line = line.decode('utf8')
-        try:
-            node_index = int(line.split('<|>')[1])
-            return node.LNode.nodes.get(node_index)
-        except:
-            logging.error('getnode: fail')
-
     def getlinenu(self, node):
         num = 0
-        for linenu, line in enumerate(self.buf):
+        for linenu, line in enumerate(self.win.b):
             try:
                 ID = int(line.split('<|>')[1])
                 if ID == node.ID:
@@ -134,13 +137,20 @@ class LISTNODS(object):
         return self.root.sub_nodes
 
 
+class LIST(LISTHOOK, LISTOPTIONS, LISTNODS):#  list 窗口对象
+    Title = None
+    @staticmethod
+    def get_instance():
+        if hasattr(LIST, '_instance'):
+            return LIST._instance
 
+    def __new__(cls, *args, **kw):
+        if not hasattr(LIST, '_instance'):
+            orig = super(LIST, cls)
+            LIST._instance = orig.__new__(cls, *args, **kw)
+        return LIST._instance
 
-class LIST(LISTHOOK, LISTOPTIONS, LISTWIN, LISTNODS):#  list 窗口对象
     def __init__(self):
-        node.LNode.ls = self
-
-        self.win, self.buf = self.createwin()
         """
             self.root(Node:root)
                 | ----------------selfNode(rootpath)
@@ -148,14 +158,23 @@ class LIST(LISTHOOK, LISTOPTIONS, LISTWIN, LISTNODS):#  list 窗口对象
                 | ----------------selfNode(rootpath)
                 | ----------------selfNode(rootpath)
         """
+        if hasattr(self, 'win'):
+            return
+        import Buffer
+        self.win = Buffer.Buffer(
+                vertical = True,
+                position = Buffer.TOPLEFT,
+                width = 25,
+                title = "Frain",  ft="frainlist")
+
+        self.win.Buf_New_Hook = self.LS_WinOpen_Hook
+        self.win.show()
+
+        Item.lswin = self.win
+
+        pyvim.addevent('CursorMoved', self.update_status, self.win.b)
 
 
-
-
-
-
-    def append(self, node):
-        self.root.append(node)
 
 if __name__ == "__main__":
     pass

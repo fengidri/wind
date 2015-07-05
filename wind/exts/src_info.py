@@ -61,8 +61,8 @@ if __name__ == "__main__":
  *   version      :   1.0.1
  *   description  :
  */
-#ifndef  __{ufilename}__
-#define __{ufilename}__
+#ifndef  __{ch_name}__
+#define __{ch_name}__
 
 #endif
 """
@@ -98,12 +98,18 @@ def add_src_info():
     if not info:
         return
     ntime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime() )
-    ufilename = os.path.basename(vim.current.buffer.name).upper().replace('.', '_')
+
+    ch_name = vim.current.buffer.name
+    ch_name = os.path.basename(ch_name)
+    ch_name = ch_name.upper()
+    ch_name = ch_name.replace('.', '_')
+    ch_name = ch_name.replace(' ', '_')
+    ch_name = ch_name.replace('-', '_')
 
     index = 0
     for l in info:
         l = l.format(time = ntime,
-                ufilename=ufilename,
+                ch_name=ch_name,
                 author=author,
                 email = email)
         vim.current.buffer.append(l, index)

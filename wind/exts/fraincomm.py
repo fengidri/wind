@@ -9,37 +9,33 @@ import pyvim
 
 import vim
 from frain import LIST
-frain = None
+from kvcache import KvCache
+from project import Project
 
 @pyvim.cmd(pyvim.complete.file)
 def Frain(path='.', name=''):
-    global frain
-    flag = False
-    if not frain:
-        frain = LIST()
-        flag = True
-    frain.data.append((path,name))
+    frain = LIST()
+    frain.add(path, name)
     frain.refresh()
-    if flag:
-        frain.OpenLastFiles()
 
 
 @pyvim.cmd()
 def FrainOpen():
-    if not frain:
+    if not LIST.get_instance():
         return
-    frain.open()
+    LIST().open()
 
 @pyvim.cmd()
 def FrainClose():
-    if not frain:
+    if not LIST.get_instance():
         return
-    frain.close()
+    LIST().close()
 
 @pyvim.cmd()
 def FrainFind():
-    if not frain:
+    if not LIST.get_instance():
         return
+    frain = LIST()
     s = frain.find()
     if s == 'NROOT':
         frain.add_cur_path()
@@ -52,37 +48,30 @@ def FrainFind():
 
 @pyvim.cmd()
 def FrainFocus():
-    if not frain:
-        return
-    frain.focus()
+    if LIST.get_instance():
+        LIST().focus()
 
 @pyvim.cmd()
 def FrainRefresh():
-    if not frain:
-        return
-    frain.refresh()
-    return
+    if LIST.get_instance():
+        LIST().refresh()
     #刷新path exp 窗口之后. 展开显示当前正在编辑的文件
-    for w in vim.windows:
-        b = w.buffer
-        if b.options['buftype'] != '':
-            continue
 
 @pyvim.cmd()
 def ProjectTerminal():
-    if not frain:
+    if not LIST.get_instance():
         os.system('setsid xterm&')
         return
 
-    path = frain.cur_root_path()
-    if path:
-        os.system('cd %s;setsid xterm&' % path)
+    p = LIST().cur_project()
+    if p:
+        os.system('cd %s;setsid xterm&' % p.root)
     else:
         os.system('setsid xterm&')
 
 
 @pyvim.cmd()
-def Project():
+def ProjectX():
     from frain_libs import frnames, fropen
     from vuirpc import VuiClient
     def popen(response):
@@ -98,3 +87,25 @@ def Project():
     client.sethandle(200, popen)
     client.request("/open/project", {"values":frnames()})
     client.response()
+
+@pyvim.cmd(pyvim.complete.file)
+def FrainAddInclude(path):
+    if not LIST.get_instance():
+        return
+
+    project = LIST().cur_project()
+    if not project:
+        return
+
+    if not os.path.isdir(path):
+        pyvim.echoline('%s is not dir' % path)
+        return
+
+    path = os.path.realpath(path)
+
+    project.add_c_include(path)
+    Project.update_c_include()
+
+
+
+

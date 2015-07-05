@@ -8,159 +8,82 @@ from frainui import LIST
 from frainui import Node, Leaf
 import libpath
 import logging
-import re
 import vim
 import pyvim
 import utils
 import os
-import json
+from project import Project
+from white_black import black_filter_files, sorted_by_expand_name
 
-blacklist_file=[
-    "^\.",      "^tags$",
-    ".+\.ac$", ".+\.pyc$" , ".+\.so$", ".+\.o$", ".+\.a$",
-    ".+\.lo$"
-    ]
+class FrainListSub(LIST):
+    first_fresh = True
+    def LS_GetRoots(self):
+        pyvim.Roots = []  # 整个vim 可用的变量
+        roots = []
+        for p in Project.All:
+            pyvim.Roots.append(p.root)
+            root = DirNode(p.root, p.name)
+            if not self.Title:
+                info = p.info
+                if not info:
+                    self.Title = root.name
+                else:
+                    self.Title = "%s(%s)" % (root.name, info["branch"])
 
-blacklist_switch = True
+            roots.append(root)
+        return roots
 
-def black_filter_files( files ):
-    if not blacklist_switch:
-        return True
-    fs = []
-    for f in files:
-        for regex in blacklist_file:
-            match = re.search( regex, f )
-            if match:
-                break
-        else:
-            fs.append(f)
-    return fs
+    def LS_Refresh_Hook(self):
+        if self.first_fresh:
+            self.first_fresh = False
+            Project.emit("FrainEntry")
+            return
 
+    def LS_WinOpen_Hook(self):
+        def vimleave():
+            Project.emit("FrainLeave")
 
+        pyvim.addevent('BufWritePost', libpath.push)
+        pyvim.addevent('VimLeave',  vimleave)
 
-"""
-    排序函数
-"""
-def sorted_by_expand_name( files ):
-    files_type = { "c":[], "cpp":[], "h":[], "py":[], "other":[] }
-    types = files_type.keys( )
-
-    for f in files:
-        try:
-            type_name = f.split( '.' )[ -1 ]
-        except:
-            type_name = "other"
-        if not type_name in types:
-            type_name = "other"
-        files_type[ type_name ].append( f )
-    tmp = [  ]
-    for v in files_type.values( ):
-        tmp += v
-
-    return sorted(files_type[ 'c' ]) +\
-            sorted(files_type[ 'cpp' ]) +\
-            sorted(files_type[ 'h' ]) +\
-            sorted(files_type[ 'py' ]) +\
-            sorted(files_type[ 'other' ])
-
-class Session(object):
-    DBFile = os.path.join(os.environ.get("HOME"), 'local/share/frain/session')
-    def __init__(self):
-        dbdir = os.path.dirname(self.DBFile)
-        if not os.path.exists(dbdir):
-            os.makedirs(dbdir)
-
-    def _load(self):
-        if not os.path.exists(self.DBFile):
-            return {}
-        else:
-            c = open(self.DBFile).read()
-            return json.loads(c)
-    def get(self, path):
-        return self._load().get(path)
-
-    def _save(self, se):
-        c = json.dumps(se)
-        open(self.DBFile, 'w').write(c)
-
-    def save(self):
-        session = self._load()
-        cur_session = self.getcurfile()
-        session.update(cur_session)
-        self._save(session)
-
-    def getcurfile(self):
-        fs = {}
-        for w in vim.windows:
-            name = w.buffer.name
-            if not name:
-                continue
-            for path in pyvim.Roots:
-                if name.startswith(path):
-                    l = fs.get(path)
-                    if l == None:
-                        fs[path] = [name]
-                    else:
-                        l.append(name)
-                    break
-
-        return fs
-
-
-
-############################ FrainList #########################################
-class FrainList(LIST):
+class FrainList(FrainListSub):
     data = []
     def find(self):
+        """显示当前的 buffer 对应的文件在 win list 中的位置
+
+        如果, buffer 不属于任何一个 project, 返回 `NROOT'
+
+        之后生成当前 buffer 在 win list 中的 url, 由 win list 进行查询.
+        """
         path = utils.bufferpath()
         if not path:
             return
-        for root in self.root.sub_nodes:
-            if path.startswith(root.path):
+
+        for p in Project.All:
+            if path.startswith(p.root):
                 break
         else:
             return 'NROOT' # not found root
 
-
-        names = utils.getnames(root.path, path)
-        if LIST.find(self, names):
+        names = utils.getnames(p.root, path)
+        if LIST.LS_Find(self, names):
             return True
+
+    def add(self, path, name = ''):
+        "增加一个新的 project, 提供参数 path, name"
+        path = libpath.realpath(path)
+        Project(path, name)
 
     def add_cur_path(self):
         path = utils.bufferpath()
-        self.data.append((libpath.dirname(path), ''))
+        self.add(path, '')
 
-    def addlist(self):
-        pyvim.Roots = []  # 整个vim 可用的变量
-        data = []
-        for path, name in self.data:
-            path = libpath.realpath(path)
-            if path in pyvim.Roots:
-                continue
-            pyvim.Roots.append(path)
-            data.append((path, name))
-            LIST.append(self, DirNode(path, name))
-        self.data = data
-
-    def OpenLastFiles(self):
-        pyvim.origin_win()
-        files = Session().get(pyvim.Roots[0])
-        if files:
-            pyvim.openfiles(files)
-
-    def OnWinPost(self):
-        pyvim.addevent('BufWritePost', libpath.push)
-        pyvim.addevent('VimLeave',  Session().save)
-
-    def cur_root_path(self):
+    def cur_project(self):
+        "返回当前 bufferf 所有在 project 对象"
         path = utils.bufferpath()
-        for r in self.root.sub_nodes:
-            if path.startswith(r.path):
-                return r.path
-
-
-
-
+        for p in Project.All:
+            if path.startswith(p.root):
+                return p
 
 class DirNode(Node):
     def __init__(self, path, name = ''):
@@ -170,7 +93,7 @@ class DirNode(Node):
         self.path = path
         self.subnodes = False
 
-    def InitSub(self): #初始子节点的方法
+    def LS_Node_Init(self): #初始子节点的方法
         if self.subnodes:
             return True
 
@@ -199,7 +122,7 @@ class FileNode(Leaf):
         Leaf.__init__(self, libpath.basename(path))
         self.path = path
 
-    def edit(self):
+    def LS_Leaf_Edit(self):
         vim.command( "update")
         path = libpath.pull(self.path)
         if not path:
