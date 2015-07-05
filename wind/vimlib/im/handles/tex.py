@@ -4,8 +4,6 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-from inputer_base import IM_Base
-import logging
 import pyvim
 import time
 import re
@@ -15,6 +13,7 @@ from im.imrc import feedkeys
 import urllib
 import urllib2
 import vim
+from pyvim import log as logging
 
 ShowUrl = 'http://localhost/autofresh/data'
 
@@ -50,19 +49,15 @@ class IM_Tex( object ):
         #    logging.error('send.........')
         #    self.send()
 
-        s = imutils.key_to_see(key)
-        if not (len(s) == 1 and s.isalpha()):
-            return
-
-        s = pyvim.str_before_cursor() + s
+        s = pyvim.str_before_cursor() + key
         match = self.regex.search(s)
         if not match:
             return False
 
-
         feedkeys(key)
-
         return True
+
+    im_upper = im_lower = im
 
 if __name__ == "__main__":
     pass

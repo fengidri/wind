@@ -3,39 +3,21 @@
 #    time      :   2015-02-16 14:57:20
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
-from inputer_base import IM_Base
+from im.handle_base import IM_Base
 import pyvim
 import re
-import logging
 from im.imrc import feedkeys
 import vim
 from im.imutils import SelMenu
+from pyvim import log as logging
+p
 
-
-
-class IM_Code( IM_Base ):
-    def __init__(self, areas = ['*'] ):
-        super(IM_Code, self).__init__()
-        self.pmenu = SelMenu()
-        self.AREAS = areas
-        self.complete_cmd = 'youcompleteme#OmniComplete'
-
-    def im(self, key):
-        area = pyvim.syntax_area()
-
-        if not (area in self.AREAS or '*' in self.AREAS):
-            return
-
-        super(IM_Code, self).im(key)
-        self.complete(key)
-        return True
-
+class handle(object):
     def double_out(self, d, b):
-        if pyvim.str_after_cursor(  ) == '':
-            self.output(d + b + '\<left>')
+        if pyvim.str_after_cursor() == '':
+            feedkeys(d + b + '\<left>')
         else:
-            self.output(d)
-
+            feedkeys(d)
 
     def cb_bracket( self ):#[  ]
         self.double_out('[', ']')
@@ -50,19 +32,17 @@ class IM_Code( IM_Base ):
         self.double_out('"', '"')
 
     def cb_tab( self ):
-        if pyvim.pumvisible():
-            o = '\<C-n>'
-
-        elif re.search(r'^\s*$',pyvim.str_before_cursor( )):
+        if re.search(r'^\s*$',pyvim.str_before_cursor( )):
             o = '    '
         else:
             o = '\<C-X>\<C-O>\<C-P>'
-        self.output(o)
+        feedkeys(o)
 
-    def cb_brace( self ):#{  }
+
+    def cb_brace(self):#{  }
         if pyvim.str_after_cursor(  ) == '' and \
             pyvim.str_before_cursor( ).endswith(')'):
-                self.output('\<cr>{\<cr>}\<up>\<cr>')
+                feedkeys('\<cr>{\<cr>}\<up>\<cr>')
                 return
         self.double_out('{', '}')
 
@@ -71,17 +51,63 @@ class IM_Code( IM_Base ):
             feedkeys('\<bs>->')
         else:
             feedkeys('.')
+        self.complete()
+
+    def cb_underline(self):
+        feedkeys('_')
+        self.complete()
+
+
+    def cb_jump(self):
+        string=pyvim.str_after_cursor( )
+        tag=r'\'"([{}])'
+
+        n_list=[ ]
+        for i in tag:
+            t=string.find( i )
+            if t > -1:
+                n_list.append( t )
+
+        if len( n_list ) > 0:
+            feedkeys( '\<right>' * ( min( n_list ) +1))
+
+
+
+class IM_Code(IM_Base, handle):
+    def __init__(self, areas = ['*'] ):
+        super(IM_Code, self).__init__()
+        self.pmenu = SelMenu()
+        #self.AREAS = areas
+        self.complete_cmd = 'youcompleteme#OmniComplete'
+
+    def im_upper(self, key):
+        IM_Base.im_upper(self, key)
+        self.complete()
+
+    def im_lower(self, key):
+        IM_Base.im_lower(self, key)
+        self.complete()
+
+
+#    def im(self, key):
+#        area = pyvim.syntax_area()
+#
+#        if not (area in self.AREAS or '*' in self.AREAS):
+#            return
+#
+#        super(IM_Code, self).im(key)
+#        self.complete(key)
+#        return True
+
+
+
 
     def is_comp_char(self, key):
-        if len(key) != 1:
-            return False
         if (key.islower( ) or key.isupper( ) or key in '._'):
             return True
         return False
 
-    def complete( self, key ):
-        if not self.is_comp_char(key):
-            return
+    def complete(self):
         before = pyvim.str_before_cursor()
         if len(before) < 2:
             return

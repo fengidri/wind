@@ -10,6 +10,7 @@ import pyvim
 from im import imutils
 import logging
 from im.imrc import feedkeys
+from pyvim import log as logging
 
 
 class IM_Path(object):
@@ -55,19 +56,18 @@ class IM_Path(object):
         return relative_dir
 
 
-    def im(self, key):
-        s = imutils.key_to_see(key)
-        if len(s)  != 1:
-            return
 
-        s = pyvim.str_before_cursor() + s
+    def im_lower(self, key):
+
+        s = pyvim.str_before_cursor() + key
+        logging.error('############%s',s)
 
 
         match = self._path_regex.search(s)
         if not match:
             return False
+
         feedkeys(key)
-        # path complete start
 
         path = os.path.expanduser(match.group())
         path_dir = os.path.dirname(path)
@@ -81,6 +81,8 @@ class IM_Path(object):
 
         self.pmenu.showlist(relative_dir, l)
         return True
+
+    im_digit = im_upper = im_punc = im_lower
 
     def try_abbreviation(self, path):
         # 路径缩写补全: /u/l/b ===> /usr/local/bin

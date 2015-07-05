@@ -5,10 +5,11 @@
 #    version   :   1.0.1
 import pyvim
 import imrc
-import logging
+from pyvim import log as logging
 import vim
 from im.imrc import feedkeys
 from pyvim import  pumvisible
+import os
 
 __event_cb = {}
 
@@ -18,6 +19,11 @@ def emit_event(event):
         return
     for cb in cblist:
         cb()
+def hook(event):
+    def fun(h):
+        add_hook(event, h)
+        return h
+    return fun
 
 def add_hook(event, cb):
     cblist = __event_cb.get(event)
@@ -27,14 +33,82 @@ def add_hook(event, cb):
         cblist.append(cb)
 
 
+class Redirect(object):
+    def __new__(cls, *args, **kw):
+        "单例模式"
+        if not hasattr(cls, '_instance'):
+            orig = super(Redirect, cls)
+            cls._instance = orig.__new__(cls, *args, **kw)
+        return cls._instance
 
-def key_all():
-    keys = []
-    for k in imrc.digits + imrc.lowerletter + imrc.upperletter:
-        keys.append((k,k))
-    for k,n in imrc.puncs.items() + imrc.mults.items():
-        keys.append((n[0], k))
-    return keys
+    def __init__(self):
+        if hasattr(self, 'ft'):
+            return
+
+        self.ft = {}
+        path = os.path.realpath(__file__)
+        path = os.path.dirname(path)
+        path = os.path.join(path, 'redirect.conf')
+        if not os.path.exists(path):
+            return
+        self.load_reds(path)
+
+    def load_reds(self, path):
+        "load redirects"
+
+        tmp = []
+        lines = open(path).readlines()
+        for line in lines:
+            if line[0] == '>':
+                self.handle_block(tmp)
+                del tmp[:]
+                tmp.append(line[1:])
+            tmp.append(line)
+        self.handle_block(tmp)
+
+
+    def handle_block(self, lines):
+        if not lines: return
+
+        fts = [ft.strip() for ft in lines[0].split(',')]
+
+        syntax = {}
+        for line in lines[1:]:
+            tt = line.split(':')
+            if len(tt) != 2:
+                continue
+            syn = [t.strip() for t in tt[0].split(',')]
+            handle_list = [t.strip() for t in tt[1].split(',')]
+            for s in syn:
+                syntax[s] = handle_list
+
+        for f in fts:
+            self.ft[f] = syntax
+
+
+    def get(self, ft, syntax):
+        reds = self.ft.get(ft)
+        if not reds:
+            ft = '*'
+
+        reds = self.ft.get(ft)
+        if not reds:
+            return ["base"]
+
+        handle_list = reds.get(syntax)
+        if not handle_list:
+            syntax = '*'
+
+        handle_list = reds.get(syntax)
+        if not handle_list:
+            return ["base"]
+
+        return handle_list
+
+    def log(self):
+        for ft, v in self.ft.items():
+            logging.info("Redirects: %s: %s", ft, v)
+
 
 def key_to_feed(key):
     if key in imrc.digits:
@@ -65,34 +139,6 @@ def key_to_see(key):
         return imrc.puncs.get(key)[0]
     elif key in imrc.mults:
         return imrc.mults.get(key)[0]
-
-def key_feed(key):
-    k = key_to_feed(key)
-    if k:
-        pyvim.feedkeys(k, 'n')
-
-
-class filetype(object):
-    def im_append(self, im):
-
-        if not hasattr(self, '_ims'):
-            self._ims = []
-        self._ims.append(im)
-
-    def im(self, key, event):
-        #logging.debug(self._ims)
-        if 'key' == event:
-            for m in self._ims:
-                if m.im(key):
-                    return True
-
-        elif 'event' == event:
-            for m in self._ims:
-                if not hasattr(m, 'event'):
-                    continue
-                if m.event(key):
-                    return True
-
 
 
 

@@ -5,16 +5,15 @@
 
 import imutils
 import imrc
-import logging
+
+@imutils.hook('start')
 def start():
     imrc._feedkeys = imrc.Feedkeys()
     imrc.count += 1
 
+@imutils.hook('stop')
 def stop():
     imrc._feedkeys.feed()
-
-imutils.add_hook('start', start)
-imutils.add_hook('stop', stop)
 
 if __name__ == "__main__":
     pass
