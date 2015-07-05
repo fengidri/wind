@@ -19,6 +19,11 @@ def emit_event(event):
         return
     for cb in cblist:
         cb()
+def hook(event):
+    def fun(h):
+        add_hook(event, h)
+        return h
+    return fun
 
 def add_hook(event, cb):
     cblist = __event_cb.get(event)

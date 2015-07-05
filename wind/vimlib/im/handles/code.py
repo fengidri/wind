@@ -10,6 +10,7 @@ from im.imrc import feedkeys
 import vim
 from im.imutils import SelMenu
 from pyvim import log as logging
+p
 
 class handle(object):
     def double_out(self, d, b):

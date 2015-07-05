@@ -14,116 +14,75 @@ from im.handle_base import IM_Base
 from pyvim import log as logging
 
 from im.imutils import SelMenu
-class _wubi_seach( object ):
+from im.prompt import abuild
+
+cache={  }
+
+def search_from_db(patten):
+    try:
+        r = urllib2.urlopen("http://localhost/wubi/search?patten=%s" %
+            patten)
+        w = json.loads(r.read())
+        cache[patten] = w
+        return w
+    except Exception, e:
+        pyvim.echoline(str(e))
+        return ([], [])
+
+def search(patten):
+    '得到备选的字词'
+    words= cache.get( patten )
+
+    if  words:
+        return words
+
+    return search_from_db(patten)
+
+def setcount(patten, num):
+    w, ass = cache.pop(patten)
+    if len(w) -1 < num:
+        return
+    ww = w[num]
+    url = "http://localhost/wubi/setcount?patten=%s&word=%s" % (patten,
+            ww.encode('utf8'))
+    try:
+        urllib2.urlopen(url)
+    except Exception, e:
+        pyvim.echoline(str(e))
+
+def wubi(patten):
+    words, associate = search(''.join(patten))
+
+    abuild(" ", "%s                  " %  patten)
+
+    i = 0
+    for w in words:
+        abuild(w, "%s.%s" % (i, w))
+
+    for w, k, c  in associate:
+        i += 1
+        abuild( w, "%s.%s %s"%(i, w, k)})
+
+
+class IM_Wubi(IM_Base):
     def __init__(self):
-        self.cache={  }
-
-
-    def search_from_db(self, patten):
-        try:
-            r = urllib2.urlopen("http://localhost/wubi/search?patten=%s" %
-                patten)
-            w = json.loads(r.read())
-            self.cache[ patten ] = w
-            return w
-        except Exception, e:
-            pyvim.echoline(str(e))
-            return ([], [])
-
-
-    def search( self , patten):
-        '得到备选的字词'
-        words= self.cache.get( patten )
-
-        if  words:
-            return words
-
-        return self.search_from_db(patten)
-
-    def setcount(self, patten, num):
-        w, ass = self.cache.pop(patten)
-        if len(w) -1 < num:
-            return
-        ww = w[num]
-        url = "http://localhost/wubi/setcount?patten=%s&word=%s" % (patten,
-                ww.encode('utf8'))
-        try:
-            urllib2.urlopen(url)
-        except Exception, e:
-            pyvim.echoline(str(e))
-
-    def wubi(self, patten):
-        return self.result(patten, *self.search(patten))
-
-    def result(self, patten, words, associate):
-        '组成vim 智能补全要求的形式，这一步只是py形式的数据，vim要求是vim的形式'
-
-        items=[{"word": " " ,"abbr":"%s                  " %  patten }]
-
-        if len( patten ) > 4:
-            return items
-
-        i = 0
-        for w in words:
-            i += 1
-            items.append({"word":w, "abbr":"%s.%s"%(i, w)})
-
-        for w, k, c  in associate:
-            i += 1
-            items.append(
-                    {"word":w,
-                        "abbr":"%s.%s %s"%(i, w, k)}
-                    )
-
-        return items
-
-class IM_Wubi( IM_Base, _wubi_seach):
-    def __init__(self, areas = ['String', 'Comment']):
         IM_Base.__init__(self)
-        _wubi_seach.__init__(self)
-        self.index = 0
+
         self.buffer=[]
+        self.index = 0
         self.pmenu = SelMenu()
-        self.AREAS = areas
 
 
-    def im(self, key):
-        area = pyvim.syntax_area()
 
-        if not (area in self.AREAS or '*' in self.AREAS):
-            return
-        logging.error("wubi:area: %s, %s", area, self.AREAS)
 
-        self.key = key
-        if imrc.count - self.index!= 1:  # 保证连续输入
+
+    def im_lower(self, key ):
+        if imrc.count - self.index != 1:  # 保证连续输入
             del self.buffer[:]
         self.index = imrc.count
 
-        if key in self.cbs: #如果有对应的重载方法
-            self.cbs.get(key)()
-
-
-
-        return True
-
-    def im_digit(self, key):
-        if pyvim.pumvisible():
-
-            self.setcount(self.patten, int(key) -1)
-            word = self.pmenu.getselect(int(key)).get('word')
-            pyvim.feedkeys(word, 'n')
-            del self.buffer[:]
-            return 0
-        pyvim.feedkeys( self.key ,'n')
-
-    def im_upper(self, key):
-        del self.buffer[:]
-        pyvim.feedkeys(key  ,'n')
-
-    def im_lower(self, key ):
         self.buffer.append(key)
-        self.patten = ''.join(self.buffer)
-        self.pmenu.show(self.wubi(self.patten), 0)
+        self.pmenu.show(self.wubi(self.buffer), 0)
 
     def cb_backspace(self):
         if not pyvim.pumvisible():
@@ -166,10 +125,6 @@ class IM_Wubi( IM_Base, _wubi_seach):
             pyvim.feedkeys(word, 'n')
             return 0
         pyvim.feedkeys('\<space>', 'n')
-
-    def cb_esc( self ):
-        del self.buffer[:]
-        pyvim.feedkeys( '\<esc>','n')
 
 
 if __name__ == "__main__":

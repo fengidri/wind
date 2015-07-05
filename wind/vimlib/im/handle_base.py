@@ -79,8 +79,6 @@ class IM_Base( object ):
             feedkeys('\%s' % k)
             return True
 
-
-
     def im_event(self, ev):
         pass
 

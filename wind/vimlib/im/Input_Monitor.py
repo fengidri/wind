@@ -10,6 +10,7 @@ import imrc
 from plugins import Plugins
 import ext
 import handle_base
+import handle_prompt
 
 import string
 
@@ -33,6 +34,7 @@ def IM_Init():
     ftpath = os.path.join(ftpath, 'handles')
 
     load_handles('base', handle_base)
+    load_handles('prompt', handle_prompt)
 
     plugins = Plugins(ftpath)
     plugins.hook_init = load_handles
@@ -104,7 +106,13 @@ def IM(event, tp='key'):
 
     emit_event('start')
 
-    redirect(event, tp)
+    if pyvim.pumvisible():
+        if not call('prompt', event, tp):
+            redirect(event, tp)
+    else:
+         redirect(event, tp)
+
+    emit_event('pre-stop')
 
     emit_event('stop')
 
