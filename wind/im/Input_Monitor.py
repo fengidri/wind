@@ -81,7 +81,7 @@ def call(hd, tp, key):
     if not hasattr(handle, attr_nm):
         return
 
-    logging.error('redirct to handle: %s:%s', hd, handle)
+    logging.error('redirct to handle: %s', hd)
 
     return getattr(handle, attr_nm)(key)
 
@@ -89,6 +89,10 @@ def redirect(tp, key):
     """
        重定向处理
     """
+    if pyvim.pumvisible():
+        if call("prompt", tp, key):
+            return
+
     ft = vim.eval('&ft')
     syn = pyvim.syntax_area()
 
@@ -96,6 +100,8 @@ def redirect(tp, key):
     for hd in handle_list:
         if call(hd, tp, key):
             break
+
+    call("activeprompt", tp, key)
 
 import wubi
 
@@ -120,15 +126,7 @@ def IM(*args):
         prompt.handle(*args[1:])
 
     elif cls == "key":
-        if pyvim.pumvisible():
-            if not call("prompt", *args[1:]):
-                redirect(*args[1:])
-                if args[1] != "mult":
-                    imrc.feedkeys('\<C-X>\<C-O>\<C-P>')
-        else:
-            redirect(*args[1:])
-            if args[1] != "mult":
-                imrc.feedkeys('\<C-X>\<C-O>\<C-P>')
+         redirect(*args[1:])
 
     elif cls == "event":
         redirect(*args)

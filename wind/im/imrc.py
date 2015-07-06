@@ -28,7 +28,7 @@ class Feedkeys(object):
         Feedkeys._feed_.append(k)
 
     def feed(self):
-        log.error(Feedkeys._feed_)
+        log.error('feed:%s', Feedkeys._feed_)
         pyvim.feedkeys(Feedkeys._feed_)
 
 _feedkeys = None

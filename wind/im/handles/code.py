@@ -56,12 +56,10 @@ class handle(object):
             feedkeys('\<bs>->')
         else:
             feedkeys('.')
-        self.complete()
         return True
 
     def cb_underline(self):
         feedkeys('_')
-        self.complete()
         return True
 
 
@@ -96,42 +94,35 @@ class handle(object):
         return True
 
 class IM_Code(IM_Base, handle):
-    def __init__(self, areas = ['*'] ):
-        super(IM_Code, self).__init__()
-        self.pmenu = SelMenu()
-        self.complete_cmd = 'youcompleteme#OmniComplete'
-
     def im_upper(self, key):
         IM_Base.im_upper(self, key)
-        self.complete()
         return True
 
     def im_lower(self, key):
         IM_Base.im_lower(self, key)
-        self.complete()
         return True
 
-    def is_comp_char(self, key):
-        if (key.islower( ) or key.isupper( ) or key in '._'):
-            return True
-        return False
+    #def is_comp_char(self, key):
+    #    if (key.islower( ) or key.isupper( ) or key in '._'):
+    #        return True
+    #    return False
 
-    def complete(self):
-        before = env.before
-        if len(before) < 2:
-            return
-        if before[-2:] != "->":
-            if not self.is_comp_char(before[-1]):
-                return
-            if not self.is_comp_char(before[-2]):
-                return
+    #def complete(self):
+    #    before = env.before
+    #    if len(before) < 2:
+    #        return
+    #    if before[-2:] != "->":
+    #        if not self.is_comp_char(before[-1]):
+    #            return
+    #        if not self.is_comp_char(before[-2]):
+    #            return
 
-        if self.complete_cmd:
-            try:
-                self.pmenu.complete(self.complete_cmd)
-            except:
-                logging.error('not found command: %s' , self.complete_cmd)
-                self.complete_cmd = ''
+    #    if self.complete_cmd:
+    #        try:
+    #            self.pmenu.complete(self.complete_cmd)
+    #        except:
+    #            logging.error('not found command: %s' , self.complete_cmd)
+    #            self.complete_cmd = ''
 
 if __name__ == "__main__":
     pass

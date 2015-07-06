@@ -54,10 +54,10 @@ def setcount(patten, num):
 
 def wubi(patten):
     logging.error('wubi: %s', patten)
-    words, associate = search(''.join(patten))
+    words, associate = search(patten)
 
     #abuild(" ", "%s                  " %  patten)
-    i = 1
+    i = 0
     for w in words:
         i += 1
         abuild(w, "%s.%s" % (i, w))

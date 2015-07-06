@@ -31,6 +31,7 @@ _prompt = []
 __handle = [None, None]
 from pyvim import log
 import vim
+import imrc
 
 def init(handle, h):
     __handle[0] = handle
@@ -83,18 +84,13 @@ def popmenu():
     vim.vars["omniresult"] = _prompt
     vim.vars["omnicol"] = vim.current.window.cursor[1] - length + 1
 
-func = "wind#Prompt"
-vim.command("let &omnifunc='%s'" % func)
-vim.command("let &l:omnifunc='%s'" % func)
 
-def active(handle1, handle2):
-    if __handle[0] or __handle[0]:
-        return False
 
+def active():
     func = "wind#Prompt"
     vim.command("let &omnifunc='%s'" % func)
     vim.command("let &l:omnifunc='%s'" % func)
-    feedkeys('\<C-X>\<C-O>\<C-P>')
+    imrc.feedkeys('\<C-X>\<C-O>\<C-P>')
     return True
 
 
@@ -123,9 +119,12 @@ def handle(event, base=None):
         return
 
     elif event == "base":
-        del _prompt[:]
+        global _prompt
+        #del _prompt[:]
+        _prompt = []
         __handle[1](base)
-        vim.vars["omniresult"] = _prompt
+        log.error('_prompt: %s', len(_prompt))
+        vim.vars["omniresult"] = {'words':_prompt, 'refresh': 'always'}
         return
 
 if __name__ == "__main__":
