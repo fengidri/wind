@@ -13,6 +13,7 @@ import handle_base
 import handle_prompt
 
 import string
+import env
 
 __Handles = {}
 
@@ -102,11 +103,12 @@ def IM(event, tp='key'):
 
        tp 可以是 digit, upper, lower, punc, mult 也可以是 event
     """
-    logging.error('key: %s', event)
+    env.init()
 
     emit_event('start')
 
     if pyvim.pumvisible():
+        logging.error('pumvisible');
         if not call('prompt', event, tp):
             redirect(event, tp)
     else:

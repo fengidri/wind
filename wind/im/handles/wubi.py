@@ -61,7 +61,7 @@ def wubi(patten):
 
     for w, k, c  in associate:
         i += 1
-        abuild( w, "%s.%s %s"%(i, w, k)})
+        abuild( w, "%s.%s %s"%(i, w, k))
 
 
 class IM_Wubi(IM_Base):

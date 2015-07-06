@@ -14,11 +14,11 @@ import vim
 
 # add paths
 root = os.path.dirname(vim.eval('s:script_folder_path'))
-pylib_path    = os.path.join(root, 'wind/vimlib' )
+pylib_path    = os.path.join(root, 'wind/' )
 sys.path.insert( 0, pylib_path )
 
 import pyvim
-exts_path = os.path.join(root, "wind/exts" )
+exts_path = os.path.join(root, "exts" )
 pyvim.load_plugin( exts_path )
 
 #init im

@@ -10,11 +10,10 @@ from im.imrc import feedkeys
 import vim
 from im.imutils import SelMenu
 from pyvim import log as logging
-p
-
+import im.env  as env
 class handle(object):
     def double_out(self, d, b):
-        if pyvim.str_after_cursor() == '':
+        if env.after == '':
             feedkeys(d + b + '\<left>')
         else:
             feedkeys(d)
@@ -32,7 +31,7 @@ class handle(object):
         self.double_out('"', '"')
 
     def cb_tab( self ):
-        if re.search(r'^\s*$',pyvim.str_before_cursor( )):
+        if re.search(r'^\s*$', env.before):
             o = '    '
         else:
             o = '\<C-X>\<C-O>\<C-P>'
@@ -40,14 +39,13 @@ class handle(object):
 
 
     def cb_brace(self):#{  }
-        if pyvim.str_after_cursor(  ) == '' and \
-            pyvim.str_before_cursor( ).endswith(')'):
-                feedkeys('\<cr>{\<cr>}\<up>\<cr>')
-                return
+        if env.after == '' and  env.before.endswith(')'):
+            feedkeys('\<cr>{\<cr>}\<up>\<cr>')
+            return
         self.double_out('{', '}')
 
     def cb_dot(self):
-        if pyvim.str_before_cursor( ).endswith('.'):
+        if env.before.endswith('.'):
             feedkeys('\<bs>->')
         else:
             feedkeys('.')
@@ -59,7 +57,7 @@ class handle(object):
 
 
     def cb_jump(self):
-        string=pyvim.str_after_cursor( )
+        string = env.after
         tag=r'\'"([{}])'
 
         n_list=[ ]
@@ -71,13 +69,10 @@ class handle(object):
         if len( n_list ) > 0:
             feedkeys( '\<right>' * ( min( n_list ) +1))
 
-
-
 class IM_Code(IM_Base, handle):
     def __init__(self, areas = ['*'] ):
         super(IM_Code, self).__init__()
         self.pmenu = SelMenu()
-        #self.AREAS = areas
         self.complete_cmd = 'youcompleteme#OmniComplete'
 
     def im_upper(self, key):
@@ -87,20 +82,6 @@ class IM_Code(IM_Base, handle):
     def im_lower(self, key):
         IM_Base.im_lower(self, key)
         self.complete()
-
-
-#    def im(self, key):
-#        area = pyvim.syntax_area()
-#
-#        if not (area in self.AREAS or '*' in self.AREAS):
-#            return
-#
-#        super(IM_Code, self).im(key)
-#        self.complete(key)
-#        return True
-
-
-
 
     def is_comp_char(self, key):
         if (key.islower( ) or key.isupper( ) or key in '._'):
@@ -116,8 +97,8 @@ class IM_Code(IM_Base, handle):
                 return
             if not self.is_comp_char(before[-2]):
                 return
+
         if self.complete_cmd:
-#            self.pmenu.complete(self.complete_cmd)
             try:
                 self.pmenu.complete(self.complete_cmd)
             except:

@@ -39,6 +39,7 @@ class IM_Path(object):
           \\.)*$
           """, re.X )
         self.pmenu = pyvim.SelMenu()
+
     def get_match_names(self, path_dir, basename):
         basename = basename.lower()
         try:
@@ -60,8 +61,6 @@ class IM_Path(object):
     def im_lower(self, key):
 
         s = pyvim.str_before_cursor() + key
-        logging.error('############%s',s)
-
 
         match = self._path_regex.search(s)
         if not match:

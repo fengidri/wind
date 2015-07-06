@@ -5,9 +5,11 @@
 #    version   :   1.0.1
 import pyvim
 import im.imrc
-from im.imrc import feedkeys
-from imrc  import  eve
-from imutils import add_hook
+from im.imrc     import feedkeys
+from imutils     import add_hook
+from handle_base import IM_Base
+import env
+import imutils
 
 __handle = None
 __follow_mode = True # 跟随模式
@@ -40,29 +42,19 @@ class IM_Prompt(IM_Base):
         feedkeys('\<C-n>')
         return True
 
-    def im_digit(self, key):
-        word = self.pmenu.getselect(int(key)).get('word')
-        feedkeys(word)
-        return True
-
-    def cb_backspace(self):
-        if len(self.buffer) > 1:
-            self.buffer.pop()
-            self.pmenu.show(self.get_prompt(), 0)
-        else:
-            self.close()
-            self.pmenu.cencel( )
-
-
     def cb_enter(self):
         feedkeys('\<C-e>')
+        return True
 
-    def cb_space(self):
-        pass
-
-    def cb_esc( self ):
+    def cb_esc(self):
         imrc.feedkeys('\<esc>')
+        return True
 
+
+    #def im_digit(self, key):
+    #    word = self.pmenu.getselect(int(key)).get('word')
+    #    feedkeys(word)
+    #    return True
 if __name__ == "__main__":
     pass
 
