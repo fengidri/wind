@@ -7,17 +7,18 @@ import pyvim
 import im.imrc
 from im.imrc     import feedkeys
 from imutils     import add_hook
-from handle_base import IM_Base
+from keybase import BasePass
 import env
 import imutils
+from pyvim import log
+import imrc
+import prompt
 
-__handle = None
 __follow_mode = True # 跟随模式
 __show_prompt = False
 
 
 
-handle = None
 
 
 @imutils.hook('start')
@@ -34,11 +35,16 @@ def stop():
 
 
 
-class IM_Prompt(IM_Base):
+
+
+
+
+class IM_Prompt(BasePass):
     def active(self):
         handle = None
 
     def cb_tab(self):
+        log.error('entry tab')
         feedkeys('\<C-n>')
         return True
 
@@ -47,7 +53,12 @@ class IM_Prompt(IM_Base):
         return True
 
     def cb_esc(self):
-        imrc.feedkeys('\<esc>')
+        feedkeys('\<esc>')
+        return True
+
+    def cb_space(self):
+        feedkeys('\<C-N>')
+        feedkeys('\<C-Y>')
         return True
 
 

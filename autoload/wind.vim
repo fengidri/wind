@@ -7,10 +7,13 @@
 "let g:omnicol = 0
 
 "补全回调函数"
-function! vimlib#SelMenuFunction( findstart, base )
+
+function! wind#Prompt(findstart, base)
   if a:findstart
+      py IM('prompt', 'findstart')
       return g:omnicol
   else
+      py IM('prompt', 'base', vim.eval('a:base'))
       return g:omniresult
   endif
 endfunction

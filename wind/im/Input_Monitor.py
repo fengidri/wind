@@ -1,18 +1,20 @@
 #encoding:utf8
 import os
 import sys
+import string
 from pyvim import log as logging
 
 import vim
 import pyvim
+
 from imutils import emit_event, Redirect
-import imrc
 from plugins import Plugins
-import ext
 import handle_base
 import handle_prompt
+import prompt
 
-import string
+import imrc
+import ext
 import env
 
 __Handles = {}
@@ -27,7 +29,7 @@ def load_handles(m_name, module):
         name = attr[3:].lower()
         handle = getattr(module, attr)()
         __Handles[name] = handle
-        logging.info("load handle: %s : %s", name, handle)
+        #logging.info("load handle: %s : %s", name, handle)
 
 def IM_Init():
     ftpath = os.path.realpath(__file__)
@@ -41,8 +43,7 @@ def IM_Init():
     plugins.hook_init = load_handles
     plugins.loads()
 
-    Redirect().log()
-
+    Redirect()#.log()
 
     keys = {
             'digit': string.digits,
@@ -64,21 +65,27 @@ def IM_Init():
                 name = name.replace('<', '<lt>')
 
             command='inoremap <expr> %s Input_Monitor("%s", "%s")' % \
-                            (key, name, cls)
-            #logging.debug(command)
+                            (key, cls, name)
             vim.command(command)
 
-def call(handle, key, tp):
+def call(hd, tp, key):
     """
        调用 handle, 依赖于 tp 调用不同的接口
     """
+
+    handle = __Handles.get(hd)
+    if not handle:
+        return
+
     attr_nm = "im_%s" % tp
     if not hasattr(handle, attr_nm):
         return
 
+    logging.error('redirct to handle: %s:%s', hd, handle)
+
     return getattr(handle, attr_nm)(key)
 
-def redirect(key, tp):
+def redirect(tp, key):
     """
        重定向处理
     """
@@ -87,15 +94,15 @@ def redirect(key, tp):
 
     handle_list = Redirect().get(ft, syn)
     for hd in handle_list:
-        handle = __Handles.get(hd)
-        if not handle:
-            logging.error('not found handle: %s' % hd)
-            continue
-        logging.error('redirct to handle: %s:%s', hd, handle)
-        if call(handle, key, tp):
+        if call(hd, tp, key):
             break
 
-def IM(event, tp='key'):
+import wubi
+
+
+prompt.init(wubi.handle1, wubi.wubi)
+
+def IM(*args):
     """
        处理事件.
        @tp: 表示当前的收到的事件的类型
@@ -103,20 +110,35 @@ def IM(event, tp='key'):
 
        tp 可以是 digit, upper, lower, punc, mult 也可以是 event
     """
+
+    cls = args[0]
     env.init()
+    logging.error(args)
 
     emit_event('start')
+    if cls == "prompt":
+        prompt.handle(*args[1:])
 
-    if pyvim.pumvisible():
-        logging.error('pumvisible');
-        if not call('prompt', event, tp):
-            redirect(event, tp)
-    else:
-         redirect(event, tp)
+    elif cls == "key":
+        if pyvim.pumvisible():
+            if not call("prompt", *args[1:]):
+                redirect(*args[1:])
+                if args[1] != "mult":
+                    imrc.feedkeys('\<C-X>\<C-O>\<C-P>')
+        else:
+            redirect(*args[1:])
+            if args[1] != "mult":
+                imrc.feedkeys('\<C-X>\<C-O>\<C-P>')
+
+    elif cls == "event":
+        redirect(*args)
 
     emit_event('pre-stop')
 
     emit_event('stop')
+    #elif pyvim.pumvisible():
+    #    if not call('prompt', event, tp):
+    #        redirect(event, tp)
 
 if __name__ != "__main__":
     IM_Init()

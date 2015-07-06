@@ -8,7 +8,10 @@
 import os
 import string
 import pyvim
-from pyvim import log as logging
+from pyvim import log
+
+class IMRedirectStop(Exception):
+    pass
 
 class Feedkeys(object):
     def __new__(cls, *args, **kw):
@@ -25,6 +28,7 @@ class Feedkeys(object):
         Feedkeys._feed_.append(k)
 
     def feed(self):
+        log.error(Feedkeys._feed_)
         pyvim.feedkeys(Feedkeys._feed_)
 
 _feedkeys = None

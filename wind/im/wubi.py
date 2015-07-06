@@ -53,17 +53,18 @@ def setcount(patten, num):
         pyvim.echoline(str(e))
 
 def wubi(patten):
+    logging.error('wubi: %s', patten)
     words, associate = search(''.join(patten))
 
-    abuild(" ", "%s                  " %  patten)
-
-    i = 0
+    #abuild(" ", "%s                  " %  patten)
+    i = 1
     for w in words:
+        i += 1
         abuild(w, "%s.%s" % (i, w))
 
     for w, k, c  in associate:
         i += 1
-        abuild( w, "%s.%s %s"%(i, w, k))
+        abuild( w, "%s.%s"%(i, w), k)
 
 ############
 def handle1():
@@ -71,12 +72,14 @@ def handle1():
     l = min(l, 4)
     index = -1
     while l > 0:
-        if not env.before[-1].islower():
+        if not env.before[index].islower():
             break
         index -= 1
+        l -= 1
     if index == -1:
         raise prompt.NotPrompt()
-    return env.col - index * -1
+    col = env.col - index * -1  + 1
+    return col
 
 
 
@@ -121,7 +124,7 @@ class IM_Wubi(IM_Base):
     def cb_space(self):
         del self.buffer[:]
         if pyvim.pumvisible():
-            feedkeys('\<c-n>\<c-e>')
+            feedkeys('\<c-n>\<c-Y>')
             return True
         pyvim.feedkeys('\<space>', 'n')
         return True

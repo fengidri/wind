@@ -19,6 +19,7 @@ def emit_event(event):
         return
     for cb in cblist:
         cb()
+
 def hook(event):
     def fun(h):
         add_hook(event, h)
@@ -180,7 +181,6 @@ class SelMenu( object ):
 
     def complete(self, fun):
         "指定补全函数"
-        logging.error('#-------------')
         self.check_omnifunc(fun)
         feedkeys('\<C-X>\<C-O>\<C-P>')
 

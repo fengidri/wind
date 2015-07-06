@@ -5,6 +5,7 @@
 
 import imutils
 import imrc
+import prompt
 
 @imutils.hook('start')
 def start():

@@ -26,13 +26,14 @@ from im import IM
 EOF
 "-------------------------------------------------------------------------------
 
-function! Input_Monitor(key, tp)
-    py IM(vim.eval("a:key"), vim.eval("a:tp"))
+function! Input_Monitor(tp, key)
+    py IM("key", vim.eval("a:tp"), vim.eval("a:key"))
     return ''
 endfunction
 
-auto CursorHold  *  py IM("CursorHold", 'event')
-auto CursorHoldI *  py IM("CursorHoldI", 'event')
+auto CursorHold   * py IM('event', "CursorHold")
+auto CursorHoldI  * py IM('event', "CursorHoldI")
+auto CompleteDone * py IM("prompt", "done")
 
 map  <F2>          :update<cr>
 imap <F2>          <esc>:update<cr>

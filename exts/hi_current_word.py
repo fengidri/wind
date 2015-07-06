@@ -30,11 +30,11 @@ class _input_post( ):
 
 input_post = _input_post( )
 
-@pyvim.event("CursorMovedI")
-def run():
-    input_post.input_post(  )
+#@pyvim.event("CursorMovedI")
+#def run():
+#    input_post.input_post(  )
 
-@pyvim.event("CursorMoved")
-def run():
-    input_post.input_post(  )
+#@pyvim.event("CursorMoved")
+#def run():
+#    input_post.input_post(  )
 

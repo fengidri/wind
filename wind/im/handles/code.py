@@ -17,18 +17,23 @@ class handle(object):
             feedkeys(d + b + '\<left>')
         else:
             feedkeys(d)
+        return True
 
     def cb_bracket( self ):#[  ]
         self.double_out('[', ']')
+        return True
 
     def cb_parenthess( self ):#(  )
         self.double_out('(', ')')
+        return True
 
     def cb_mark( self ):
         self.double_out("'", "'")
+        return True
 
     def cb_double_mark( self ):
         self.double_out('"', '"')
+        return True
 
     def cb_tab( self ):
         if re.search(r'^\s*$', env.before):
@@ -36,13 +41,15 @@ class handle(object):
         else:
             o = '\<C-X>\<C-O>\<C-P>'
         feedkeys(o)
+        return True
 
 
     def cb_brace(self):#{  }
         if env.after == '' and  env.before.endswith(')'):
             feedkeys('\<cr>{\<cr>}\<up>\<cr>')
-            return
+            return True
         self.double_out('{', '}')
+        return True
 
     def cb_dot(self):
         if env.before.endswith('.'):
@@ -50,10 +57,12 @@ class handle(object):
         else:
             feedkeys('.')
         self.complete()
+        return True
 
     def cb_underline(self):
         feedkeys('_')
         self.complete()
+        return True
 
 
     def cb_jump(self):
@@ -68,6 +77,23 @@ class handle(object):
 
         if len( n_list ) > 0:
             feedkeys( '\<right>' * ( min( n_list ) +1))
+        return True
+
+    def cb_backspace(self):
+        #for c in env.before:
+        #    if c != ' ':
+        #        break
+        #else: #
+        #    l = len(env.before)
+        #    if l != 0:
+        #        left = l % 4
+        #        if left == 0:
+        #            left = 4
+        #        feedkeys('\<bs>' * left)
+        #        return True
+
+        feedkeys('\<bs>')
+        return True
 
 class IM_Code(IM_Base, handle):
     def __init__(self, areas = ['*'] ):
@@ -78,10 +104,12 @@ class IM_Code(IM_Base, handle):
     def im_upper(self, key):
         IM_Base.im_upper(self, key)
         self.complete()
+        return True
 
     def im_lower(self, key):
         IM_Base.im_lower(self, key)
         self.complete()
+        return True
 
     def is_comp_char(self, key):
         if (key.islower( ) or key.isupper( ) or key in '._'):
@@ -89,7 +117,7 @@ class IM_Code(IM_Base, handle):
         return False
 
     def complete(self):
-        before = pyvim.str_before_cursor()
+        before = env.before
         if len(before) < 2:
             return
         if before[-2:] != "->":
