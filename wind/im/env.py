@@ -4,6 +4,7 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 import vim
+import imutils
 
 before = ''
 after = ''
@@ -12,10 +13,11 @@ encoding = ''
 col = 0
 num = 0
 
+@imutils.hook('start')
 def init():
     global before
     global after
-    global encoding 
+    global encoding
     global vchar
     global col
     global num

@@ -4,38 +4,37 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-"""
-   prompt 用于进行输入提示.
-   1. 外部调用
-        由外部程序完成补全功能. wind 只是负责 prompt 的调用与 pop 菜单的处理.
-        在 pop 菜单出现的情况下, 所做的事情也只有 <tab> 对于 item 的选择.
+import os
 
-   2. 内部调用
-   2.1 no session
-       这种情况与外部的调用相似, 也是没有 session 的. 在 pop 菜单出现的情况
-       也就是完成 <tab> 的行为.
-
-       由 wind 完成 prompt item 的生成. 但是由于没有 session, 所以 prompt 不会
-       代理这个过程
-
-       例如: path prompt.
-
-   2.2 session
-       目前只用于 wubi. 这种的行为是比较复杂的, prompt 还要代理 prompt item 的生
-       成.
-
-
-
-"""
-_prompt = []
-__handle = [None, None]
-from pyvim import log
+from plugins import Plugins
+from imutils import emit_event, Redirect
 import vim
+from pyvim import log
 import imrc
 
-def init(handle, h):
-    __handle[0] = handle
-    __handle[1] = h
+_prompt = []
+__Handles = {}
+
+class Status(object):
+    name = ''
+
+def prompt(name):
+    def _fun(findstart):
+        def xx(base):
+            __Handles[name] = (findstart, base)
+            return base
+        return xx
+    return _fun
+
+def Init():
+    ftpath = os.path.realpath(__file__)
+    ftpath = os.path.dirname(ftpath)
+    ftpath = os.path.join(ftpath, 'prompt')
+
+    plugins = Plugins(ftpath)
+    plugins.loads()
+    log.error(__Handles)
+
 
 class NotPrompt(Exception):
     pass
@@ -77,6 +76,7 @@ def build(word, abbr = None, menu = None):
 def abuild(word, abbr = None, menu = None):
     _prompt.append(build(word, abbr, menu))
 
+################################################################################
 
 def popmenu():
     if not _prompt:
@@ -90,18 +90,48 @@ def active():
     func = "wind#Prompt"
     vim.command("let &omnifunc='%s'" % func)
     vim.command("let &l:omnifunc='%s'" % func)
-    imrc.feedkeys('\<C-X>\<C-O>\<C-P>')
+    #imrc.feedkeys('\<C-X>\<C-O>\<C-P>')
+    imrc.feedkeys('\<C-X>\<C-O>')
     return True
 
+def findstart():
+    tt = None
+    col = -3
+    handle_list = Redirect().getcur('prompt')
+    log.error('################## %s', handle_list )
+    for hd in handle_list:
+        tt = __Handles.get(hd)
+        if not tt:
+            continue
 
+        try:
+            col = tt[0]()
+            if not isinstance(col, int):
+                col = -3
+        except NotPrompt:
+            col = -3
+
+        if col > -1:
+            log.error('@findstart redirect: %s' % hd)
+            Status.name = hd
+    return col
+
+def Base(base):
+    hd = __Handles.get(Status.name)[1]
+    if not hd:
+        return []
+
+    del _prompt[:]
+    hd(base)
+    return _prompt
 
 
 def handle(event, base=None):
 
-    #if event == 'done':
-    #    __handle[0] = None
-    #    __handle[1] = None
-    #    return
+    if event == 'done':
+        Status.findstart = None
+        Status.base = None
+        return
 
     #if __handle[0] == None or __handle[1] == None:
     #    vim.vars["omnicol"] = -3
@@ -109,23 +139,10 @@ def handle(event, base=None):
     #    return
 
     if event == "findstart":
-        try:
-            col = __handle[0]()
-            if not isinstance(col, int):
-                col = -3
-        except NotPrompt:
-            col = -3
-        vim.vars["omnicol"] = col
-        return
+        vim.vars["omnicol"] = findstart()
 
     elif event == "base":
-        global _prompt
-        #del _prompt[:]
-        _prompt = []
-        __handle[1](base)
-        log.error('_prompt: %s', len(_prompt))
-        vim.vars["omniresult"] = {'words':_prompt, 'refresh': 'always'}
-        return
+        vim.vars["omniresult"] = {'words':Base(base), 'refresh': 'always'}
 
 if __name__ == "__main__":
     pass

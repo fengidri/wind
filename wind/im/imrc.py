@@ -9,6 +9,21 @@ import os
 import string
 import pyvim
 from pyvim import log
+import imutils
+
+count = 0  #
+_feedkeys = None
+
+@imutils.hook('start')
+def start():
+    global _feedkeys
+    global count
+    _feedkeys = Feedkeys()
+    count += 1
+
+@imutils.hook('stop')
+def stop():
+    _feedkeys.feed()
 
 class IMRedirectStop(Exception):
     pass
@@ -31,9 +46,7 @@ class Feedkeys(object):
         log.error('feed:%s', Feedkeys._feed_)
         pyvim.feedkeys(Feedkeys._feed_)
 
-_feedkeys = None
 def feedkeys(k):
        _feedkeys.append(k)
 
 
-count = 0  #

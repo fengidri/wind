@@ -6,6 +6,7 @@
 
 from im.keybase import BasePass
 from im.imrc import feedkeys
+from im.prompt import Status
 
 class IM_Prompt(BasePass):
     def cb_tab(self):
@@ -21,13 +22,18 @@ class IM_Prompt(BasePass):
         return True
 
     def cb_space(self):
-        feedkeys('\<C-N>')
-        feedkeys('\<C-Y>')
-        return True
+        if Status.name == 'wubi':
+            feedkeys('\<C-N>')
+            feedkeys('\<C-Y>')
+            return True
+        else:
+            #feedkeys('\<C-Y>')
+            feedkeys(' ')
+            return True
 
     def cb_backspace(self):
         feedkeys('\<bs>')
-        feedkeys('\<C-X>\<C-O>\<C-P>')  # TODO   should auto
+        #feedkeys('\<C-X>\<C-O>\<C-P>')  # TODO   should auto
         return True
 
 

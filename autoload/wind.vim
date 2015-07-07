@@ -3,8 +3,8 @@
 
 """""""""""""""""""""""""""""""""""SelMenu"""""""""""""""""""""""""""""""""""
 "函数中用于传递返回数据的变量"
-"let g:omniresult= []
-"let g:omnicol = 0
+let g:omniresult= []
+let g:omnicol = 0
 
 "补全回调函数"
 "
@@ -15,10 +15,13 @@ function! wind#Prompt(findstart, base)
         py IM('prompt', 'findstart')
         if -4  == g:omnicol
             let s:invoke_other_fun = 1
-            return youcompleteme#OmniComplete(a:findstart, '')
-        else
-            return g:omnicol
+            let g:omnicol =  youcompleteme#OmniComplete(a:findstart, '')
         endif
+        if g:omnicol > -1
+            call feedkeys( "\<C-P>", 'n' )
+        endif
+
+        return g:omnicol
     else
         if s:invoke_other_fun
             let s:invoke_other_fun = 0

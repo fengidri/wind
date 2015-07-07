@@ -4,10 +4,8 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 import pyvim
-import imrc
 from pyvim import log as logging
 import vim
-from im.imrc import feedkeys
 from pyvim import  pumvisible
 import os
 
@@ -76,25 +74,35 @@ class Redirect(object):
         syntax = {}
         for line in lines[1:]:
             tt = line.split(':')
-            if len(tt) != 2:
+            if len(tt) != 3:
                 continue
             syn = [t.strip() for t in tt[0].split(',')]
-            handle_list = [t.strip() for t in tt[1].split(',')]
+            stream_handle_list = [t.strip() for t in tt[1].split(',')]
+            prompt_handle_list = [t.strip() for t in tt[2].split(',')]
             for s in syn:
-                syntax[s] = handle_list
+                syntax[s] = (stream_handle_list,  prompt_handle_list)
 
         for f in fts:
             self.ft[f] = syntax
 
+    def getcur(self, cls):
+        ft = vim.eval('&ft')
+        syn = pyvim.syntax_area()
+        return self.get(cls, ft, syn)
 
-    def get(self, ft, syntax):
+
+    def get(self, cls, ft, syntax):
+
+        default = ['base']
+        if cls == 'prompt':
+            default = []
         reds = self.ft.get(ft)
         if not reds:
             ft = '*'
 
         reds = self.ft.get(ft)
         if not reds:
-            return ["base"]
+            return default
 
         handle_list = reds.get(syntax)
         if not handle_list:
@@ -102,100 +110,75 @@ class Redirect(object):
 
         handle_list = reds.get(syntax)
         if not handle_list:
-            return ["base"]
+            return default
 
-        return handle_list
+        if cls == 'prompt':
+            return handle_list[1]
+        else:
+            return handle_list[0]
 
     def log(self):
         for ft, v in self.ft.items():
             logging.info("Redirects: %s: %s", ft, v)
 
 
-def key_to_feed(key):
-    if key in imrc.digits:
-        return key
-
-    elif key in imrc.lowerletter:
-        return key
-
-    elif key in imrc.upperletter:
-        return key
-
-    elif key in imrc.puncs:
-        return imrc.puncs.get(key)[1]
-
-    elif key in imrc.mults:
-        return imrc.mults.get(key)[1]
-    else:
-        logging.error("key:%s is not imrc" % key)
-
-def key_to_see(key):
-    if key in imrc.digits:
-        return key
-    elif key in imrc.lowerletter:
-        return key
-    elif key in imrc.upperletter:
-        return key
-    elif key in imrc.puncs:
-        return imrc.puncs.get(key)[0]
-    elif key in imrc.mults:
-        return imrc.mults.get(key)[0]
 
 
 
-class SelMenu( object ):
-    "基于omnicomplete 包装成的SelMenu"
-    "默认使用内部的complete function"
-    "也可以指定omnicomplete function "
 
-    omnifunc = "vimlib#SelMenuFunction"
-    def __new__(cls, *args, **kw):
-        "单例模式"
-        if not hasattr(cls, '_instance'):
-            orig = super(SelMenu, cls)
-            cls._instance = orig.__new__(cls, *args, **kw)
-        return cls._instance
-
-    def check_omnifunc( self, func ):
-        if vim.eval( '&l:omnifunc' ) != func:
-            vim.command("let &omnifunc='%s'" % func)
-            vim.command("let &l:omnifunc='%s'" % func)
-
-    def showlist(self, words_list, length):
-        """ 与show 比较相似, 只是使用 输入的是list, 也就说是比较简单的结构"""
-        words = []
-        for w in words_list:
-            words.append({"word": w})
-        self.show(words, length)
-
-    def show( self, words, length ):
-        """使用内部的补全函数进行输出
-                @words:   vim 格式的数据结构
-                @length:  光标前要进行补全的字符长度
-        """
-        self.words = words
-        vim.vars["omniresult"] = words
-        vim.vars["omnicol"] = vim.current.window.cursor[1] - length + 1
-        self.complete(self.omnifunc)
-
-
-    def complete(self, fun):
-        "指定补全函数"
-        self.check_omnifunc(fun)
-        feedkeys('\<C-X>\<C-O>\<C-P>')
-
-    def select(self, nu):
-        if pumvisible( ):
-            feedkeys((nu + 1) * '\<C-N>')
-            feedkeys( '\<C-Y>')
-
-    def getselect(self, nu):
-        if pumvisible( ):
-            feedkeys( '\<C-Y>' )
-        return self.words[nu]
-
-    def cencel( self ):
-        feedkeys('\<C-e>')
+#class SelMenu( object ):
+#    "基于omnicomplete 包装成的SelMenu"
+#    "默认使用内部的complete function"
+#    "也可以指定omnicomplete function "
+#
+#    omnifunc = "vimlib#SelMenuFunction"
+#    def __new__(cls, *args, **kw):
+#        "单例模式"
+#        if not hasattr(cls, '_instance'):
+#            orig = super(SelMenu, cls)
+#            cls._instance = orig.__new__(cls, *args, **kw)
+#        return cls._instance
+#
+#    def check_omnifunc( self, func ):
+#        if vim.eval( '&l:omnifunc' ) != func:
+#            vim.command("let &omnifunc='%s'" % func)
+#            vim.command("let &l:omnifunc='%s'" % func)
+#
+#    def showlist(self, words_list, length):
+#        """ 与show 比较相似, 只是使用 输入的是list, 也就说是比较简单的结构"""
+#        words = []
+#        for w in words_list:
+#            words.append({"word": w})
+#        self.show(words, length)
+#
+#    def show( self, words, length ):
+#        """使用内部的补全函数进行输出
+#                @words:   vim 格式的数据结构
+#                @length:  光标前要进行补全的字符长度
+#        """
+#        self.words = words
+#        vim.vars["omniresult"] = words
+#        vim.vars["omnicol"] = vim.current.window.cursor[1] - length + 1
+#        self.complete(self.omnifunc)
+#
+#
+#    def complete(self, fun):
+#        "指定补全函数"
+#        self.check_omnifunc(fun)
+#        feedkeys('\<C-X>\<C-O>\<C-P>')
+#
+#    def select(self, nu):
+#        if pumvisible( ):
+#            feedkeys((nu + 1) * '\<C-N>')
+#            feedkeys( '\<C-Y>')
+#
+#    def getselect(self, nu):
+#        if pumvisible( ):
+#            feedkeys( '\<C-Y>' )
+#        return self.words[nu]
+#
+#    def cencel( self ):
+#        feedkeys('\<C-e>')
 
 
 

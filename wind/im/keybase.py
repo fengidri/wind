@@ -56,7 +56,6 @@ class BasePass(object):
 
     def run_handle(self, k):
         cb = self.cbs.get(k)
-        log.debug('output:%s %s', k, cb)
         if cb:
             return cb()
         else:

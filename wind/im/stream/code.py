@@ -3,14 +3,16 @@
 #    time      :   2015-02-16 14:57:20
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
-from im.handle_base import IM_Base
 import pyvim
 import re
 from im.imrc import feedkeys
 import vim
-from im.imutils import SelMenu
+
 from pyvim import log as logging
+
 import im.env  as env
+import im.keybase
+
 class handle(object):
     def double_out(self, d, b):
         if env.after == '':
@@ -93,36 +95,8 @@ class handle(object):
         feedkeys('\<bs>')
         return True
 
-class IM_Code(IM_Base, handle):
-    def im_upper(self, key):
-        IM_Base.im_upper(self, key)
-        return True
-
-    def im_lower(self, key):
-        IM_Base.im_lower(self, key)
-        return True
-
-    #def is_comp_char(self, key):
-    #    if (key.islower( ) or key.isupper( ) or key in '._'):
-    #        return True
-    #    return False
-
-    #def complete(self):
-    #    before = env.before
-    #    if len(before) < 2:
-    #        return
-    #    if before[-2:] != "->":
-    #        if not self.is_comp_char(before[-1]):
-    #            return
-    #        if not self.is_comp_char(before[-2]):
-    #            return
-
-    #    if self.complete_cmd:
-    #        try:
-    #            self.pmenu.complete(self.complete_cmd)
-    #        except:
-    #            logging.error('not found command: %s' , self.complete_cmd)
-    #            self.complete_cmd = ''
+class IM_Code(im.keybase.BaseEnd, handle):
+    pass
 
 if __name__ == "__main__":
     pass

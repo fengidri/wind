@@ -4,7 +4,7 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-from Input_Monitor import IM
+from IM import IM
 
 if __name__ == "__main__":
     pass
