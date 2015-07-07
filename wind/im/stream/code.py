@@ -41,7 +41,7 @@ class handle(object):
         if re.search(r'^\s*$', env.before):
             o = '    '
         else:
-            o = '\<C-X>\<C-O>\<C-P>'
+            o = '\<C-X>\<C-O>'
         feedkeys(o)
         return True
 

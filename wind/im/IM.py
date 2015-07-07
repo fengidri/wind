@@ -5,7 +5,7 @@ from pyvim import log
 
 import stream
 import prompt
-from imutils import emit_event
+from imrc import emit_event
 
 def IM_Init():
     stream.Init()
@@ -19,6 +19,8 @@ def IM(*args):
 
        tp 可以是 digit, upper, lower, punc, mult 也可以是 event
     """
+
+    log.error('-----------------------------------------------')
 
     cls = args[0]
     emit_event('start')

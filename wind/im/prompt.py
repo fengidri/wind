@@ -7,7 +7,7 @@
 import os
 
 from plugins import Plugins
-from imutils import emit_event, Redirect
+from imutils import Redirect
 import vim
 from pyvim import log
 import imrc
@@ -97,8 +97,9 @@ def active():
 def findstart():
     tt = None
     col = -3
+
     handle_list = Redirect().getcur('prompt')
-    log.error('################## %s', handle_list )
+    log.debug('findstart hande list: %s', handle_list )
     for hd in handle_list:
         tt = __Handles.get(hd)
         if not tt:
@@ -131,6 +132,7 @@ def handle(event, base=None):
     if event == 'done':
         Status.findstart = None
         Status.base = None
+        Status.name = ''
         return
 
     #if __handle[0] == None or __handle[1] == None:

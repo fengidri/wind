@@ -219,8 +219,8 @@ def editfile(file_path):
 
 def syntax_area( ):
     "得到当前的语法区域的名称，这个是由syntax决定的"
-    command='synIDattr(synIDtrans(synID(line("."), col(".")-1, 1)), "name")'
-    return vim.eval( command)
+    command='synIDattr(synIDtrans(synID(line("."), col(".") - 1, 1)), "name")'
+    return vim.eval(command)
 
 def clear_buffer( ):
     "清空当前缓冲区"

@@ -6,7 +6,7 @@
 
 import string
 import os
-from imutils import emit_event, Redirect
+from imutils import Redirect
 from plugins import Plugins
 
 import imrc

@@ -9,21 +9,45 @@ import os
 import string
 import pyvim
 from pyvim import log
-import imutils
 
 count = 0  #
 _feedkeys = None
 
-@imutils.hook('start')
+#---------------------------------- event ------------------------------------
+__event_cb = {}
+def emit_event(event):
+    cblist = __event_cb.get(event)
+    if not cblist:
+        return
+    for cb in cblist:
+        cb()
+
+def hook(event):
+    def fun(h):
+        add_hook(event, h)
+        return h
+    return fun
+
+def add_hook(event, cb):
+    cblist = __event_cb.get(event)
+    if not cblist:
+        __event_cb[event] = [cb]
+    else:
+        cblist.append(cb)
+
+#---------------------------------- hook ------------------------------------
+@hook('start')
 def start():
     global _feedkeys
     global count
     _feedkeys = Feedkeys()
     count += 1
 
-@imutils.hook('stop')
+@hook('stop')
 def stop():
     _feedkeys.feed()
+
+#---------------------------------- feedkeys----------------------------------
 
 class IMRedirectStop(Exception):
     pass

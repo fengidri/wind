@@ -7,6 +7,7 @@
 from im.keybase import BasePass
 from im.imrc import feedkeys
 from im.prompt import Status
+from pyvim import log
 
 class IM_Prompt(BasePass):
     def cb_tab(self):
@@ -22,6 +23,7 @@ class IM_Prompt(BasePass):
         return True
 
     def cb_space(self):
+        log.error("status.name %s", Status.name)
         if Status.name == 'wubi':
             feedkeys('\<C-N>')
             feedkeys('\<C-Y>')

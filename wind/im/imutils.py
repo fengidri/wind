@@ -4,32 +4,12 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 import pyvim
-from pyvim import log as logging
+from pyvim import log
 import vim
-from pyvim import  pumvisible
+#from pyvim import  pumvisible
 import os
+import env
 
-__event_cb = {}
-
-def emit_event(event):
-    cblist = __event_cb.get(event)
-    if not cblist:
-        return
-    for cb in cblist:
-        cb()
-
-def hook(event):
-    def fun(h):
-        add_hook(event, h)
-        return h
-    return fun
-
-def add_hook(event, cb):
-    cblist = __event_cb.get(event)
-    if not cblist:
-        __event_cb[event] = [cb]
-    else:
-        cblist.append(cb)
 
 
 class Redirect(object):
@@ -86,12 +66,11 @@ class Redirect(object):
             self.ft[f] = syntax
 
     def getcur(self, cls):
-        ft = vim.eval('&ft')
-        syn = pyvim.syntax_area()
-        return self.get(cls, ft, syn)
+        return self.get(cls, env.ft, env.syntax)
 
 
     def get(self, cls, ft, syntax):
+        log.error("syntax %s", syntax)
 
         default = ['base']
         if cls == 'prompt':
@@ -119,7 +98,7 @@ class Redirect(object):
 
     def log(self):
         for ft, v in self.ft.items():
-            logging.info("Redirects: %s: %s", ft, v)
+            log.info("Redirects: %s: %s", ft, v)
 
 
 
