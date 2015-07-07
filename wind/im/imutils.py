@@ -6,7 +6,6 @@
 import pyvim
 from pyvim import log
 import vim
-#from pyvim import  pumvisible
 import os
 import env
 

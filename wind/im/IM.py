@@ -5,6 +5,7 @@ from pyvim import log
 
 import stream
 import prompt
+import setting
 from imrc import emit_event
 
 def IM_Init():
@@ -30,6 +31,10 @@ def IM(*args):
 
     elif cls == "key":
         stream.handle(*args[1:])
+
+    elif cls == "setting":
+        setting.handle(*args[1:])
+
 
     #elif cls == "event":
     #    redirect(*args)

@@ -7,15 +7,11 @@ import urllib2
 import json
 
 import pyvim
-import im.imrc as imrc
-from im.imrc import feedkeys
-
-from im.handle_base import IM_Base
 from pyvim import log
 
-from im.prompt import abuild
 import im.env as env
 import im.prompt as prompt
+import im.imrc as imrc
 
 cache={  }
 
@@ -56,6 +52,9 @@ def setcount(patten, num):
 
 @prompt.prompt('wubi')
 def handle():
+    if not imrc.SwitchWubi:
+        return -3
+
     l = len(env.before)
     l = min(l, 4)
     index = -1
@@ -78,11 +77,11 @@ def wubi(patten):
     i = 0
     for w in words:
         i += 1
-        abuild(w, "%s.%s" % (i, w))
+        prompt.abuild(w, "%s.%s" % (i, w))
 
     for w, k, c  in associate:
         i += 1
-        abuild( w, "%s.%s %s"%(i, w, k))
+        prompt.abuild( w, "%s.%s %s"%(i, w, k))
 
 
 

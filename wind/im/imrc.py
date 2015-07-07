@@ -12,6 +12,7 @@ from pyvim import log
 
 count = 0  #
 _feedkeys = None
+SwitchWubi = True
 
 #---------------------------------- event ------------------------------------
 __event_cb = {}
