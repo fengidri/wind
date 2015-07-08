@@ -126,7 +126,9 @@ def cmd(complete = None):
 
 def command_complete(arglead, cmdline, cursorpos):
     cmd = cmdline.split()[0]
-    vim.vars['wind_commands_complete'] = CMD_OPTS.get(cmd, [])
+    opts = [ o for o in CMD_OPTS.get(cmd, []) if o.startswith(arglead)]
+
+    vim.vars['wind_commands_complete'] = opts
 
 
 
