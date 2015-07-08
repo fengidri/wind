@@ -16,7 +16,7 @@ import im.keybase
 class handle(object):
     def double_out(self, d, b):
         if env.after == '':
-            feedkeys(d + b + '\<left>')
+            feedkeys([d , b , '\\<left>'])
         else:
             feedkeys(d)
         return True

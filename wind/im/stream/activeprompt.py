@@ -17,7 +17,7 @@ class IM_ActivePrompt(BasePass):
     im_digit = active
     im_lower = active
     im_upper = active
-    cb_backspace = active
+    #cb_backspace = active
 
 
 

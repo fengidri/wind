@@ -231,7 +231,12 @@ def feedkeys(key, mode='n'):
         for s in key:
             feedkeys(s, mode)
     else:
-        key = key.replace(r'"',r'\"')
+        if key == r'"':
+            key = r'\"'
+
+        elif key == '\\':
+            key = '\\\\'
+
         command='call feedkeys("%s", "%s")' %(key, mode)
         vim.command(command)
 

@@ -6,7 +6,7 @@
 
 import os
 import imp
-import logging
+from pyvim import log as logging
 
 class Plugins(object):
     def __init__(self, path):

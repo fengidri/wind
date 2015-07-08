@@ -14,12 +14,17 @@ class IM_Prompt(BasePass):
         feedkeys('\<C-n>')
         return True
 
-    def cb_enter(self):
-        feedkeys('\<C-e>')
-        return True
 
     def cb_esc(self):
         feedkeys('\<esc>')
+        return True
+
+    def cb_enter(self):
+        feedkeys('\<C-e>')
+
+        if Status.name != 'wubi':
+            feedkeys('\<cr>')
+
         return True
 
     def cb_space(self):

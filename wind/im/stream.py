@@ -54,7 +54,8 @@ def Init():
         for k in v:
             key = k
             name = k
-            if k == '|': key = '\\%s' % k
+            if k == '|': name = key = '\\|'
+            if k == '\\': name = '\\\\'
 
             if key == '"' : name = '\\%s' % key
 

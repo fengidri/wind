@@ -6,7 +6,7 @@
 import node
 from node import Item
 import vim
-import logging
+from pyvim import log as logging
 import copy
 import pyvim
 class LISTHOOK(object):
