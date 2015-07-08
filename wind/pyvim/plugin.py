@@ -79,10 +79,11 @@ def __command(vimcmd, fun, complete):
         nargs = '-nargs=+'
 
     command = "command {args} {complete} {vimcmd} " \
-                    "py {module}.cmd_cb({index}, '<args>')"
+                    "py IM('command', {index}, '<args>')"
 
     c = command.format(args = nargs, complete= complete, vimcmd = vimcmd,
-            module=__name__, index=len(CMDS))
+            index=len(CMDS))
+
     CMDS.append(fun)
     logging.error(c)
     vim.command(c)
@@ -223,7 +224,7 @@ def addevent(event, cb, pat='*'):
     es = event.split(',')
 
     cbid = "%s_%s" % (__Event_Index, cb.func_code.co_name)
-    cmd = "py %s.event_callback('%s')" % (__name__, cbid)
+    cmd = "py IM('event', '%s')" % cbid
     __Event_Map[cbid] = cb
 
     if not isinstance(pat, basestring):

@@ -2,6 +2,7 @@
 import os
 import sys
 from pyvim import log
+import pyvim
 
 import stream
 import prompt
@@ -35,16 +36,19 @@ def IM(*args):
     elif cls == "setting":
         setting.handle(*args[1:])
 
+    elif cls == "command":
+        pyvim.cmd_cb(*args[1:])
 
-    #elif cls == "event":
-    #    redirect(*args)
+    elif cls == "event":
+        pyvim.event_callback(*args[1:])
+
+
+
 
     emit_event('pre-stop')
 
     emit_event('stop')
-    #elif pyvim.pumvisible():
-    #    if not call('prompt', event, tp):
-    #        redirect(event, tp)
+
 
 if __name__ != "__main__":
     IM_Init()

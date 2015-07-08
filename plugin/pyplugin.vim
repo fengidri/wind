@@ -32,8 +32,8 @@ function! Input_Monitor(tp, key)
 endfunction
 
 set omnifunc="wind#Prompt"
-auto CursorHold   * py IM('event', "CursorHold")
-auto CursorHoldI  * py IM('event', "CursorHoldI")
+"auto CursorHold   * py IM('event', "CursorHold")
+"auto CursorHoldI  * py IM('event', "CursorHoldI")
 auto CompleteDone * py IM("prompt", "done")
 
 map  <F2>          :update<cr>
