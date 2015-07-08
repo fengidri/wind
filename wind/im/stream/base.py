@@ -7,6 +7,8 @@
 
 import im.keybase
 
+import im.stream as stream
+@stream.stream('base')
 class IM_Base(im.keybase.BaseEnd):
     pass
 

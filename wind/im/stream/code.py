@@ -12,6 +12,7 @@ from pyvim import log as logging
 
 import im.env  as env
 import im.keybase
+import im.stream as stream
 
 class handle(object):
     def double_out(self, d, b):
@@ -95,8 +96,16 @@ class handle(object):
         feedkeys('\<bs>')
         return True
 
+@stream.stream('code')
 class IM_Code(im.keybase.BaseEnd, handle):
     pass
+
+@stream.stream('lua')
+class IM_Lua(IM_Code):
+    def cb_dot(self):
+        feedkeys('.')
+        return True
+
 
 if __name__ == "__main__":
     pass

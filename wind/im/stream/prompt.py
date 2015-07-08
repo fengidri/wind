@@ -8,7 +8,9 @@ from im.keybase import BasePass
 from im.imrc import feedkeys
 from im.prompt import Status
 from pyvim import log
+import im.stream as stream
 
+@stream.stream("prompt")
 class IM_Prompt(BasePass):
     def cb_tab(self):
         feedkeys('\<C-n>')

@@ -7,6 +7,9 @@ from im.keybase import BasePass
 import im.imrc as imrc
 
 import im.prompt as prompt
+import im.stream as stream
+
+@stream.stream("activeprompt")
 class IM_ActivePrompt(BasePass):
     def active(self, key=None):
         prompt.active()

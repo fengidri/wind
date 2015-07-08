@@ -16,28 +16,19 @@ from pyvim import log
 
 __Handles = {}
 
-def load_handles(m_name, module):
-    m_name = m_name.lower()
-    t_attr = "im_%s" % m_name
-    for attr in dir(module):
-        if attr.lower() != t_attr:
-            continue
+def stream(name):
+    def _fun(cls):
+        __Handles[name.lower()] = cls()
+        return cls
+    return _fun
 
-        name = attr[3:].lower()
-        handle = getattr(module, attr)()
-        __Handles[name] = handle
-        #logging.info("load handle: %s : %s", name, handle)
 
 def Init():
     ftpath = os.path.realpath(__file__)
     ftpath = os.path.dirname(ftpath)
     ftpath = os.path.join(ftpath, 'stream')
 
-    #load_handles('base', handle_base)
-    #load_handles('prompt', handle_prompt)
-
     plugins = Plugins(ftpath)
-    plugins.hook_init = load_handles
     plugins.loads()
 
     Redirect()#.log()
