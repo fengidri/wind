@@ -18,7 +18,7 @@ handlers = logging.handlers.RotatingFileHandler(LOGFILE, maxBytes=MAXBYTES)
 formatter = logging.Formatter('>>%(levelname)s: %(message)s')
 handlers.setFormatter(formatter)
 
-log = logging.getLogger("Wind")
+log = logging.getLogger("wind")
 log.setLevel(logging.INFO)
 log.addHandler(handlers)
 

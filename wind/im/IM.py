@@ -42,6 +42,9 @@ def IM(*args):
     elif cls == "event":
         pyvim.event_callback(*args[1:])
 
+    elif cls == "cmd_complete":
+        pyvim.command_complete(*args[1:])
+
 
 
 

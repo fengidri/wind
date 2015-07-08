@@ -57,6 +57,7 @@ def funnargs(fun):
 
 
 CMDS = []
+CMD_OPTS = {}
 def __command(vimcmd, fun, complete):
     vimcmd = vimcmd[0].upper() + vimcmd[1:]
 
@@ -104,8 +105,10 @@ def cmd_cb(index, args):
 
 
 def cmd(complete = None):
+    opts = []
     if isinstance(complete, list):
-        complete = "-complete=%s" % ','.join(complete)
+        opts = complete
+        complete = "-complete=customlist,wind#CommandsComplete"
 
     elif isinstance(complete, basestring):
         complete = "-complete=%s" % complete
@@ -114,11 +117,16 @@ def cmd(complete = None):
         complete = ""
 
     def _cmd(fun):
-        __command(fun.func_code.co_name, fun, complete)
+        name = fun.func_code.co_name
+        CMD_OPTS[name] = opts
+        __command(name, fun, complete)
         return fun
 
     return _cmd
 
+def command_complete(arglead, cmdline, cursorpos):
+    cmd = cmdline.split()[0]
+    vim.vars['wind_commands_complete'] = CMD_OPTS.get(cmd, [])
 
 
 
