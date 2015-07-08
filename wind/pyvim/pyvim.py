@@ -12,14 +12,14 @@ import sys
 LOGFILE = "/tmp/vimlog"
 MAXBYTES = 1024 * 1024 * 10
 
-logging.basicConfig(filename=LOGFILE + '1', level=logging.DEBUG)
+logging.basicConfig(filename="/dev/null", level=logging.DEBUG)
 
 handlers = logging.handlers.RotatingFileHandler(LOGFILE, maxBytes=MAXBYTES)
-#formatter = ">>%(message)s"
-#handlers.setFormatter(formatter)
+formatter = logging.Formatter('>>%(levelname)s: %(message)s')
+handlers.setFormatter(formatter)
 
 log = logging.getLogger("Wind")
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 log.addHandler(handlers)
 
 log.error("\n\n\n\n\n\nVIM Start.............................")
