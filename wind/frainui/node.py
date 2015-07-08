@@ -28,7 +28,7 @@ class Item(object):# Node与Leaf 的父类
         if linenu == None: # 没有输入行号, 使用当前行
             line = vim.current.line
         else:
-            if linenu >= cls.lswin.linenu:
+            if linenu >= cls.lswin.linenu():
                 return
             line = cls.lswin.getline(linenu)
 

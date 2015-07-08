@@ -14,7 +14,7 @@ class _input_post( ):
         self.hi_current_word( )
 
     def hi_current_word( self ):
-        current = pyvim.current_word()
+        current = pyvim.current_word(from_vim=False)
 
         if current.isspace() or current == '':
             return -2
@@ -30,9 +30,9 @@ class _input_post( ):
 
 input_post = _input_post( )
 
-#@pyvim.event("CursorMovedI")
-#def run():
-#    input_post.input_post(  )
+@pyvim.event("CursorMovedI")
+def run():
+    input_post.input_post(  )
 
 #@pyvim.event("CursorMoved")
 #def run():
