@@ -4,12 +4,11 @@ import os
 import vim
 from vuirpc import VuiClient
 
-class GoAny( pyvim.command ):
-    def run( self ):
-        vim.command("update")
-        vim.command("normal m'")
-        gototag()
-        return
+@pyvim.cmd()
+def GoAny( self ):
+    vim.command("update")
+    vim.command("normal m'")
+    gototag()
 
 #class GoFile(pyvim.command):
 #    def run(self):

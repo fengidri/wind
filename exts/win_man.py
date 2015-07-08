@@ -15,4 +15,4 @@ class ClearAllWin( pyvim.command ):
             vim.current.window = w
             vim.command( "close" )
         vim.current.window = locale_w
-    
+

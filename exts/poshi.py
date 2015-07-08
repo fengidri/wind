@@ -7,8 +7,8 @@ import pyvim
 import vim
 import logging
 
-class Poshl( pyvim.command ):
-    def run( self ):
+@pyvim.cmd()
+def Poshl():
         start = vim.eval('getpos("\'<")')
         end   = vim.eval('getpos("\'>")')
 

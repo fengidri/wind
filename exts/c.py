@@ -7,8 +7,9 @@
 import pyvim
 import vim
 from frainui import tmpedit
-class CFunComment(pyvim.command):
-    def run(self):
+
+@pyvim.cmd()
+def CFunComment():
         Comment().fun_comment()
 
 class Comment(object):

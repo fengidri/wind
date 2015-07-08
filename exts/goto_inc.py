@@ -2,11 +2,9 @@ import vim
 import pyvim
 import re
 import os
-class GotoInc( pyvim.command ):
-    def run( self ):
-        goto_include( )
 
-def goto_include( ):
+@pyvim.cmd()
+def GotoInc( ):
     #this is for c lang
     #goto the include file
     types = { 'c':['h'], 'h':['c', 'cpp'], 'cpp':['h'] }

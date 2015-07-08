@@ -1,19 +1,16 @@
 import pyvim
 import vim
-class Align( pyvim.command ):
-    def run( self ):
+
+@pyvim.cmd()
+def Align():
         start = int(vim.eval("line(\"'<\")"))
         end   = int(vim.eval("line(\"'>\")"))
         lines = vim.current.buffer[start - 1: end]
         lines = align_fun(lines)
         vim.current.buffer[start - 1:end] = lines
 
-class AlignTag( pyvim.command ):
-    def run( self ):
-        if self.params:
-            tag = self.params[ 0 ]
-        else:
-            tag = "//"
+@pyvim.cmd()
+def AlignTag(tag='//'):
         start = int(vim.eval("line(\"'<\")"))
         end   = int(vim.eval("line(\"'>\")"))
         lines = vim.current.buffer[start - 1: end]

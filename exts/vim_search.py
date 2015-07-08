@@ -3,6 +3,7 @@ import pyvim
 import vim
 import os
 import re
+
 class FSearch( pyvim.command ):
     def run( self ):
         word, filter = deal_argv(self.params)
