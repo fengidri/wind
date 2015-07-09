@@ -1,6 +1,6 @@
 "导入python plugin"
 "
-let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\' )
+let s:script_folder_path = escape(expand('<sfile>:p:h' ), '\')
 
 " 如果是 C 项目的情况下, 用于保存头文件所在的目录
 " 使用 vim 接口是为了方便与其它的项目进行数据交换
@@ -9,20 +9,15 @@ let g:frain_include_dirs = ''
 "------------------------------ python -----------------------------------------
 python <<EOF
 import sys
-import os
+import os.path as path
 import vim
 
-# add paths
-root = os.path.dirname(vim.eval('s:script_folder_path'))
-pylib_path    = os.path.join(root, 'wind/' )
-sys.path.insert( 0, pylib_path )
+dirname = path.dirname
+join    = path.join
 
-import pyvim
-exts_path = os.path.join(root, "exts" )
-pyvim.load_plugin( exts_path )
+sys.path.insert(0, join(dirname(vim.eval('s:script_folder_path')), 'wind'))
 
-#init im
-from im import IM
+from wind import IM
 EOF
 "-------------------------------------------------------------------------------
 

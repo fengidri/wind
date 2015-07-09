@@ -7,6 +7,7 @@ from events import EventNames
 import os
 import vim
 from pyvim import log as logging
+
 class complete(object):
     augroup       = "augroup"               # autocmd groups
     buffer        = "buffer"                # buffer names
@@ -58,6 +59,7 @@ def funnargs(fun):
 
 CMDS = []
 CMD_OPTS = {}
+
 def __command(vimcmd, fun, complete):
     vimcmd = vimcmd[0].upper() + vimcmd[1:]
 
@@ -105,6 +107,11 @@ def cmd_cb(index, args):
 
 
 def cmd(complete = None):
+    """
+        useage: @cmd()
+            complete 参数用于指定命令的补全特性. 如果complete 是一个list
+            list 的item 做为命令的子命令
+    """
     opts = []
     if isinstance(complete, list):
         opts = complete
@@ -252,9 +259,6 @@ def event(e, pat='*'):
         return func
     return _f
 
-def load_plugin( ext_path ):
-    from plugins import Plugins
-    Plugins(ext_path).loads()
 
 if __name__ == "__main__":
     pass

@@ -33,7 +33,7 @@ function! wind#Prompt(findstart, base)
     endif
 endfunction
 
-function! wind#CommandsComplete(arglead, cmdline, cursorpos)
-    py IM("cmd_complete", vim.eval("a:arglead"), vim.eval("a:cmdline"), vim.eval("a:cursorpos"))
+function! wind#CommandsComplete(A, L, P)
+    py IM("cmd_complete", vim.eval("a:A"), vim.eval("a:L"), vim.eval("a:P"))
     return g:wind_commands_complete
 endfunction
