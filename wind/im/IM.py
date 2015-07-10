@@ -45,9 +45,6 @@ def IM(*args):
     elif cls == "cmd_complete":
         pyvim.command_complete(*args[1:])
 
-
-
-
     emit_event('pre-stop')
 
     emit_event('stop')

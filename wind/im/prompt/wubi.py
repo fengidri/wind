@@ -11,7 +11,7 @@ from pyvim import log
 
 import im.env as env
 import im.prompt as prompt
-import im.imrc as imrc
+import rc
 
 cache={  }
 
@@ -52,7 +52,7 @@ def setcount(patten, num):
 
 @prompt.prompt('wubi')
 def handle():
-    if not imrc.SwitchWubi:
+    if not rc.IM_Wubi:
         return -3
 
     l = len(env.before)

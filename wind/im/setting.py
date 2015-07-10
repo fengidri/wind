@@ -6,12 +6,13 @@
 
 import imrc
 from pyvim import log
+import rc
 def handle(key, value):
     if key == "wubi":
         if value == 'true':
-            imrc.SwitchWubi = True
+            rc.IM_Wubi = True
         else:
-            imrc.SwitchWubi = False
+            rc.IM_Wubi = False
         log.error("IM Setting: %s: %s", key, value)
 
 

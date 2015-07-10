@@ -9,6 +9,7 @@ import os
 import string
 import pyvim
 from pyvim import log
+import rc
 
 count = 0  #
 _feedkeys = None
@@ -43,6 +44,7 @@ def start():
     global count
     _feedkeys = Feedkeys()
     count += 1
+    rc.IM_KeyIndex += 1
 
 @hook('stop')
 def stop():
@@ -72,6 +74,6 @@ class Feedkeys(object):
         pyvim.feedkeys(Feedkeys._feed_)
 
 def feedkeys(k):
-       _feedkeys.append(k)
+    _feedkeys.append(k)
 
 
