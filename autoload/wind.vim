@@ -9,11 +9,12 @@ let g:wind_commands_complete = []
 "补全回调函数"
 "
 let s:invoke_other_fun = 0
+let g:wind_with_ycm = -4
 
 function! wind#Prompt(findstart, base)
     if a:findstart
         py IM('prompt', 'findstart')
-        if -4  == g:omnicol
+        if g:wind_with_ycm  == g:omnicol
             let s:invoke_other_fun = 1
             let g:omnicol =  youcompleteme#OmniComplete(a:findstart, '')
         endif

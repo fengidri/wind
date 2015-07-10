@@ -11,6 +11,7 @@ from imutils import Redirect
 import vim
 from pyvim import log
 import imrc
+import env
 
 _prompt = []
 __Handles = {}
@@ -19,6 +20,24 @@ class Status(object):
     name = ''
 
 def prompt(name):
+    "Decorator set the first handle."
+    """
+        prompt need two call back handle: findstart, base;
+
+        @name: the prompt handle name
+
+        @findstart:
+             return the len of the word before cursor to be replace.
+             if the return val < 0 has special. see it by
+             `help complete-functions`
+
+             the other val < 0 be used by wind. Such as -4 is used by ycm.
+             If the return val == -4, wind will call ycmcompleteme to complete;
+
+        @base:
+             return the list of the match item.
+             But, you shuld use the prompt.abuild to build the complete item.
+    """
     def _fun(findstart):
         def xx(base):
             __Handles[name] = (findstart, base)
@@ -115,6 +134,9 @@ def findstart():
         if col > -1:
             log.error('@findstart redirect: %s' % hd)
             Status.name = hd
+            _col = env.col - col
+            log.error("find start: %s %s %s", _col, col, env.col)
+            return _col
     return col
 
 def Base(base):

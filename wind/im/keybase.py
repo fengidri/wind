@@ -5,39 +5,42 @@
 #    version   :   1.0.1
 
 import pyvim
-import im.imrc as imrc
-from im.imrc import feedkeys
 from pyvim import log
+from im.imrc import feedkeys
 
 keyname = {
-     "parenthess"       :      "("      ,
-     "bracket"          :      "["      ,
-     "brace"            :      "{"      ,
-     "mark"             :      "'"      ,
-     "comma"            :      ","      ,
-     "semicolon"        :      ";"      ,
-     "minus"            :      "-"      ,
-     "underline"        :      "_"      ,
-     "add"              :      "+"      ,
-     "precent"          :      "%"      ,
-     "and_"             :      "&"      ,
-     "lt"               :      "<"      ,
-     "gt"               :      ">"      ,
-     "cat"              :      "^"      ,
-     "not_"             :      "!"      ,
-     "dot"              :      "."      ,
-     "slash"            :      "/"      ,
-     "eq"               :      "="      ,
-     "double_mark"      :      '"'      ,
-     "tab"              :      '<tab>'  ,
-     "backspace"        :      '<bs>'   ,
-     "enter"            :      '<cr>'   ,
-     "space"            :      '<space>' ,
-     "esc"              :      '<esc>'  ,
-     'jump'             :      '<c-j>'  ,
+     "parenthess"  : "("       ,
+     "bracket"     : "["       ,
+     "brace"       : "{"       ,
+     "mark"        : "'"       ,
+     "comma"       : ","       ,
+     "semicolon"   : ";"       ,
+     "minus"       : "-"       ,
+     "underline"   : "_"       ,
+     "add"         : "+"       ,
+     "precent"     : "%"       ,
+     "and_"        : "&"       ,
+     "lt"          : "<"       ,
+     "gt"          : ">"       ,
+     "cat"         : "^"       ,
+     "not_"        : "!"       ,
+     "dot"         : "."       ,
+     "slash"       : "/"       ,
+     "eq"          : "="       ,
+     "double_mark" : '"'       ,
+     "tab"         : '<tab>'   ,
+     "backspace"   : '<bs>'    ,
+     "enter"       : '<cr>'    ,
+     "space"       : '<space>' ,
+     "esc"         : '<esc>'   ,
+     'jump'        : '<c-j>'   ,
 }
 
 class BasePass(object):
+    """
+        ALL the key will pass over. Use by the stream handle that just deal some
+        keys.
+    """
     def __init__(self):
         #处理重载的key
         self.cbs = {}
@@ -70,6 +73,7 @@ class BasePass(object):
 
 
 class BaseEnd(BasePass):
+    " All the key will handle defaultly."
     def output(self, k):
         feedkeys(k)
         return True
@@ -84,10 +88,6 @@ class BaseEnd(BasePass):
         if not BasePass.run_handle(self, k):
             feedkeys('\%s' % k)
         return True
-
-
-
-
 
 if __name__ == "__main__":
     pass

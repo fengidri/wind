@@ -4,16 +4,59 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
+"""
+    /usr/lib/lib ->
+                   libpng.so
+                   libncursor.so
+    /u/l/       ->
+                   /usr/lib
+                   /usr/local
+"""
+
 import re
 import os
-import pyvim
-from im import imutils
-import logging
-from im.imrc import feedkeys
-from pyvim import log as logging
+
+from pyvim import log
 import im.prompt as prompt
+import im.env as env
+
+
+
+
+__path_regex = re.compile("""
+    # 1 or more 'D:/'-like token or '/' or '~' or './' or '../'
+    (?:[A-z]+:/|[/~]|\./|\.+/)
+
+    # any alphanumeric symbal and space literal
+    (?:[a-zA-Z0-9()$+_~.\x80-\xff-\[\]]|
+
+    # skip any special symbols
+    [^\x20-\x7E]|
+
+    # backslash and 1 char after it. + matches 1 or more of whole group
+    \\.)+
+
+    # any alphanumeric symbal and space literal
+    (?:[/a-zA-Z0-9()$+_~.\x80-\xff-\[\]]|
+
+    # skip any special symbols
+    [^\x20-\x7E]|
+
+    # backslash and 1 char after it. + matches 1 or more of whole group
+    \\.)*$
+    """, re.X )
+
+class status(object):
+    org_path = None
+    dir_path = None
+    rel_path = None
+    dir_exists = False
+    basename = ''
+
 
 def get_match_names(path_dir, basename):
+    "get the file name and dir name at the path_dir. "
+    "if basename, filter by the basename"
     basename = basename.lower()
     try:
         ns = os.listdir(path_dir)
@@ -32,7 +75,7 @@ def get_match_names(path_dir, basename):
 
 
 def try_abbreviation(path):
-    # 路径缩写补全: /u/l/b ===> /usr/local/bin
+    """ 路径缩写补全: /u/l/b ===> /usr/local/bin """
     if path.startswith('/'):
         fa = ['/']
         abbs = path.split('/')[1:]
@@ -50,100 +93,43 @@ def try_abbreviation(path):
         abbs = path.split('/')
 
     for abb in abbs:
-        fan = []
+        fan = [] # current path dir list
         for f in fa:
             rel = get_match_names(f, abb)
             for r in rel:
                 fan.append(os.path.join(f, r))
         fa = fan
-    self.pmenu.showlist(fa, len(path))
-    return True
+    return fan
 
-def findstart():
-    return True
+@prompt.prompt("path")
+def path():
+    match = __path_regex.search(env.before)
+    if not match:
+        return
 
-def base():
-    path = os.path.expanduser(match.group())
-    path_dir = os.path.dirname(path)
+    status.org_path = match.group()
+    status.rel_path = os.path.expanduser(status.org_path)
+    status.dir_path = os.path.dirname(status.rel_path)
+    status.dir_exists = os.path.exists(status.dir_path)
+    status.basename = os.path.basename(status.org_path)
 
-    if not os.path.isdir(path_dir):
-        return self.try_abbreviation(path)
-
-    basename = os.path.basename(path)
-    l = len(basename)
-    get_match_names(path_dir, basename)
+    if status.dir_exists:
+        return len(status.basename)
+    else:
+        return len(status.org_path)
 
 
-class IM_Path(object):
-    "处理输入路径的情况"
-    def __init__(self):
-        self._path_regex = re.compile( """
-          # 1 or more 'D:/'-like token or '/' or '~' or './' or '../'
-          (?:[A-z]+:/|[/~]|\./|\.+/)
+@path
+def base(base):
+    if status.dir_exists:
+        names = get_match_names(status.dir_path, status.basename)
+        prompt.append_list(names)
+    else:
+        paths = try_abbreviation(status.org_path)
+        prompt.append_list(paths)
 
-          # any alphanumeric symbal and space literal
-          (?:[a-zA-Z0-9()$+_~.\x80-\xff-\[\]]|
-
-          # skip any special symbols
-          [^\x20-\x7E]|
-
-          # backslash and 1 char after it. + matches 1 or more of whole group
-          \\.)+
-
-          # any alphanumeric symbal and space literal
-          (?:[/a-zA-Z0-9()$+_~.\x80-\xff-\[\]]|
-
-          # skip any special symbols
-          [^\x20-\x7E]|
-
-          # backslash and 1 char after it. + matches 1 or more of whole group
-          \\.)*$
-          """, re.X )
-
-    def im_lower(self, key):
-
-        s = pyvim.str_before_cursor() + key
-
-        match = self._path_regex.search(s)
-        if not match:
-            return False
-
-        feedkeys(key)
-        prompt.active(findstart, base)
-        return True
-
-    im_digit = im_upper = im_punc = im_lower
 
 
 
 if __name__ == "__main__":
     pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

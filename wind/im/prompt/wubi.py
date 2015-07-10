@@ -53,23 +53,33 @@ def setcount(patten, num):
 @prompt.prompt('wubi')
 def handle():
     if not rc.IM_Wubi:
-        return -3
+        return
 
     l = len(env.before)
-    l = min(l, 4)
-    index = -1
-    while l > 0:
-        if not env.before[index].islower():
-            break
-        index -= 1
-        l -= 1
-    if index == -1:
-        raise prompt.NotPrompt()
-    col = env.col - index * -1  + 1
-    return col
+    if l == 0:
+        return
+
+    l = min(len(env.before), 4)
+
+    if not env.before[-1].islower():
+        return
+
+    if not env.before[-2].islower():
+        return 1
+
+    if not env.before[-3].islower():
+        return 2
+
+    if not env.before[-4].islower():
+        return 3
+
+    return 4
+
+
 
 @handle
 def wubi(patten):
+    log.error("wubi patten: %s", patten)
     words, associate = search(''.join(patten))
 
     #abuild(" ", "%s                  " %  patten)

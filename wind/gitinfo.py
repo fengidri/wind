@@ -20,6 +20,7 @@ def gitinfo(path):
 
         t = line.split()
         branch = t[1].split('...')[0]
+
         if len(branch) > 20:
             if branch.startswith('feature/'):
                 branch = branch.split('/')[1]
@@ -32,6 +33,7 @@ def gitinfo(path):
             if s == 'ahead':
                 remote = ' +%s'
             remote = remote % n
+
         return {"branch": branch, "remote": remote}
 
 

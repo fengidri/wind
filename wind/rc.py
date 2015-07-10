@@ -3,6 +3,11 @@
 #    time      :   2015-07-10 13:33:36
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
+
+
+"""
+    some config for wind.
+"""
 IM_Wubi = True
 IM_KeyIndex = 0
 

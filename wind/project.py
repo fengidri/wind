@@ -6,11 +6,12 @@
 
 
 from kvcache import KvCache
-import os
-import vim
-import gitinfo
 import json
+import vim
+import os
+import gitinfo
 import logging
+
 import pyvim
 
 class Project(object):
