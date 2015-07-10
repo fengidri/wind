@@ -55,25 +55,19 @@ def handle():
     if not rc.IM_Wubi:
         return
 
-    l = len(env.before)
-    if l == 0:
-        return
-
-    l = min(len(env.before), 4)
-
-    if not env.before[-1].islower():
-        return
-
-    if not env.before[-2].islower():
-        return 1
-
-    if not env.before[-3].islower():
-        return 2
-
-    if not env.before[-4].islower():
-        return 3
+    for i in [-1, -2, -3, -4]:
+        try:
+            c = env.before[i]
+            if not c.islower():
+                raise Exception()
+        except:
+            n = (i + 1) * -1
+            if 0 == n:
+                return
+            return n
 
     return 4
+
 
 
 
