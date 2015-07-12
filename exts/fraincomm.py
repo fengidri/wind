@@ -62,7 +62,6 @@ def ProjectTerminal():
     if not LIST.get_instance():
         os.system('setsid xterm&')
         return
-
     p = LIST().cur_project()
     if p:
         os.system('cd %s;setsid xterm&' % p.root)

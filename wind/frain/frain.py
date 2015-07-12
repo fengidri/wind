@@ -72,7 +72,8 @@ class FrainList(FrainListSub):
     def add(self, path, name = ''):
         "增加一个新的 project, 提供参数 path, name"
         path = libpath.realpath(path)
-        Project(path, name)
+        if path:
+            Project(path, name)
 
     def add_cur_path(self):
         path = utils.bufferpath()

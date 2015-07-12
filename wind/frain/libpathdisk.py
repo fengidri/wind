@@ -6,6 +6,17 @@
 import os
 realpath = os.path.realpath
 
+def realpath(path):
+    path = os.path.realpath(path)
+
+    if not os.path.exists(path):
+        return None
+
+    if not os.path.isdir(path):
+        return os.path.dirname(path)
+
+    return path
+
 def listdir(path):
     names = os.listdir(path)
     dirs = []
