@@ -4,6 +4,9 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
+"""
+The Entry for Wind project. Just need import.
+"""
 import os
 from im import IM
 

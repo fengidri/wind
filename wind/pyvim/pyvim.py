@@ -136,63 +136,6 @@ class _get_input:
         else:
             return None
 
-class SelMenu( object ):
-    "基于omnicomplete 包装成的SelMenu"
-    "默认使用内部的complete function"
-    "也可以指定omnicomplete function "
-
-    omnifunc = "vimlib#SelMenuFunction"
-    def __new__(cls, *args, **kw):
-        "单例模式"
-        if not hasattr(cls, '_instance'):
-            orig = super(SelMenu, cls)
-            cls._instance = orig.__new__(cls, *args, **kw)
-        return cls._instance
-
-    def check_omnifunc( self, func ):
-        if vim.eval( '&l:omnifunc' ) != func:
-            vim.command("let &omnifunc='%s'" % func)
-            vim.command("let &l:omnifunc='%s'" % func)
-
-    def showlist(self, words_list, length):
-        """ 与show 比较相似, 只是使用 输入的是list, 也就说是比较简单的结构"""
-        words = []
-        for w in words_list:
-            words.append({"word": w})
-        self.show(words, length)
-
-    def show( self, words, length ):
-        """使用内部的补全函数进行输出
-                @words:   vim 格式的数据结构
-                @length:  光标前要进行补全的字符长度
-        """
-        self.words = words
-        vim.vars["omniresult"] = words
-        vim.vars["omnicol"] = vim.current.window.cursor[1] - length + 1
-        self.complete(self.omnifunc)
-
-
-    def complete(self, fun):
-        "指定补全函数"
-        self.check_omnifunc(fun)
-        feedkeys('\<C-X>\<C-O>\<C-P>',  'n')
-
-    def select(self, nu):
-        if pumvisible( ):
-            feedkeys((nu + 1) * '\<C-N>' , 'n' )
-            feedkeys( '\<C-Y>', 'n' )
-
-    def getselect(self, nu):
-        if pumvisible( ):
-            feedkeys( '\<C-Y>', 'n' )
-        return self.words[nu]
-
-    def cencel( self ):
-        feedkeys('\<C-e>', 'n')
-
-
-
-
 def str_before_cursor():
     "返回光标前的字符串"
     col_nu_cursor=vim.current.window.cursor[1]

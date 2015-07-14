@@ -108,7 +108,8 @@ def cmd_cb(index, args):
 
 def cmd(complete = None):
     """
-        useage: @cmd()
+    Decorator: Add new command.
+    @param complete:
             complete 参数用于指定命令的补全特性. 如果complete 是一个list
             list 的item 做为命令的子命令
     """
@@ -139,84 +140,7 @@ def command_complete(arglead, cmdline, cursorpos):
 
 
 
-"""
-    使用metaclass, 拦截了类对象的创建过程, 并在这个过程中自动创建实例.
-    使用这个方式取代了之前的实例化方法(通过扫描模块空间中的所有的对象,
-    找到command 与events 的子类, 并实例化)
-"""
-#class CommandMetaClass(type):
-#    objs = [  ]
-#    def __new__(cls, name, bases, dct):
-#        cls_command = type.__new__(cls, name, bases, dct)
-#        if name != "command":
-#            cls.objs.append( cls_command(len(cls.objs))  )
-#        return cls_command
-#
-#def command_callback(index, argv):
-#    CommandMetaClass.objs[ index ].pre_run( argv )
-#
-#class command( object ):
-#    __metaclass__ = CommandMetaClass
-#
-#    def __init__( self, index ):
-#        self.complete_type = ""
-#        self.setting( )
-#
-#        if self.complete_type != '':
-#            self.complete_type = "-complete=%s" % self.complete_type
-#        self.params = [  ]
-#
-#        cmd_name = self.__class__.__name__
-#        py_name = "py %s.command_callback(%s, '<args>')" %(__name__, index)
-#        cmd = "command -nargs=? %s  %s %s" %\
-#                ( self.complete_type,cmd_name, py_name)
-#        vim.command( cmd )
-#    def pre_run( self, args ):
-#        self.params = args.split( )
-#        self.run( )
-#    def run( self ):
-#        pass
-#    def setting( self ):
-#        pass
-#    def set_complete( self, key ):
-#        self.complete_type = key
 
-###################################
-# event Api
-###################################
-class EventMetaClass(type):
-    objs = [  ]
-    def __new__(cls, name, bases, dct):
-        cls_event = type.__new__(cls, name, bases, dct)
-        if name != "events":
-            cls.objs.append( cls_event()  )
-        return cls_event
-
-
-class events( object ):
-    __metaclass__ = EventMetaClass
-
-    event_callback = {}
-    def __init__( self ):
-        self.load_now = True
-        self.pats = {}
-        self.setting( )
-        for attr in dir(self):
-            if not (attr.startswith( "on_" ) and len(attr) > 3):
-                continue
-
-            event = attr[ 3: ]
-            if not event in EventNames:
-                continue
-
-            callback = getattr( self, attr)
-            addevent(event,  callback, self.pats.get(callback , '*'))
-
-    def set_pat(self, callback, pat):#为某个事件设置, 触发的文件条件
-        self.pats[callback] = pat
-
-    def setting(self):
-        pass
 
 __Event_Map = {}
 __Event_Index = 0
