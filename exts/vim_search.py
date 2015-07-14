@@ -4,23 +4,23 @@ import vim
 import os
 import re
 
-class FSearch( pyvim.command ):
-    def run( self ):
-        word, filter = deal_argv(self.params)
+@pyvim.cmd()
+def FSearch( params ):
+    word, filter = deal_argv(params)
 
 
-        if not word:
-            return
+    if not word:
+        return
 
-        command, path = context( word, filter )
+    command, path = context( word, filter )
 
-        if not command:
-            return
+    if not command:
+        return
 
-        f_popen = os.popen(command)
-        lines = f_popen.readlines()
-        if lines:
-            filter_quick( lines, path, command )
+    f_popen = os.popen(command)
+    lines = f_popen.readlines()
+    if lines:
+        filter_quick( lines, path, command )
 
 
 """
@@ -41,6 +41,7 @@ def byte_to_unicode( byte ):
     处理参数
 """
 def deal_argv( argvs ):
+    argvs = argvs.split()
     filter = ""
     word = ""
 

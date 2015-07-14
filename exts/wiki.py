@@ -15,8 +15,8 @@ import logging
 ID = None
 SERVER="blog.fengidri.me"
 is_wiki = False
-class WikiPost(pyvim.command):
-    def run(self):
+@pyvim.cmd()
+def WikiPost():
         if not is_wiki:
             return
         info, c = content()
@@ -30,8 +30,8 @@ class WikiPost(pyvim.command):
         ID = int(ID)
         pyvim.echoline('ID:%s' % ID)
 
-class WikiPut(pyvim.command):
-    def run(self):
+@pyvim.cmd()
+def WikiPut():
         if not is_wiki:
             return
         global ID
@@ -48,8 +48,8 @@ class WikiPut(pyvim.command):
         ID = int(ID)
         pyvim.echoline('ID:%s' % ID)
 
-class WikiGet(pyvim.command):
-    def run(self):
+@pyvim.cmd()
+def WikiGet():
         global ID
         global is_wiki
         is_wiki = True
@@ -63,8 +63,8 @@ class WikiGet(pyvim.command):
         ID = _ID
         vim.command("edit %s" % tmp)
 
-class WikiNew(pyvim.command):
-    def run(self):
+@pyvim.cmd()
+def WikiNew():
         global is_wiki
         is_wiki = True
         tmp = tempfile.mktemp(suffix='.mkiv', prefix='fwiki_')

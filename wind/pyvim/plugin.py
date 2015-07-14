@@ -144,42 +144,42 @@ def command_complete(arglead, cmdline, cursorpos):
     使用这个方式取代了之前的实例化方法(通过扫描模块空间中的所有的对象,
     找到command 与events 的子类, 并实例化)
 """
-class CommandMetaClass(type):
-    objs = [  ]
-    def __new__(cls, name, bases, dct):
-        cls_command = type.__new__(cls, name, bases, dct)
-        if name != "command":
-            cls.objs.append( cls_command(len(cls.objs))  )
-        return cls_command
-
-def command_callback(index, argv):
-    CommandMetaClass.objs[ index ].pre_run( argv )
-
-class command( object ):
-    __metaclass__ = CommandMetaClass
-
-    def __init__( self, index ):
-        self.complete_type = ""
-        self.setting( )
-
-        if self.complete_type != '':
-            self.complete_type = "-complete=%s" % self.complete_type
-        self.params = [  ]
-
-        cmd_name = self.__class__.__name__
-        py_name = "py %s.command_callback(%s, '<args>')" %(__name__, index)
-        cmd = "command -nargs=? %s  %s %s" %\
-                ( self.complete_type,cmd_name, py_name)
-        vim.command( cmd )
-    def pre_run( self, args ):
-        self.params = args.split( )
-        self.run( )
-    def run( self ):
-        pass
-    def setting( self ):
-        pass
-    def set_complete( self, key ):
-        self.complete_type = key
+#class CommandMetaClass(type):
+#    objs = [  ]
+#    def __new__(cls, name, bases, dct):
+#        cls_command = type.__new__(cls, name, bases, dct)
+#        if name != "command":
+#            cls.objs.append( cls_command(len(cls.objs))  )
+#        return cls_command
+#
+#def command_callback(index, argv):
+#    CommandMetaClass.objs[ index ].pre_run( argv )
+#
+#class command( object ):
+#    __metaclass__ = CommandMetaClass
+#
+#    def __init__( self, index ):
+#        self.complete_type = ""
+#        self.setting( )
+#
+#        if self.complete_type != '':
+#            self.complete_type = "-complete=%s" % self.complete_type
+#        self.params = [  ]
+#
+#        cmd_name = self.__class__.__name__
+#        py_name = "py %s.command_callback(%s, '<args>')" %(__name__, index)
+#        cmd = "command -nargs=? %s  %s %s" %\
+#                ( self.complete_type,cmd_name, py_name)
+#        vim.command( cmd )
+#    def pre_run( self, args ):
+#        self.params = args.split( )
+#        self.run( )
+#    def run( self ):
+#        pass
+#    def setting( self ):
+#        pass
+#    def set_complete( self, key ):
+#        self.complete_type = key
 
 ###################################
 # event Api

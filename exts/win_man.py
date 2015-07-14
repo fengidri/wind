@@ -1,7 +1,7 @@
 import pyvim
 import vim
-class ClearAllWin( pyvim.command ):
-    def run( self ):
+@pyvim.cmd()
+def ClearAllWin():
         locale_w = vim.current.window
         for w in vim.windows:
             if w == locale_w:

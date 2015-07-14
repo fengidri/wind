@@ -332,27 +332,27 @@ class class_tag:
         #pyvim.highlight()
 
 
-class TagJump( pyvim.command ):
-    def run( self ):
-        global Tag
-        if Tag == None:
-            Tag = class_tag()
-        tag = pyvim.current_word()
-        Tag.jump(tag)
+@pyvim.cmd()
+def TagJump():
+    global Tag
+    if Tag == None:
+        Tag = class_tag()
+    tag = pyvim.current_word()
+    Tag.jump(tag)
 
-class TagBack( pyvim.command ):
-    def run( self ):
-        global Tag
-        if Tag == None:
-            return
-        Tag.back( )
+@pyvim.cmd()
+def TagBack():
+    global Tag
+    if Tag == None:
+        return
+    Tag.back( )
 
-class TagRefresh( pyvim.command ):
-    def run( self ):
-        global Tag
-        if Tag == None:
-            return
-        Tag.refresh( )
+@pyvim.cmd()
+def TagRefresh():
+    global Tag
+    if Tag == None:
+        return
+    Tag.refresh( )
 
 
 if not __name__== "__main__":

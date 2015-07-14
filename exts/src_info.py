@@ -83,8 +83,8 @@ def run():
     if pyvim.is_empty():
         add_src_info()
 
-class SrcInfoAdd(pyvim.command):
-    def run(self):
+@pyvim.cmd()
+def SrcInfoAdd():
         add_src_info()
 
 
