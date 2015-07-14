@@ -8,6 +8,7 @@ vuirpc_server
 *.so
 *.o
 doc/*.html
+doc/tex2html
 
 # Distribution / packaging
 .Python
