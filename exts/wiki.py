@@ -49,14 +49,10 @@ def WikiPut():
         pyvim.echoline('ID:%s' % ID)
 
 @pyvim.cmd()
-def WikiGet():
+def WikiGet(_ID):
         global ID
         global is_wiki
         is_wiki = True
-        if not self.params:
-            print "should input the ID of the cachpter"
-            return
-        _ID = self.params[0]
         tmp = get(_ID)
         if not tmp:
             return

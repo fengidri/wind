@@ -30,6 +30,7 @@ def base(base):
         words += __word.findall(line)
 
     words = list(set(words))
+    words = [w for w in words if w.startswith(base)]
 
     prompt.append_list(words)
 
