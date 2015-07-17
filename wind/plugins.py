@@ -4,6 +4,8 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
+# TODO 试图导入目录. 可以使用修改 __builtin__.__import__ 的方法
+
 import os
 import imp
 from pyvim import log as logging

@@ -16,6 +16,16 @@ ShowUrl = 'http://localhost/autofresh/data'
 __regex = re.compile(r"\\[a-zA-Z]+$")
 __word = re.compile(r"\\[a-zA-Z]+")
 
+texs = ["\def",
+        "\section",
+        "\subsection",
+        "\subsubsection",
+        "\starttyping",
+        "\stoptyping",
+        "\startitemize",
+        "\stopitemize",
+        ]
+
 
 @prompt.prompt("tex")
 def tex():
@@ -25,7 +35,7 @@ def tex():
 
 @tex
 def base(base):
-    words = []
+    words = [] + texs
     for line in vim.current.buffer:
         words += __word.findall(line)
 
