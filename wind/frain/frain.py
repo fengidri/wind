@@ -24,7 +24,6 @@ def leaf_handle(leaf):
 
 def get_child(Node):
     path = Node.ctx
-    res = []
 
     dirs, names = libpath.listdir(path)
     if dirs == None:
@@ -39,12 +38,11 @@ def get_child(Node):
 
     for n in names:
         p = libpath.join(self.path, n)
-        res.append(FileNode(n, p, leaf_handle))
+        Node.append(FileNode(n, p, leaf_handle))
 
     for d in dirs:
         p = libpath.join(self.path, d)
-        res.append(DirNode(d, p, get_child))
-    return res
+        Node.append(DirNode(d, p, get_child))
 
 def FrainListShowHook(listwin):
     def vimleave():
@@ -96,7 +94,7 @@ def FrainListGetNames(listwin):
         return 'NROOT' # not found root
 
     names = utils.getnames(p.root, path)
-    return names
+    listwin.setnames(names)
 
 ################################################################################
 

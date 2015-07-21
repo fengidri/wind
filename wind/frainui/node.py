@@ -120,9 +120,7 @@ class Node(Item):
 
         if self.need_fresh:
             self.need_fresh = False
-
-            for n in self.get_child(self):
-                self.append(n)
+            self.get_child(self)
 
         #if not self.OpenPre(): return
 

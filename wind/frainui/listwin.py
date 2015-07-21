@@ -59,13 +59,18 @@ class LISTOPTIONS(object):
     def focus(self):# 切换到list 窗口,
         self.win.show()
 
+    def setnames(self, names):
+        self.names_for_find = names
+
     def LS_Find(self, _names = None):
         """
           在 list win 中显示由_names 指定的条目
         """
         #names = copy.copy(_names)
 
-        names = self.FREventEmit("ListNames")
+        self.names_for_find = None
+        self.FREventEmit("ListNames")
+        names = self.names_for_find
         if not names: return
 
         names.insert(0, 'root')
@@ -180,6 +185,8 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
     def __init__(self):
         if hasattr(self, 'win'):
             return
+
+        self.names_for_find = None
 
         def hook():
             self.FREventEmit("ListShow")
