@@ -26,6 +26,27 @@ texs = ["\def",
         "\stopitemize",
         ]
 
+def match(pattern, source):
+    length = len(pattern)
+    index = 0
+    m = 0
+
+    if index >= length:
+        return -1
+
+    p = ord(pattern[index])
+    for o, s in enumerate(source):
+        tt = p - ord(s)
+        if tt == 0 or tt == 32:
+            m += o
+            index += 1
+            if index >= length:
+                return m
+
+            p = ord(pattern[index])
+    else:
+        return -1
+
 
 @prompt.prompt("tex")
 def tex():
@@ -40,7 +61,7 @@ def base(base):
         words += __word.findall(line)
 
     words = list(set(words))
-    words = [w for w in words if w.startswith(base)]
+    words = [w for w in words if match(base, w) > -1]
 
     prompt.append_list(words)
 

@@ -11,7 +11,7 @@ import urllib
 import urllib2
 import tempfile
 from textohtml import texstohtmls
-import logging
+from pyvim import log as logging
 ID = None
 SERVER="blog.fengidri.me"
 is_wiki = False
@@ -165,12 +165,4 @@ def SendBuf():
         urllib2.urlopen(req).read()
     except Exception, e:
         logging.error(e)
-
-
-
-
-
-
-
-
 
