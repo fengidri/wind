@@ -31,7 +31,7 @@ class LISTOPTIONS(object):
 
     def setroot(self, root):
         self.root = node.Node('root')
-        for r in root():
+        for r in root:
             self.root.append(r)
 
     def refresh(self):
@@ -53,7 +53,8 @@ class LISTOPTIONS(object):
             self.settitle(self.Title)
 
         #self.LS_Refresh_Hook()
-        self.emit("ListReFresh")
+        self.FREventEmit("ListReFresh")
+        self.nu_refresh += 1
 
 
     def focus(self):# 切换到list 窗口,
@@ -187,8 +188,9 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
             return
 
         self.names_for_find = None
+        self.nu_refresh = 0 # count the refresh
 
-        def hook():
+        def hook(buf):
             self.FREventEmit("ListShow")
 
         import Buffer

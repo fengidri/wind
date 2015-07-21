@@ -61,7 +61,7 @@ class Item(utils.Object):# Node与Leaf 的父类
             return
 
         # 这个处理是针对于node 节点的
-        self.LS_Node_Init()
+        self._get_child()
         for n in self.sub_nodes: # node 在子节点中找
             m = n.find(names)
             if m:
@@ -109,19 +109,24 @@ class Node(Item):
                 self.ID)
 
     def _open(self, linenu): # 回车 TODO
+        logging.error("node _open")
+
         if self.opened:
             self.node_close(linenu)
         else:
             self.node_open(linenu)
 
+    def _get_child(self):
+        if self.need_fresh and self.get_child:
+            self.need_fresh = False
+            self.get_child(self)
+
     def node_open(self, linenu):
         if self.opened: return
         self.opened = True
 
-        if self.need_fresh:
-            self.need_fresh = False
-            self.get_child(self)
 
+        self._get_child()
         #if not self.OpenPre(): return
 
 
@@ -163,7 +168,7 @@ class Leaf(Item):
         Item.__init__(self)
         self.name   = name
         self.ctx    = ctx
-        self.handle = None
+        self.handle = handle
 
     def show(self):
         return "%s %s<|>%s" % ("  " * (self.level  -1), self.name, self.ID)
@@ -174,7 +179,7 @@ class Leaf(Item):
             return
 
         if self.handle:
-            handle(self)
+            self.handle(self)
 
 
 

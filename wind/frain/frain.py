@@ -4,13 +4,14 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-from frainui import LIST, Node, Leaf
+from frainui import LIST
 import frainui
 import libpath
 import vim
 import pyvim
 import utils
 import os
+from pyvim import log
 
 from project import Project
 from white_black import black_filter_files, sorted_by_expand_name
@@ -24,6 +25,7 @@ def leaf_handle(leaf):
 
 def get_child(Node):
     path = Node.ctx
+    log.error("get child path: %s", path)
 
     dirs, names = libpath.listdir(path)
     if dirs == None:
@@ -34,15 +36,14 @@ def get_child(Node):
 
     dirs  = sorted(black_filter_files(dirs))
 
-    self.subnodes = True
 
     for n in names:
-        p = libpath.join(self.path, n)
-        Node.append(FileNode(n, p, leaf_handle))
+        p = libpath.join(path, n)
+        Node.append(frainui.Leaf(n, p, leaf_handle))
 
     for d in dirs:
-        p = libpath.join(self.path, d)
-        Node.append(DirNode(d, p, get_child))
+        p = libpath.join(path, d)
+        Node.append(frainui.Node(d, p, get_child))
 
 def FrainListShowHook(listwin):
     def vimleave():
@@ -52,7 +53,7 @@ def FrainListShowHook(listwin):
     pyvim.addevent('VimLeave',  vimleave)
 
 def FrainListRefreshHook(listwin):
-    if listwin.first_fresh:
+    if listwin.nu_refresh == 0:
         listwin.first_fresh = False
         Project.emit("FrainEntry")
         return
@@ -62,8 +63,9 @@ def FrainListGetRootsHook(listwin):
     roots = []
     for p in Project.All:
         pyvim.Roots.append(p.root)
+        log.error("project name: %s", p.name)
 
-        root = DirNode(p.name, p.root, get_child)
+        root = frainui.Node(p.name, p.root, get_child)
         if not listwin.Title:
             info = p.info
             if not info:
@@ -119,10 +121,12 @@ class FrainList(object):
     def add(self, path, name = ''):
         "增加一个新的 project, 提供参数 path, name"
         path = libpath.realpath(path)
+        if not name:
+            name = libpath.basename(path)
         if path:
             Project(path, name)
 
-        self.listwin.fresh()
+        self.listwin.refresh()
 
     def add_cur_path(self):
         path = utils.bufferpath()

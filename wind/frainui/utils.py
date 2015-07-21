@@ -10,7 +10,7 @@ class Object(object):
     __CB = {}
     def FREventEmit(self, event):
         cbs = self.__CB.get(event)
-        if not cb:
+        if not cbs:
             return
 
         for cb in cbs:
