@@ -90,7 +90,7 @@ class Buffer(utils.Object):
             if self.ft:
                 vim.command("set ft=%s" % self.ft)
 
-            self.emit("BufNew")
+            self.FREventEmit("BufNew")
 
             #if self.Buf_New_Hook:
             #    self.Buf_New_Hook()

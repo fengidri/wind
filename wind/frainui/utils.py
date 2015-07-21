@@ -5,27 +5,28 @@
 #    version   :   1.0.1
 
 
-__CB = {}
 
 class Object(object):
+    __CB = {}
     def FREventEmit(self, event):
-        cb = __CB.get(event)
+        cbs = self.__CB.get(event)
         if not cb:
             return
 
-        fun = cb[0]
-        args = cb[1]
-        if args:
-            return fun(self, *args)
-        else:
-            return fun(self)
+        for cb in cbs:
+            fun = cb[0]
+            args = cb[1]
+            if args:
+                return fun(self, *args)
+            else:
+                return fun(self)
 
     def FREventBind(self, event, fun, arg = None):
-        funs = __CB.get(event)
+        funs = self.__CB.get(event)
         if funs:
             funs.append((fun, arg))
         else:
-            __CB[event] = [(fun, arg)]
+            self.__CB[event] = [(fun, arg)]
 
 
 

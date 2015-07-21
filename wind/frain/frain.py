@@ -15,6 +15,37 @@ import os
 from project import Project
 from white_black import black_filter_files, sorted_by_expand_name
 
+def leaf_handle(leaf):
+    vim.command( "update")
+    path = libpath.pull(leaf.ctx)
+    if not path:
+        return
+    vim.command( "e %s" % path )
+
+def get_child(Node):
+    path = Node.ctx
+    res = []
+
+    dirs, names = libpath.listdir(path)
+    if dirs == None:
+        return []
+
+    names = black_filter_files(names)
+    names = sorted_by_expand_name(names)
+
+    dirs  = sorted(black_filter_files(dirs))
+
+    self.subnodes = True
+
+    for n in names:
+        p = libpath.join(self.path, n)
+        res.append(FileNode(n, p, leaf_handle))
+
+    for d in dirs:
+        p = libpath.join(self.path, d)
+        res.append(DirNode(d, p, get_child))
+    return res
+
 def FrainListShowHook(listwin):
     def vimleave():
         Project.emit("FrainLeave")
@@ -34,7 +65,7 @@ def FrainListGetRootsHook(listwin):
     for p in Project.All:
         pyvim.Roots.append(p.root)
 
-        root = DirNode(p.root, p.name)
+        root = DirNode(p.name, p.root, get_child)
         if not listwin.Title:
             info = p.info
             if not info:
@@ -61,6 +92,7 @@ def FrainListGetNames(listwin):
         if path.startswith(p.root):
             break
     else:
+        return
         return 'NROOT' # not found root
 
     names = utils.getnames(p.root, path)
@@ -68,8 +100,7 @@ def FrainListGetNames(listwin):
 
 ################################################################################
 
-class FrainList(FrainListSub):
-    data = []
+class FrainList(object):
     def __new__(cls, *args, **kw):
         if not hasattr(FrainList, '_instance'):
             orig = super(FrainList, cls)
@@ -93,6 +124,8 @@ class FrainList(FrainListSub):
         if path:
             Project(path, name)
 
+        self.listwin.fresh()
+
     def add_cur_path(self):
         path = utils.bufferpath()
         self.add(path, '')
@@ -103,51 +136,6 @@ class FrainList(FrainListSub):
         for p in Project.All:
             if path.startswith(p.root):
                 return p
-
-class DirNode(Node):
-    def __init__(self, path, name = ''):
-        if not name:
-            name = libpath.basename(path)
-        Node.__init__(self, name)
-        self.path = path
-        self.subnodes = False
-
-    def LS_Node_Init(self): #初始子节点的方法
-        if self.subnodes:
-            return True
-
-        dirs, names = libpath.listdir(self.path)
-        if dirs == None:
-            return
-
-        names = black_filter_files(names)
-        names = sorted_by_expand_name(names)
-
-        dirs  = sorted(black_filter_files(dirs))
-
-        self.subnodes = True
-
-        for n in names:
-            p = libpath.join(self.path, n)
-            self.append(FileNode(p))
-
-        for d in dirs:
-            p = libpath.join(self.path, d)
-            self.append(DirNode(p))
-        return True
-
-class FileNode(Leaf):
-    def __init__(self, path):
-        Leaf.__init__(self, libpath.basename(path))
-        self.path = path
-
-    def LS_Leaf_Edit(self):
-        vim.command( "update")
-        path = libpath.pull(self.path)
-        if not path:
-            return
-        vim.command( "e %s" % path )
-
 
 if __name__ == "__main__":
     pass

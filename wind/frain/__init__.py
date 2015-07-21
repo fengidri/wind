@@ -5,7 +5,7 @@
 #    version   :   1.0.1
 
 
-from frain import FrainList as LIST
+from frain import FrainList
 
 
 

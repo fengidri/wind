@@ -8,47 +8,45 @@ import os
 import pyvim
 
 import vim
-from frain import LIST
+from frain import FrainList
 from kvcache import KvCache
 from project import Project
 
 @pyvim.cmd(pyvim.complete.file)
 def Frain(path='.', name=''):
-    frain = LIST()
-    frain.add(path, name)
-    frain.refresh()
+    FrainList().add(path, name)
 
 
 #@pyvim.cmd()
 #def FrainOpen():
-#    if not LIST.get_instance():
+#    if not FrainList.get_instance():
 #        return
-#    LIST().open()
+#    FrainList().open()
 #
 #@pyvim.cmd()
 #def FrainClose():
-#    if not LIST.get_instance():
+#    if not FrainList.get_instance():
 #        return
-#    LIST().close()
+#    FrainList().close()
 
 
 #@pyvim.cmd()
 #def FrainFocus():
-#    if LIST.get_instance():
-#        LIST().focus()
+#    if FrainList.get_instance():
+#        FrainList().focus()
 #
 #@pyvim.cmd()
 #def FrainRefresh():
-#    if LIST.get_instance():
-#        LIST().refresh()
+#    if FrainList.get_instance():
+#        FrainList().refresh()
 #    #刷新path exp 窗口之后. 展开显示当前正在编辑的文件
 
 @pyvim.cmd()
 def ProjectTerminal():
-    if not LIST.get_instance():
+    if not FrainList.get_instance():
         os.system('setsid xterm&')
         return
-    p = LIST().cur_project()
+    p = FrainList().cur_project()
     if p:
         os.system('cd %s;setsid xterm&' % p.root)
     else:
@@ -63,7 +61,7 @@ def ProjectX():
         cfg, rt = fropen(response.msg)
 
         global frain
-        frain = LIST()
+        frain = FrainList()
         for p in cfg.src_path:
             frain.data.append((p.path, p.name))
         frain.refresh()
@@ -75,10 +73,10 @@ def ProjectX():
 
 @pyvim.cmd(pyvim.complete.file)
 def FrainAddInclude(path):
-    if not LIST.get_instance():
+    if not FrainList.get_instance():
         return
 
-    project = LIST().cur_project()
+    project = FrainList().cur_project()
     if not project:
         return
 
