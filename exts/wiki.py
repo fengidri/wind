@@ -75,13 +75,16 @@ def GetNames(listwin):
     listwin.setnames([leaf.name])
 
 
+def ReFreshPre(listwin):
+    listwin.Title = "TexList"
 
 
 @pyvim.cmd()
-def WikiList():
+def TexList():
     global  TEXLIST
     TEXLIST = frainui.LIST(GetRoots)
     TEXLIST.FREventBind("ListNames", GetNames)
+    TEXLIST.FREventBind("ListReFreshPre", ReFreshPre)
     TEXLIST.refresh()
 
 
