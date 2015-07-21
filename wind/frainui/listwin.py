@@ -9,6 +9,10 @@ import vim
 from pyvim import log as logging
 import copy
 import pyvim
+import utils
+
+
+
 class LISTHOOK(object):
     def LS_WinOpen_Hook(self):
         "事件: 窗口创建"
