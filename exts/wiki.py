@@ -10,8 +10,9 @@ import json
 import urllib
 import urllib2
 import tempfile
-from textohtml import texstohtmls
+from textohtml import html
 from pyvim import log as logging
+
 ID = None
 SERVER="blog.fengidri.me"
 is_wiki = False
@@ -117,7 +118,7 @@ def post(tex, info):
     j = {
             'title':info.get('title'),
             'tex': tex,
-            'html': texstohtmls(tex),
+            'html': html(buf = tex),
             'class': info.get('class', ''),
             'post': info.get('post', 'true')
             }
@@ -134,7 +135,7 @@ def put(tex, info):
     j = {
             'title':info.get('title'),
             'tex': tex,
-            'html': texstohtmls(tex),
+            'html': html(buf = tex),
             'class': info.get('class', ''),
             'post': info.get('post', '1')
             }
