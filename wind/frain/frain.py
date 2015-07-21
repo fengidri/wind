@@ -58,17 +58,20 @@ def FrainListRefreshHook(listwin):
         Project.emit("FrainEntry")
         return
 
+def FrainListRefreshPreHook(listwin):
+    p = Project.All[0]
+    gitinfo = p.gitinfo
+    if not gitinfo:
+        listwin.Title = p.name
+    else:
+        listwin.Title = "%s(%s)" % (p.name, gitinfo["branch"])
+
+
 def FrainListGetRootsHook(node):
     pyvim.Roots = []  # 整个vim 可用的变量
     for p in Project.All:
         pyvim.Roots.append(p.root)
         root = frainui.Node(p.name, p.root, get_child)
-        #if not listwin.Title:
-        #    info = p.info
-        #    if not info:
-        #        listwin.Title = root.name
-        #    else:
-        #        listwin.Title = "%s(%s)" % (root.name, info["branch"])
 
         node.append(root)
 
@@ -108,8 +111,8 @@ class FrainList(object):
             return
 
         self.listwin = LIST(FrainListGetRootsHook)
-        self.listwin.FREventBind("ListReFresh",    FrainListRefreshHook)
-        #self.listwin.FREventBind("ListReFreshPre", FrainListGetRootsHook)
+        self.listwin.FREventBind("ListReFreshPost",    FrainListRefreshHook)
+        self.listwin.FREventBind("ListReFreshPre", FrainListRefreshPreHook)
         self.listwin.FREventBind("ListShow",       FrainListShowHook)
         self.listwin.FREventBind("ListNames",      FrainListGetNames)
 
@@ -121,6 +124,7 @@ class FrainList(object):
             name = libpath.basename(path)
         if path:
             Project(path, name)
+
 
         self.listwin.refresh()
 

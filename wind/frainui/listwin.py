@@ -34,6 +34,8 @@ class LISTOPTIONS(object):
         self.win.b[0] = "FrainUI"
         Item.nodes = {}
 
+        self.FREventEmit("ListReFreshPre")
+
         self.root = node.Node("root", None, self.get_roots)
 
         #self.root = node.Node('root')
@@ -48,7 +50,7 @@ class LISTOPTIONS(object):
             self.settitle(self.Title)
 
         #self.LS_Refresh_Hook()
-        self.FREventEmit("ListReFresh")
+        self.FREventEmit("ListReFreshPost")
         self.nu_refresh += 1
 
 
