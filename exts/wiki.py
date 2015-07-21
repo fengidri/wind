@@ -152,6 +152,19 @@ def put(tex, info):
 
 
 
+@pyvim.event("CursorHold", "*.mkiv")
+@pyvim.event("CursorHoldI", "*.mkiv")
+def SendBuf():
+    ShowUrl = 'http://localhost/texshow/data'
+    data = urllib.urlencode(
+            {   "data": '\n'.join(vim.current.buffer),
+                "type": "mkiv"})
+
+    req = urllib2.Request(ShowUrl, data)
+    try:
+        urllib2.urlopen(req).read()
+    except Exception, e:
+        logging.error(e)
 
 
 

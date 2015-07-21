@@ -164,7 +164,7 @@ def addevent(event, cb, pat='*'):
 
     es = event.split(',')
 
-    cbid = "%s_%s" % (__Event_Index, cb.func_code.co_name)
+    cbid = "%s_%s" % (cb.func_code.co_name, __Event_Index)
     cmd = "py IM('event', '%s')" % cbid
     __Event_Map[cbid] = cb
 
