@@ -3,10 +3,12 @@
 #    time      :   2015-03-31 11:28:09
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
+
 from pyvim import log as logging
 import vim
+
 class Item(object):# Node与Leaf 的父类
-    lswin      = None # 指向list.win对象.
+    lswin   = None # 指向list.win对象.
     level   = 0
     father  = None  # 指向father 对象
 

@@ -19,43 +19,29 @@ def Frain(path='.', name=''):
     frain.refresh()
 
 
-@pyvim.cmd()
-def FrainOpen():
-    if not LIST.get_instance():
-        return
-    LIST().open()
+#@pyvim.cmd()
+#def FrainOpen():
+#    if not LIST.get_instance():
+#        return
+#    LIST().open()
+#
+#@pyvim.cmd()
+#def FrainClose():
+#    if not LIST.get_instance():
+#        return
+#    LIST().close()
 
-@pyvim.cmd()
-def FrainClose():
-    if not LIST.get_instance():
-        return
-    LIST().close()
 
-@pyvim.cmd()
-def FrainFind():
-    if not LIST.get_instance():
-        return
-    frain = LIST()
-    s = frain.find()
-    if s == 'NROOT':
-        frain.add_cur_path()
-        frain.refresh()
-        frain.find()
-
-    if not s:
-        frain.refresh()
-        frain.find()
-
-@pyvim.cmd()
-def FrainFocus():
-    if LIST.get_instance():
-        LIST().focus()
-
-@pyvim.cmd()
-def FrainRefresh():
-    if LIST.get_instance():
-        LIST().refresh()
-    #刷新path exp 窗口之后. 展开显示当前正在编辑的文件
+#@pyvim.cmd()
+#def FrainFocus():
+#    if LIST.get_instance():
+#        LIST().focus()
+#
+#@pyvim.cmd()
+#def FrainRefresh():
+#    if LIST.get_instance():
+#        LIST().refresh()
+#    #刷新path exp 窗口之后. 展开显示当前正在编辑的文件
 
 @pyvim.cmd()
 def ProjectTerminal():

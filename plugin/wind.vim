@@ -1,5 +1,4 @@
 "导入python plugin"
-"
 let s:script_folder_path = escape(expand('<sfile>:p:h' ), '\')
 
 " 如果是 C 项目的情况下, 用于保存头文件所在的目录

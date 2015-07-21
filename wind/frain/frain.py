@@ -4,70 +4,88 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-from frainui import LIST
-from frainui import Node, Leaf
+from frainui import LIST, Node, Leaf
+import frainui
 import libpath
-import logging
 import vim
 import pyvim
 import utils
 import os
+
 from project import Project
 from white_black import black_filter_files, sorted_by_expand_name
 
-class FrainListSub(LIST):
-    first_fresh = True
-    def LS_GetRoots(self):
-        pyvim.Roots = []  # 整个vim 可用的变量
-        roots = []
-        for p in Project.All:
-            pyvim.Roots.append(p.root)
-            root = DirNode(p.root, p.name)
-            if not self.Title:
-                info = p.info
-                if not info:
-                    self.Title = root.name
-                else:
-                    self.Title = "%s(%s)" % (root.name, info["branch"])
+def FrainListShowHook(listwin):
+    def vimleave():
+        Project.emit("FrainLeave")
 
-            roots.append(root)
-        return roots
+    pyvim.addevent('BufWritePost', libpath.push)
+    pyvim.addevent('VimLeave',  vimleave)
 
-    def LS_Refresh_Hook(self):
-        if self.first_fresh:
-            self.first_fresh = False
-            Project.emit("FrainEntry")
-            return
+def FrainListRefreshHook(listwin):
+    if listwin.first_fresh:
+        listwin.first_fresh = False
+        Project.emit("FrainEntry")
+        return
 
-    def LS_WinOpen_Hook(self):
-        def vimleave():
-            Project.emit("FrainLeave")
+def FrainListGetRootsHook(listwin):
+    pyvim.Roots = []  # 整个vim 可用的变量
+    roots = []
+    for p in Project.All:
+        pyvim.Roots.append(p.root)
 
-        pyvim.addevent('BufWritePost', libpath.push)
-        pyvim.addevent('VimLeave',  vimleave)
+        root = DirNode(p.root, p.name)
+        if not listwin.Title:
+            info = p.info
+            if not info:
+                listwin.Title = root.name
+            else:
+                listwin.Title = "%s(%s)" % (root.name, info["branch"])
+
+        roots.append(root)
+
+    listwin.setroot(roots)
+
+def FrainListGetNames(listwin):
+    """显示当前的 buffer 对应的文件在 win list 中的位置
+
+    如果, buffer 不属于任何一个 project, 返回 `NROOT'
+
+    之后生成当前 buffer 在 win list 中的 url, 由 win list 进行查询.
+    """
+    path = utils.bufferpath()
+    if not path:
+        return
+
+    for p in Project.All:
+        if path.startswith(p.root):
+            break
+    else:
+        return 'NROOT' # not found root
+
+    names = utils.getnames(p.root, path)
+    return names
+
+################################################################################
 
 class FrainList(FrainListSub):
     data = []
-    def find(self):
-        """显示当前的 buffer 对应的文件在 win list 中的位置
+    def __new__(cls, *args, **kw):
+        if not hasattr(FrainList, '_instance'):
+            orig = super(FrainList, cls)
+            FrainList._instance = orig.__new__(cls, *args, **kw)
+        return FrainList._instance
 
-        如果, buffer 不属于任何一个 project, 返回 `NROOT'
-
-        之后生成当前 buffer 在 win list 中的 url, 由 win list 进行查询.
-        """
-        path = utils.bufferpath()
-        if not path:
+    def __init__(self):
+        if hasattr(self, 'listwin'):
             return
 
-        for p in Project.All:
-            if path.startswith(p.root):
-                break
-        else:
-            return 'NROOT' # not found root
+        self.listwin = LIST()
+        self.listwin.FREventBind("ListReFresh",    FrainListRefreshHook)
+        self.listwin.FREventBind("ListReFreshPre", FrainListGetRootsHook)
+        self.listwin.FREventBind("ListShow",       FrainListShowHook)
+        self.listwin.FREventBind("ListNames",      FrainListGetNames)
 
-        names = utils.getnames(p.root, path)
-        if LIST.LS_Find(self, names):
-            return True
 
     def add(self, path, name = ''):
         "增加一个新的 project, 提供参数 path, name"

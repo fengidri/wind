@@ -7,6 +7,7 @@ import pyvim
 import stream
 import prompt
 import setting
+import frainui
 from imrc import emit_event
 
 def IM_Init():
@@ -44,6 +45,9 @@ def IM(*args):
 
     elif cls == "cmd_complete":
         pyvim.command_complete(*args[1:])
+
+    elif cls == "frainui":
+        frainui.handle(*args[1:])
 
     emit_event('pre-stop')
 

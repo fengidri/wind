@@ -5,8 +5,17 @@
 #    version   :   1.0.1
 from node import Node, Leaf
 from listwin import LIST
-
 import logging
+
 def inputstream(key):
     logging.error('inputstream: %s' % key)
 
+def handle(event):
+    if event == "list-refresh":
+        LIST().refresh()
+
+    elif event == "list-open":
+        LIST().open()
+
+    elif event == "list-close":
+        LIST().close()

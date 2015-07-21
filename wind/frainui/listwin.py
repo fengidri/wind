@@ -3,6 +3,7 @@
 #    time      :   2015-04-08 13:51:57
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
+
 import node
 from node import Item
 import vim
@@ -10,21 +11,6 @@ from pyvim import log as logging
 import copy
 import pyvim
 import utils
-
-
-
-class LISTHOOK(object):
-    def LS_WinOpen_Hook(self):
-        "事件: 窗口创建"
-        pass
-
-    def LS_GetRoots(self):
-        "返回 roots"
-        pass
-
-    def LS_Refresh_Hook(self):
-        "事件: 刷新"
-        pass
 
 class LISTOPTIONS(object):
     def open(self):
@@ -43,16 +29,22 @@ class LISTOPTIONS(object):
         fa._open(linenu)
         self.win.cursor = (linenu, 0)
 
+    def setroot(self, root):
+        self.root = node.Node('root')
+        for r in root():
+            self.root.append(r)
 
     def refresh(self):
         self.win.clear()
         self.win.b[0] = "FrainUI"
         Item.nodes = {}
-        self.root = node.Node('root')
 
-        # hooks
-        for r in self.LS_GetRoots():
-            self.root.append(r)
+        self.FREventEmit("ListReFreshPre")
+        #self.root = node.Node('root')
+
+        ## hooks
+        #for r in self.LS_GetRoots():
+        #    self.root.append(r)
 
         self.root.opened = False
         self.root.node_open(1)
@@ -60,17 +52,21 @@ class LISTOPTIONS(object):
         if self.Title:
             self.settitle(self.Title)
 
-        self.LS_Refresh_Hook()
+        #self.LS_Refresh_Hook()
+        self.emit("ListReFresh")
 
 
     def focus(self):# 切换到list 窗口,
         self.win.show()
 
-    def LS_Find(self, _names):
+    def LS_Find(self, _names = None):
         """
           在 list win 中显示由_names 指定的条目
         """
-        names = copy.copy(_names)
+        #names = copy.copy(_names)
+
+        names = self.FREventEmit("ListNames")
+        if not names: return
 
         names.insert(0, 'root')
         logging.error('names: %s', names)
@@ -121,9 +117,6 @@ class LISTOPTIONS(object):
         vim_title = name.replace( ' ', '\\ ')
         vim.command( "set title titlestring=%s" % vim_title )
 
-
-
-
 class LISTNODS(object):
     def getlinenu(self, node):
         num = 0
@@ -140,9 +133,39 @@ class LISTNODS(object):
     def getroots(self):
         return self.root.sub_nodes
 
+def find():
+    #在NERDTree窗口中找到当前文件的位置
+    """显示出当前文件的位置.
+    当前是在NERDTree 中显示"""
+    if vim.current.buffer.name == '':
+        return -1
+    if vim.current.buffer.options[ 'buftype' ] != '':
+        return -1
+    if pyvim.is_empty( ):
+        return -1
 
-class LIST(LISTHOOK, LISTOPTIONS, LISTNODS):#  list 窗口对象
+    w = vim.current.window
+
+    frain = LIST()
+    frain.LS_Find()
+
+    #s =
+    #if s == 'NROOT':
+    #    frain.add_cur_path()
+    #    frain.refresh()
+    #    frain.find()
+
+    #if not s:
+    #    frain.refresh()
+    #    frain.find()
+
+    vim.current.window = w
+    return 0
+
+
+class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
     Title = None
+
     @staticmethod
     def get_instance():
         if hasattr(LIST, '_instance'):
@@ -155,15 +178,12 @@ class LIST(LISTHOOK, LISTOPTIONS, LISTNODS):#  list 窗口对象
         return LIST._instance
 
     def __init__(self):
-        """
-            self.root(Node:root)
-                | ----------------selfNode(rootpath)
-                | ----------------selfNode(rootpath)
-                | ----------------selfNode(rootpath)
-                | ----------------selfNode(rootpath)
-        """
         if hasattr(self, 'win'):
             return
+
+        def hook():
+            self.FREventEmit("ListShow")
+
         import Buffer
         self.win = Buffer.Buffer(
                 vertical = True,
@@ -171,11 +191,13 @@ class LIST(LISTHOOK, LISTOPTIONS, LISTNODS):#  list 窗口对象
                 width = 25,
                 title = "Frain",  ft="frainlist")
 
-        self.win.Buf_New_Hook = self.LS_WinOpen_Hook
+        #self.win.Buf_New_Hook = self.LS_WinOpen_Hook
+        self.win.FREventBind("BufNew", hook)
         self.win.show()
 
         Item.lswin = self.win
 
+        pyvim.addevent("BufEnter", find)
         pyvim.addevent('CursorMoved', self.update_status, self.win.b)
 
 

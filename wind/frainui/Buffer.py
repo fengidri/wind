@@ -5,12 +5,14 @@
 #    version   :   1.0.1
 import vim
 import pyvim
+import utils
+
 LEFTABOVE  = "leftabove"
 RIGHTBELOW = "rightbelow"
 TOPLEFT    = "topleft"
 BOTRIGHT   = "boright"
 
-class Buffer(object):
+class Buffer(utils.Object):
     def __init__(self, title='', position = '',
             vertical=False, width=25, height=15, ft='fraintmp'):
         self.b = None
@@ -88,8 +90,10 @@ class Buffer(object):
             if self.ft:
                 vim.command("set ft=%s" % self.ft)
 
-            if self.Buf_New_Hook:
-                self.Buf_New_Hook()
+            self.emit("BufNew")
+
+            #if self.Buf_New_Hook:
+            #    self.Buf_New_Hook()
 
             if self.Buf_Close_Hook:
                # pyvim.addevent('BufUnload', self.close_hook, '<buffer>')
