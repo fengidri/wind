@@ -2,7 +2,7 @@
 #    author    :   丁雪峰
 #    time      :   2014-11-17 17:00:06
 #    email     :   fengidri@yeah.net
-#    version   :   1.0.1
+#    version   :   2.0.1
 
 import pyvim
 import vim
@@ -13,9 +13,79 @@ import tempfile
 from textohtml import html
 from pyvim import log as logging
 
+import frainui
+
 ID = None
 SERVER="blog.fengidri.me"
 is_wiki = False
+
+map_id_file = {}
+map_file_leaf = {}
+
+TEXLIST = None
+TEXINFO = None
+
+def load_list():
+    URL = "http://blog.fengidri.me/store/index.json"
+    try:
+        response = urllib2.urlopen(URL)
+        info = response.read()
+        info = json.loads(info)
+        info.reverse()
+        return info
+    except:
+        pyvim.echo("load index.json fail!")
+        return []
+
+def load_tex(ID):
+    tmp = map_id_file.get(ID)
+    if tmp:
+        return tmp
+
+    url = 'http://%s/store/%s/index.mkiv' % (SERVER, ID)
+    req = urllib2.Request(url)
+    tmp = tempfile.mktemp(suffix='.mkiv', prefix='fwiki_%s_' % ID)
+    try:
+        res = urllib2.urlopen(req).read()
+    except Exception, e:
+        pyvim.echo(e)
+        return
+    open(tmp, 'wb').write(res)
+    map_id_file[ID] = tmp
+    return tmp
+
+def leaf_handle(leaf):
+    tmp = load_tex(leaf.ctx)
+    if not tmp:
+        return
+    map_file_leaf[tmp] = leaf
+    vim.command("edit %s" % tmp)
+
+def GetRoots(node):
+    for info in load_list():
+        name = info[1]
+        ID = info[0]
+        leaf = frainui.Leaf(name, ID, leaf_handle)
+        node.append(leaf)
+
+def GetNames(listwin):
+    leaf = map_file_leaf.get(vim.current.buffer.name)
+    if not leaf:
+        return
+    listwin.setnames([leaf.name])
+
+
+
+
+@pyvim.cmd()
+def WikiList():
+    global  TEXLIST
+    TEXLIST = frainui.LIST(GetRoots)
+    TEXLIST.FREventBind("ListNames", GetNames)
+    TEXLIST.refresh()
+
+
+
 @pyvim.cmd()
 def WikiPost():
         if not is_wiki:

@@ -29,24 +29,19 @@ class LISTOPTIONS(object):
         fa._open(linenu)
         self.win.cursor = (linenu, 0)
 
-    def setroot(self, root):
-        self.root = node.Node('root')
-        for r in root:
-            self.root.append(r)
-
     def refresh(self):
         self.win.clear()
         self.win.b[0] = "FrainUI"
         Item.nodes = {}
 
-        self.FREventEmit("ListReFreshPre")
+        self.root = node.Node("root", None, self.get_roots)
+
         #self.root = node.Node('root')
 
         ## hooks
         #for r in self.LS_GetRoots():
         #    self.root.append(r)
 
-        self.root.opened = False
         self.root.node_open(1)
 
         if self.Title:
@@ -183,12 +178,13 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
             LIST._instance = orig.__new__(cls, *args, **kw)
         return LIST._instance
 
-    def __init__(self):
+    def __init__(self, get_roots=None):
         if hasattr(self, 'win'):
             return
 
         self.names_for_find = None
         self.nu_refresh = 0 # count the refresh
+        self.get_roots = get_roots
 
         def hook(buf):
             self.FREventEmit("ListShow")

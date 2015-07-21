@@ -58,24 +58,20 @@ def FrainListRefreshHook(listwin):
         Project.emit("FrainEntry")
         return
 
-def FrainListGetRootsHook(listwin):
+def FrainListGetRootsHook(node):
     pyvim.Roots = []  # 整个vim 可用的变量
-    roots = []
     for p in Project.All:
         pyvim.Roots.append(p.root)
-        log.error("project name: %s", p.name)
-
         root = frainui.Node(p.name, p.root, get_child)
-        if not listwin.Title:
-            info = p.info
-            if not info:
-                listwin.Title = root.name
-            else:
-                listwin.Title = "%s(%s)" % (root.name, info["branch"])
+        #if not listwin.Title:
+        #    info = p.info
+        #    if not info:
+        #        listwin.Title = root.name
+        #    else:
+        #        listwin.Title = "%s(%s)" % (root.name, info["branch"])
 
-        roots.append(root)
+        node.append(root)
 
-    listwin.setroot(roots)
 
 def FrainListGetNames(listwin):
     """显示当前的 buffer 对应的文件在 win list 中的位置
@@ -111,9 +107,9 @@ class FrainList(object):
         if hasattr(self, 'listwin'):
             return
 
-        self.listwin = LIST()
+        self.listwin = LIST(FrainListGetRootsHook)
         self.listwin.FREventBind("ListReFresh",    FrainListRefreshHook)
-        self.listwin.FREventBind("ListReFreshPre", FrainListGetRootsHook)
+        #self.listwin.FREventBind("ListReFreshPre", FrainListGetRootsHook)
         self.listwin.FREventBind("ListShow",       FrainListShowHook)
         self.listwin.FREventBind("ListNames",      FrainListGetNames)
 
