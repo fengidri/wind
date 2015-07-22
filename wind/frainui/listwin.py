@@ -36,6 +36,7 @@ class LISTOPTIONS(object):
 
         self.FREventEmit("ListReFreshPre")
 
+        Item.clear() # 在刷新的时候, 把旧的所有 nodes 释放掉
         self.root = node.Node("root", None, self.get_roots)
 
         #self.root = node.Node('root')

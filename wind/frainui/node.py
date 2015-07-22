@@ -14,12 +14,17 @@ class Item(utils.Object):# Node与Leaf 的父类
     father  = None  # 指向father 对象
 
     nodes   = {}  # 所有的节点, 除了可以保存在树形的结构中外, 全部在这里有索引
+    # 从 frainui listwin 的 line 得到 item 时, 要依赖于这个索引.
     ID      = 0
     def __init__(self):
         # 新的实例, 要生成ID, 并加入到nodes中去
         self.ID = Item.ID
         Item.nodes[self.ID] = self
         Item.ID += 1
+
+    @classmethod
+    def clear(cls):
+        cls.nodes = {}
 
     @classmethod
     def getnode(cls, linenu = None):
