@@ -136,10 +136,6 @@ class LISTNODS(object):
     def getroots(self):
         return self.root.sub_nodes
 
-def find():
-    return 0
-
-
 class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
     def __init__(self, get_roots=None):
         self.FRRegister("list")
@@ -150,7 +146,6 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
         self.Title          = None
         self.root           = None
 
-        logging.error('$$$$$$$$$$$$$$$$$$')
         def hook(buf):
             self.FREventEmit("ListShow")
 

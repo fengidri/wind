@@ -46,7 +46,6 @@ def get_child(Node):
         Node.append(frainui.Node(d, p, get_child))
 
 def FrainListShowHook(listwin):
-    log.error("############3show list")
     def vimleave():
         Project.emit("FrainLeave")
 
