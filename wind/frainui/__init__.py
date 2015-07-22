@@ -11,12 +11,11 @@ import utils
 def inputstream(key):
     logging.error('inputstream: %s' % key)
 
-def handle(event):
-    try:
-        name, ev =  event.split('-')
-    except:
-        return
-
+def handle(name, ev):
+    """
+        @paser: name ui object name
+        @ev:    method of the object
+    """
     obj = utils.Objects.get(name)
     if not obj:
         return
