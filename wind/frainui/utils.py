@@ -4,7 +4,7 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-
+Objects = {}
 
 class Object(object):
     __CB = {}
@@ -27,6 +27,9 @@ class Object(object):
             funs.append((fun, arg))
         else:
             self.__CB[event] = [(fun, arg)]
+
+    def FRRegister(self, name):
+        Objects[name] = self
 
 
 

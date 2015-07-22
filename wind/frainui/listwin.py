@@ -184,6 +184,8 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
         if hasattr(self, 'win'):
             return
 
+        self.FRRegister("list")
+
         self.names_for_find = None
         self.nu_refresh = 0 # count the refresh
         self.get_roots = get_roots

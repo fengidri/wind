@@ -6,16 +6,31 @@
 from node import Node, Leaf
 from listwin import LIST
 import logging
+import utils
 
 def inputstream(key):
     logging.error('inputstream: %s' % key)
 
 def handle(event):
-    if event == "list-refresh":
-        LIST().refresh()
+    try:
+        name, ev =  event.split('-')
+    except:
+        return
 
-    elif event == "list-open":
-        LIST().open()
+    obj = utils.Objects.get(name)
+    if not obj:
+        return
 
-    elif event == "list-close":
-        LIST().close()
+    if not hasattr(obj, ev):
+        return
+
+    getattr(obj, ev)()
+
+    #if event == "list-refresh":
+    #    LIST().refresh()
+
+    #elif event == "list-open":
+    #    LIST().open()
+
+    #elif event == "list-close":
+    #    LIST().close()
