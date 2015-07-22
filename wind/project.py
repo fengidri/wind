@@ -61,7 +61,7 @@ class Project(object):
         self.root = root
         self.name = name
         self.kvdb = KvCache(os.path.join(self.root, '.wind'))
-        self.info = gitinfo.gitinfo(root)
+        self.gitinfo = gitinfo.gitinfo(root)
         Project.All.append(self)
 
 

@@ -3,10 +3,13 @@
 #    time      :   2015-03-31 11:28:09
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
+
 from pyvim import log as logging
 import vim
-class Item(object):# Node与Leaf 的父类
-    lswin      = None # 指向list.win对象.
+import utils
+
+class Item(utils.Object):# Node与Leaf 的父类
+    lswin   = None # 指向list.win对象.
     level   = 0
     father  = None  # 指向father 对象
 
@@ -58,7 +61,7 @@ class Item(object):# Node与Leaf 的父类
             return
 
         # 这个处理是针对于node 节点的
-        self.LS_Node_Init()
+        self._get_child()
         for n in self.sub_nodes: # node 在子节点中找
             m = n.find(names)
             if m:
@@ -76,37 +79,20 @@ class Item(object):# Node与Leaf 的父类
             fa = fa.father
         return rt
 
-    def OpenPre(self):
-        return True
-
-    def OpenPost(self):
-        return True
-
-    def ClosePre(self):
-        return True
-
-    def ClosePost(self):
-        return True
-
 
 
 
 
 
 class Node(Item):
-    def LS_Node_Init(self):# 初始sub_nodes数据, 不是事件
-        pass
-
-
-    def OpenPre(self):
-        self.LS_Node_Init()
-        return True
-
-    def __init__(self, name):
+    def __init__(self, name, ctx=None, get_child=None):
         Item.__init__(self)
         self.sub_nodes = []
         self.name = name
         self.opened = False
+        self.ctx = ctx
+        self.need_fresh = True # opened or not
+        self.get_child = get_child
 
     def append(self, node):
         node.level = self.level + 1 # 用于方便得到层级关系
@@ -123,17 +109,25 @@ class Node(Item):
                 self.ID)
 
     def _open(self, linenu): # 回车 TODO
+        logging.error("node _open")
+
         if self.opened:
             self.node_close(linenu)
         else:
             self.node_open(linenu)
+
+    def _get_child(self):
+        if self.need_fresh and self.get_child:
+            self.need_fresh = False
+            self.get_child(self)
 
     def node_open(self, linenu):
         if self.opened: return
         self.opened = True
 
 
-        if not self.OpenPre(): return
+        self._get_child()
+        #if not self.OpenPre(): return
 
 
         buf = self.lswin.b
@@ -146,14 +140,11 @@ class Node(Item):
             linenu += 1
 
 
-        self.OpenPost()
 
     def node_close(self, linenu): #
         if not self.opened: return
         logging.error('close')
         self.opened = False
-
-        if not self.ClosePre(): return
 
         buf = self.lswin.b
         buf[linenu - 1] = buf[linenu - 1].replace('-', '+', 1)
@@ -171,12 +162,13 @@ class Node(Item):
         if end > start:
             del self.lswin.b[start: end]
 
-        self.ClosePost()
 
 class Leaf(Item):
-    def __init__(self, name):
+    def __init__(self, name, ctx=None, handle=None):
         Item.__init__(self)
-        self.name  = name
+        self.name   = name
+        self.ctx    = ctx
+        self.handle = handle
 
     def show(self):
         return "%s %s<|>%s" % ("  " * (self.level  -1), self.name, self.ID)
@@ -186,14 +178,10 @@ class Leaf(Item):
         if self.lswin.is_focus():
             return
 
-        if not self.OpenPre(): return
+        if self.handle:
+            self.handle(self)
 
-        self.LS_Leaf_Edit()
 
-        self.OpenPost()
-
-    def LS_Leaf_Edit(self):# upstream完成叶节点在编辑区的处理方式
-        pass
 
 
 

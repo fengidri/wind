@@ -1,0 +1,30 @@
+\section{LIST}
+\subsection{List event}
+\startitemize
+\item ListReFresh: LIST 完成刷新之后.
+\item ListReFreshPre: LIST 刷新之前. 一般在这个 事件里, 完成
+对于对于最高级的item 的初始化.
+\item ListShow:  Frainui List 窗口显示.
+\item ListNames: 有返回值. 依赖于vim.buffer.name, 返回 names 用于
+在 frainui 锁定 item.
+\stopitemize
+
+
+\section{node}
+list 窗口的 item 分成两类. Node, Leaf.
+两个类的初始化参数相似. 三个参数分别:
+\startitemize
+\item name: item name 会显示在 list 窗口.
+\item ctx:  item 的附属属性.
+\item handle: 回调处理. 两种节点的处理情景不.
+\stopitemize
+
+\subsection{Node}
+handle 返回 Node 其child Leaf.
+
+
+
+\subsection{Leaf}
+
+处理节点的响应.
+
