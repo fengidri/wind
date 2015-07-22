@@ -61,26 +61,8 @@ class LISTOPTIONS(object):
     def setnames(self, names):
         self.names_for_find = names
 
-    def LS_Find(self):
-        """
-          在 list win 中显示由_names 指定的条目
-        """
-        self.names_for_find = None
-        self.FREventEmit("ListNames")
-        names = self.names_for_find
-
-        if not names: return
-        if not self.root: return
-
-        names.insert(0, 'root')
-        logging.error('names: %s', names)
-
-        leaf = self.root.find(names)
-        if not leaf:
-            self.win.cursor = (1, 0)
-            return False
-
-        route = leaf.route()
+    def show_item(self, item):
+        route = item.route()
         if not route:
             self.win.cursor = (1, 0)
             return False
@@ -101,8 +83,32 @@ class LISTOPTIONS(object):
 
         if w:
             vim.current.window = w
-
         return True
+
+    def LS_Find(self):
+        """
+          在 list win 中显示由 names 指定的条目
+          使用 names 指定 item 而不是通过, 在全局nodes 里查找node 的原因:
+            1. frainui 对于子节点的生成是在用户打开节点里的时候才获取地.
+                如果进行全局性地查找是找不到的
+            2.
+        """
+        self.names_for_find = None
+        self.FREventEmit("ListNames")
+        names = self.names_for_find
+
+        if not names: return
+        if not self.root: return
+
+        names.insert(0, 'root')
+
+        leaf = self.root.find(names)
+        if not leaf:
+            self.win.cursor = (1, 0)
+            return False
+
+        return self.show_item(leaf)
+
 
     def update_status(self):
         node = Item.getnode()

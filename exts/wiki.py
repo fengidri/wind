@@ -25,7 +25,19 @@ map_file_leaf = {}
 
 
 TEXLIST = None
-TEXINFO = None
+class Cfg(object):
+    texlist = None
+    texinfo = None
+
+    @classmethod
+    def get_name_by_id(cls, ID):
+        for info in cls.texinfo:
+            if info[0] == ID:
+                return info[1]
+
+    def get_file_by_id(cls, ID):
+        pass
+
 
 ################################################################################
 # paser content
@@ -68,10 +80,11 @@ def load_list():
         info = response.read()
         info = json.loads(info)
         info.reverse()
-        return info
     except:
         pyvim.echo("load index.json fail!")
-        return []
+        info = []
+    Cfg.texinfo = info
+    return info
 
 def load_tex(ID):
     tmp = map_id_file.get(ID)
