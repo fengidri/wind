@@ -46,6 +46,7 @@ def get_child(Node):
         Node.append(frainui.Node(d, p, get_child))
 
 def FrainListShowHook(listwin):
+    log.error("############3show list")
     def vimleave():
         Project.emit("FrainLeave")
 
@@ -115,6 +116,8 @@ class FrainList(object):
         self.listwin.FREventBind("ListReFreshPre", FrainListRefreshPreHook)
         self.listwin.FREventBind("ListShow",       FrainListShowHook)
         self.listwin.FREventBind("ListNames",      FrainListGetNames)
+
+        self.listwin.show()
 
 
     def add(self, path, name = ''):

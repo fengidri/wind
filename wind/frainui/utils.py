@@ -5,6 +5,8 @@
 #    version   :   1.0.1
 
 Objects = {}
+EVENT_BIND_TYPE_NORMAL = 0
+EVENT_BIND_TYPE_CHAIN = 1
 
 class Object(object):
     __CB = {}
@@ -14,19 +16,29 @@ class Object(object):
             return
 
         for cb in cbs:
-            fun = cb[0]
-            args = cb[1]
-            if args:
-                return fun(self, *args)
+            fun  = cb["fun"]
+            args = cb["arg"]
+            tp   = cb["type"]
+            if tp == EVENT_BIND_TYPE_CHAIN:
+                fun.FREventEmit(args)
             else:
-                return fun(self)
+                fun(self)
 
     def FREventBind(self, event, fun, arg = None):
+        # 绑定对于事件 event 的处理函数
+        """
+
+        """
+        tp = EVENT_BIND_TYPE_NORMAL
+        if isinstance(fun, Object):
+            tp = EVENT_BIND_TYPE_NORMAL
+
+        cb = {"fun": fun, "arg": arg, "type": tp}
         funs = self.__CB.get(event)
         if funs:
-            funs.append((fun, arg))
+            funs.append(cb)
         else:
-            self.__CB[event] = [(fun, arg)]
+            self.__CB[event] = [cb]
 
     def FRRegister(self, name):
         Objects[name] = self

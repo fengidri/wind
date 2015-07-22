@@ -60,16 +60,16 @@ class LISTOPTIONS(object):
     def setnames(self, names):
         self.names_for_find = names
 
-    def LS_Find(self, _names = None):
+    def LS_Find(self):
         """
           在 list win 中显示由_names 指定的条目
         """
-        #names = copy.copy(_names)
-
         self.names_for_find = None
         self.FREventEmit("ListNames")
         names = self.names_for_find
+
         if not names: return
+        if not self.root: return
 
         names.insert(0, 'root')
         logging.error('names: %s', names)
@@ -137,59 +137,20 @@ class LISTNODS(object):
         return self.root.sub_nodes
 
 def find():
-    #在NERDTree窗口中找到当前文件的位置
-    """显示出当前文件的位置.
-    当前是在NERDTree 中显示"""
-    if vim.current.buffer.name == '':
-        return -1
-    if vim.current.buffer.options[ 'buftype' ] != '':
-        return -1
-    if pyvim.is_empty( ):
-        return -1
-
-    w = vim.current.window
-
-    frain = LIST()
-    frain.LS_Find()
-
-    #s =
-    #if s == 'NROOT':
-    #    frain.add_cur_path()
-    #    frain.refresh()
-    #    frain.find()
-
-    #if not s:
-    #    frain.refresh()
-    #    frain.find()
-
-    vim.current.window = w
     return 0
 
 
 class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
-    Title = None
-
-    @staticmethod
-    def get_instance():
-        if hasattr(LIST, '_instance'):
-            return LIST._instance
-
-    def __new__(cls, *args, **kw):
-        if not hasattr(LIST, '_instance'):
-            orig = super(LIST, cls)
-            LIST._instance = orig.__new__(cls, *args, **kw)
-        return LIST._instance
-
     def __init__(self, get_roots=None):
-        if hasattr(self, 'win'):
-            return
-
         self.FRRegister("list")
 
         self.names_for_find = None
-        self.nu_refresh = 0 # count the refresh
-        self.get_roots = get_roots
+        self.nu_refresh     = 0         # count the refresh
+        self.get_roots      = get_roots
+        self.Title          = None
+        self.root           = None
 
+        logging.error('$$$$$$$$$$$$$$$$$$')
         def hook(buf):
             self.FREventEmit("ListShow")
 
@@ -198,16 +159,42 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
                 vertical = True,
                 position = Buffer.TOPLEFT,
                 width = 25,
-                title = "Frain",  ft="frainlist")
+                title = "Frain",
+                ft="frainlist")
 
-        #self.win.Buf_New_Hook = self.LS_WinOpen_Hook
         self.win.FREventBind("BufNew", hook)
+
+    def find(self):
+        if vim.current.buffer.name == '':
+            return -1
+        if vim.current.buffer.options[ 'buftype' ] != '':
+            return -1
+        if pyvim.is_empty( ):
+            return -1
+
+        w = vim.current.window
+
+        self.LS_Find()
+
+        #s =
+        #if s == 'NROOT':
+        #    frain.add_cur_path()
+        #    frain.refresh()
+        #    frain.find()
+
+        #if not s:
+        #    frain.refresh()
+        #    frain.find()
+
+        vim.current.window = w
+
+
+    def show(self):
         self.win.show()
-
         Item.lswin = self.win
-
-        pyvim.addevent("BufEnter", find)
+        pyvim.addevent("BufEnter", self.find)
         pyvim.addevent('CursorMoved', self.update_status, self.win.b)
+
 
 
 
