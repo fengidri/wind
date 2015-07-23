@@ -50,6 +50,14 @@ class Remote(object):
         except:
             pyvim.echo("load index.json fail!")
             info = {}
+
+        for v in info.values():
+            if not v.get('title'):
+                v['title'] = 'undefined'
+
+            if not v.get('post'):
+                v['post'] = '1'
+
         self.info = info
 
     def iter(self):
@@ -122,13 +130,13 @@ def list_tex(node):
     remote = Remote()
     remote.load_list()
     for ID, info in remote.iter():
-        if node.ctx == "TexList" and info.get("post", '1') != '0':
-            name = info.get("title", 'undefined')
+        if node.ctx == "TexList" and info.get("post") != '0':
+            name = info.get("title")
             leaf = frainui.Leaf(name, int(ID), leaf_handle)
             node.append(leaf)
 
-        if node.ctx == "UnPost" and info.get("post", '1') == '0':
-            name = info.get("title", 'undefined')
+        if node.ctx == "UnPost" and info.get("post") == '0':
+            name = info.get("title")
             leaf = frainui.Leaf(name, int(ID), leaf_handle)
             node.append(leaf)
 

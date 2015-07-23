@@ -100,6 +100,12 @@ def FrainListGetNames(listwin):
 ################################################################################
 
 class FrainList(object):
+    @classmethod
+    def get_instance(cls):
+        if hasattr(cls, '_instance'):
+            return cls._instance
+
+
     def __new__(cls, *args, **kw):
         if not hasattr(FrainList, '_instance'):
             orig = super(FrainList, cls)
@@ -117,7 +123,6 @@ class FrainList(object):
         self.listwin.FREventBind("ListNames",      FrainListGetNames)
 
         self.listwin.show()
-
 
     def add(self, path, name = ''):
         "增加一个新的 project, 提供参数 path, name"

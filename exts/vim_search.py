@@ -5,12 +5,12 @@ import os
 import re
 
 @pyvim.cmd()
-def FSearch( params ):
-    word, filter = deal_argv(params)
-
-
-    if not word:
-        return
+def FSearch(  ):
+    #word, filter = deal_argv(params)
+    #if not word:
+    #    return
+    word = pyvim.current_word()
+    filter = ''
 
     command, path = context( word, filter )
 
@@ -68,7 +68,7 @@ def deal_argv( argvs ):
 def context(word, filter=""):
     target = ""
     dirname = ""
-    include = ['*.[ch]', '*.cpp', '*.cc', '*.py']
+    suffix = ['*.[ch]', '*.cpp', '*.cc', '*.py']
 
     cur_path = vim.current.buffer.name
     if not cur_path:
@@ -76,7 +76,9 @@ def context(word, filter=""):
 
     for path in pyvim.Roots:
         if cur_path.startswith( path ):
-            include = " --include='%s' " * len(include) % include
+            include = [" --include='%s' " % s for s in suffix ]
+            include = ' '.join(include)
+
             dirname = path
             break
     else:
