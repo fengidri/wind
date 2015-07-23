@@ -53,6 +53,7 @@ class LISTOPTIONS(object):
         #self.LS_Refresh_Hook()
         self.FREventEmit("ListReFreshPost")
         self.nu_refresh += 1
+        self.find()
 
 
     def focus(self):# 切换到list 窗口,
@@ -167,6 +168,9 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
         self.win.FREventBind("BufNew", hook)
 
     def find(self):
+        if self.win.is_focus():
+            return
+
         if vim.current.buffer.name == '':
             return -1
         if vim.current.buffer.options[ 'buftype' ] != '':
