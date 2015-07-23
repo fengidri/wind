@@ -154,7 +154,11 @@ def GetRoots(node):
 def GetNames(listwin):
     remote = Remote()
     ID = remote.file_to_id(vim.current.buffer.name)
+    if not ID:
+        return
     info = remote.info.get(str(ID))
+    if not info:
+        return
     if info.get('post', '1') == '0':
         names = ['UnPost', info.get('title')]
     else:
