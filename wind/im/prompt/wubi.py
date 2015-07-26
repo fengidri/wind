@@ -71,7 +71,7 @@ def handle():
 
 
 
-@handle
+@handle.base
 def wubi(patten):
     log.error("wubi patten: %s", patten)
     words, associate = search(''.join(patten))

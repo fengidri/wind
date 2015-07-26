@@ -119,7 +119,7 @@ def path():
         return len(status.org_path)
 
 
-@path
+@path.base
 def base(base):
     if status.dir_exists:
         names = get_match_names(status.dir_path, status.basename)

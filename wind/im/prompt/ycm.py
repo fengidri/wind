@@ -30,7 +30,7 @@ def handle():
 
     return -4
 
-@handle
+@handle.base
 def base(patten):
     pass
 

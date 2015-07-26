@@ -38,11 +38,13 @@ def prompt(name):
              return the list of the match item.
              But, you shuld use the prompt.abuild to build the complete item.
     """
+
     def _fun(findstart):
-        def xx(base):
+        def set_base(base):
             __Handles[name] = (findstart, base)
             return base
-        return xx
+        findstart.base = set_base
+        return findstart
     return _fun
 
 def Init():

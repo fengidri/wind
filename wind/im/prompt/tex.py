@@ -54,7 +54,7 @@ def tex():
     if match:
         return len(match.group())
 
-@tex
+@tex.base
 def base(base):
     words = [] + texs
     for line in vim.current.buffer:
