@@ -6,7 +6,6 @@
 
 import pyvim
 import vim
-from frainui import tmpedit
 
 @pyvim.cmd()
 def CFunComment():
