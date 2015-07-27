@@ -120,7 +120,11 @@ class LISTOPTIONS(object):
         if not route:
             return
 
-        path = '/'.join([r.name for r in route[1:]])
+        try:
+            ps = route[1:-1]
+            path = '/'.join([r.name for r in ps])
+        except:
+            path = route[1].name
         self.win.b.vars['frain_status_path'] = path
 
     def settitle(self, name):#设置vim 窗口的title
