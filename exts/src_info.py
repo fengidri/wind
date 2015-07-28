@@ -3,8 +3,8 @@ import pyvim
 import vim
 import time
 import os
-author = "丁雪峰"
-email = "fengidri@yeah.net"
+author = "陈小雪"
+email = "shell_chen@yeah.net"
 _infos = """
 >sh
 #!/usr/bin/env sh
