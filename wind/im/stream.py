@@ -82,7 +82,6 @@ def handle(tp, key):
         if call("prompt", tp, key):
             return
 
-
     log.debug("key: %s", key)
 
     handle_list = Redirect().getcur('stream')
