@@ -73,7 +73,6 @@ class LISTOPTIONS(object):
             w = vim.current.window
             vim.current.window = self.win.w
 
-        logging.error('route: %s', route)
         for n in route[1:-1]:
             n.node_open(self.getlinenu(n))
 
