@@ -69,10 +69,10 @@ def context(word, filter=""):
     if  dirname in [ "/", "/home", os.environ.get("HOME") ]:
         return None,None
 
-    cmd = "cd {dirname};grep -RHn {include} '{word}' {target} ".format(
-            dirname = dirname,
-            include = include,
-            word    = word,
+    cmd = "cd {dirname};grep -RHn --binary-file=without-match "\
+            "{include} '{word}' {target} "
+
+    cmd.format( dirname = dirname, include = include, word    = word,
             target  = target,)
 
     return cmd, dirname

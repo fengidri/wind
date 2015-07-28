@@ -17,6 +17,7 @@ from project import Project
 from white_black import black_filter_files, sorted_by_expand_name
 
 def leaf_handle(leaf):
+    log.debug('leaf_handle: %s', leaf.ctx)
     vim.command( "update")
     path = libpath.pull(leaf.ctx)
     if not path:
@@ -45,6 +46,22 @@ def get_child(Node):
         p = libpath.join(path, d)
         Node.append(frainui.Node(d, p, get_child))
 
+def get_buffers(Node):
+    names = []
+    for b in vim.buffers:
+        p = b.name
+        if not p:
+            continue
+
+        if b.options['buftype'] != '':
+            continue
+
+        names.append(p)
+    names.sort()
+    for p in names:
+        Node.append(frainui.Leaf(libpath.basename(p), p, leaf_handle))
+    Node.need_fresh = True
+
 def FrainListShowHook(listwin):
     def vimleave():
         Project.emit("FrainLeave")
@@ -69,6 +86,10 @@ def FrainListRefreshPreHook(listwin):
 
 def FrainListGetRootsHook(node):
     pyvim.Roots = []  # 整个vim 可用的变量
+
+    root = frainui.Node("Buffers", None, get_buffers)
+    node.append(root)
+
     for p in Project.All:
         pyvim.Roots.append(p.root)
         root = frainui.Node(p.name, p.root, get_child)
