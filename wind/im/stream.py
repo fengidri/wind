@@ -70,7 +70,7 @@ def call(hd, tp, key):
     if not hasattr(handle, attr_nm):
         return
 
-    log.error('redirct to handle: %s', hd)
+    log.debug('redirct to handle: %s', hd)
 
     return getattr(handle, attr_nm)(key)
 
@@ -83,11 +83,13 @@ def handle(tp, key):
             return
 
 
+    log.debug("key: %s", key)
 
     handle_list = Redirect().getcur('stream')
     for hd in handle_list:
         if call(hd, tp, key):
             break
+
 
     call("activeprompt", tp, key)
 
