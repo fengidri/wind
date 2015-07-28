@@ -127,6 +127,8 @@ class FrainList(object):
     def add(self, path, name = ''):
         "增加一个新的 project, 提供参数 path, name"
         path = libpath.realpath(path)
+        if not path:
+            return
         if not name:
             name = libpath.basename(path)
         if path:
