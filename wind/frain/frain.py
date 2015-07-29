@@ -87,8 +87,9 @@ def FrainListRefreshPreHook(listwin):
 def FrainListGetRootsHook(node):
     pyvim.Roots = []  # 整个vim 可用的变量
 
-    root = frainui.Node("Buffers", None, get_buffers)
-    node.append(root)
+    if vim.vars.get("frain_buffer", 0) == 1:
+        root = frainui.Node("Buffers", None, get_buffers)
+        node.append(root)
 
     for p in Project.All:
         pyvim.Roots.append(p.root)
