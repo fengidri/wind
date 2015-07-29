@@ -42,6 +42,30 @@ def win_max( ):
     vim.command( "set columns=999")
 
 
+"get last select text"
+def select():
+    line1 = int(vim.eval("line(\"'<\")")) - 1
+    line2 = int(vim.eval("line(\"'>\")")) - 1
+    col1  = int(vim.eval("col(\"'<\")"))  - 1
+    col2  = int(vim.eval("col(\"'>\")"))  - 1
+
+    tmp = []
+    for i in range(line1, line2  + 1):
+        line = vim.current.buffer[i]
+        s = 0
+        e = len(line) - 1
+
+        if i == line1:
+            s = col1
+
+        if i == line2:
+            e = col2
+
+        tmp.append(line[s: e + 1])
+    return '\n'.join(tmp)
+
+
+
 "动作: 打开一个窗口. 在这个窗口中显示输出信息"
 class vstdout( object ):
     def __init__( self, title=None ):

@@ -123,6 +123,7 @@ class Node(Item):
 
     def _get_child(self):
         if self.need_fresh and self.get_child:
+            del self.sub_nodes[:]
             self.need_fresh = False
             self.get_child(self)
 
@@ -179,7 +180,10 @@ class Leaf(Item):
         return "%s %s<|>%s" % ("  " * (self.level  -1), self.name, self.ID)
 
     def _open(self, linenu):#TODO
-        vim.command( "noautocmd wincmd p" )
+        if not self.lswin.previous:
+            return
+
+        vim.current.window = self.lswin.previous
         if self.lswin.is_focus():
             return
 

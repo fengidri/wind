@@ -36,6 +36,12 @@ class Buffer(utils.Object):
         else:
             self.size = self.height
             self.cmd = "new"
+        self.previous = None
+
+        pyvim.addevent("WinLeave", self._previous)
+
+    def _previous(self):
+        self.previous = vim.current.window
 
 
     def get_cursor(self):

@@ -5,14 +5,17 @@ import os
 import re
 
 @pyvim.cmd()
-def FSearch(  ):
-    #word, filter = deal_argv(params)
-    #if not word:
-    #    return
-    word = pyvim.current_word()
+def FSearch(sel = False):
+    if not sel:
+        word = "\<%s\>" % pyvim.current_word()
+    else:
+        word = pyvim.select()
+        word = word.replace("'", "\\'")
+    pyvim.log.error(">%s", word)
+
     filter = ''
 
-    command, path = context( word, filter )
+    command, path = context(word, filter)
 
     if not command:
         return
@@ -37,30 +40,6 @@ def byte_to_unicode( byte ):
         byte = None
     return byte
 
-"""
-    处理参数
-"""
-def deal_argv( argvs ):
-    argvs = argvs.split()
-    filter = ""
-    word = ""
-
-    ii = 0
-    while ii < len( argvs ):
-        arg = argvs[ ii ]
-        if arg in [ "filter", "|" ]:
-            try:
-                filter = " ".join( argvs[ii+1:] )
-            except:
-                pass
-            break
-        elif arg == "word":
-            word = argvs[ ii+1 ]
-            ii += 1
-        ii += 1
-    if not word:
-        word = pyvim.current_word( )
-    return word, filter
 
 """
     分析上下文
@@ -82,22 +61,19 @@ def context(word, filter=""):
             dirname = path
             break
     else:
+        include = ""
         target =  os.path.basename( cur_path )
         dirname = os.path.dirname( cur_path )
 
-    if filter:
-        filter = " | %s" % filter
 
     if  dirname in [ "/", "/home", os.environ.get("HOME") ]:
         return None,None
 
-    cmd = "cd {dirname};grep -RHn {include} '\<{word}\>' {target} {filter}".format(
-            dirname = dirname,
-            include = include,
-            word    = word,
-            target  = target,
-            filter  = filter
-            )
+    cmd = "cd {dirname};grep -RHn --binary-file=without-match "\
+            "{include} '{word}' {target} "
+
+    cmd.format( dirname = dirname, include = include, word    = word,
+            target  = target,)
 
     return cmd, dirname
 

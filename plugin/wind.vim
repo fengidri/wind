@@ -37,6 +37,7 @@ imap <F7>          <esc>:MarkTo<cr>
 map  <F9>          <esc>:TagJump<cr>
 map  <F8>          <esc>:TagBack<cr>
 map  <F10>         <esc>:FSearch<cr>
+vmap  <F10>        <esc>:FSearch Sel<cr>
 imap <F12>         <esc>:ProjectTerminal<cr><cr>
 map  <F12>         <esc>:ProjectTerminal<cr><cr>
 map  <2-LeftMouse> <esc>:MarkTo<cr>

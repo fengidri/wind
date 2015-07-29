@@ -7,7 +7,7 @@ import os
 def GotoInc( ):
     #this is for c lang
     #goto the include file
-    types = { 'c':['h'], 'h':['c', 'cpp'], 'cpp':['h'] }
+    types = { 'c':['h'], 'h':['c', 'cpp', 'cc' ], 'cpp':['h'] , 'cc': ['h']}
     target_types = [  ]
 
     match = re.search('#include\s+["<](.+)[>"]', pyvim.getline( ))
@@ -18,7 +18,11 @@ def GotoInc( ):
         base_name = os.path.basename( vim.current.buffer.name )
         model_name = base_name.split( '.' )[ 0 ]
         model_type = base_name.split( '.' )[ 1 ]
-        target_types = types[ model_type ]
+
+        target_types = types.get(model_type)
+        if not target_types:
+            return
+
         for t in target_types:
             target_files.append( model_name + '.' + t )
 
