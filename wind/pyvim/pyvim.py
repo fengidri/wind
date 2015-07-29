@@ -15,14 +15,14 @@ MAXBYTES = 1024 * 1024 * 10
 logging.basicConfig(filename="/dev/null", level=logging.DEBUG)
 
 handlers = logging.handlers.RotatingFileHandler(LOGFILE, maxBytes=MAXBYTES)
-formatter = logging.Formatter('>>%(levelname)s: %(message)s')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 handlers.setFormatter(formatter)
 
 log = logging.getLogger("wind")
 log.setLevel(logging.INFO)
 log.addHandler(handlers)
 
-log.error("\n\n\n\n\n\nVIM Start.............................")
+log.info("\n\n\n\n\n\nVIM Start.............................")
 
 def excepthook(type, value, trace):
     if type == KeyboardInterrupt:

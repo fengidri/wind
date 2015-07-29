@@ -114,7 +114,7 @@ class Node(Item):
                 self.ID)
 
     def _open(self, linenu): # 回车 TODO
-        logging.error("node _open")
+        logging.info("node _open")
 
         if self.opened:
             self.node_close(linenu)

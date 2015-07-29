@@ -9,7 +9,7 @@ import logging
 import utils
 
 def inputstream(key):
-    logging.error('inputstream: %s' % key)
+    logging.info('inputstream: %s' % key)
 
 def handle(name, ev):
     # 目前这种 UI 事件的方式并不好.
