@@ -76,6 +76,10 @@ def FrainListRefreshHook(listwin):
         return
 
 def FrainListRefreshPreHook(listwin):
+    if not Project.All:
+        listwin.Title = 'Frain'
+        return
+
     p = Project.All[0]
     gitinfo = p.gitinfo
     if not gitinfo:
@@ -84,18 +88,6 @@ def FrainListRefreshPreHook(listwin):
         listwin.Title = "%s(%s)" % (p.name, gitinfo["branch"])
 
 
-def FrainListGetRootsHook(node):
-    pyvim.Roots = []  # 整个vim 可用的变量
-
-    if vim.vars.get("frain_buffer", 0) == 1:
-        root = frainui.Node("Buffers", None, get_buffers)
-        node.append(root)
-
-    for p in Project.All:
-        pyvim.Roots.append(p.root)
-        root = frainui.Node(p.name, p.root, get_child)
-
-        node.append(root)
 
 
 def FrainListGetNames(listwin):
@@ -121,7 +113,28 @@ def FrainListGetNames(listwin):
 
 ################################################################################
 
-class FrainList(object):
+class Events(object):
+    def del_root_handle(self, node):
+        for p in Project.All:
+            if p.root == node.ctx:
+                p.close()
+                self.listwin.refresh()
+
+    def FrainListGetRootsHook(self, node):
+        pyvim.Roots = []  # 整个vim 可用的变量
+
+        if vim.vars.get("frain_buffer", 0) == 1:
+            root = frainui.Node("Buffers", None, get_buffers)
+            node.append(root)
+
+        for p in Project.All:
+            pyvim.Roots.append(p.root)
+            root = frainui.Node(p.name, p.root, get_child)
+            root.FREventBind("delete", self.del_root_handle)
+
+            node.append(root)
+
+class FrainList(Events):
     @classmethod
     def get_instance(cls):
         if hasattr(cls, '_instance'):
@@ -138,7 +151,7 @@ class FrainList(object):
         if hasattr(self, 'listwin'):
             return
 
-        self.listwin = LIST(FrainListGetRootsHook)
+        self.listwin = LIST(self.FrainListGetRootsHook)
         self.listwin.FREventBind("ListReFreshPost",    FrainListRefreshHook)
         self.listwin.FREventBind("ListReFreshPre", FrainListRefreshPreHook)
         self.listwin.FREventBind("ListShow",       FrainListShowHook)
