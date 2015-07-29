@@ -3,6 +3,7 @@ import os
 import sys
 from pyvim import log
 import pyvim
+import vim
 
 import stream
 import prompt
@@ -23,9 +24,9 @@ def IM(*args):
        tp 可以是 digit, upper, lower, punc, mult 也可以是 event
     """
 
-    log.debug('-----------------------------------------------')
 
     cls = args[0]
+    log.debug('---------------------%s--------------------------', cls)
     emit_event('start')
 
     if cls == "prompt":

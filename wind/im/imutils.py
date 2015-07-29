@@ -67,8 +67,6 @@ class Redirect(object):
 
 
     def get(self, cls, ft, syntax):
-        log.error("syntax %s", syntax)
-
         default = ['base']
         if cls == 'prompt':
             default = []

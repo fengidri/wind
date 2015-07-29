@@ -17,6 +17,7 @@ from project import Project
 from white_black import black_filter_files, sorted_by_expand_name
 
 def leaf_handle(leaf):
+    log.debug('leaf_handle: %s', leaf.ctx)
     vim.command( "update")
     path = libpath.pull(leaf.ctx)
     if not path:
@@ -45,6 +46,22 @@ def get_child(Node):
         p = libpath.join(path, d)
         Node.append(frainui.Node(d, p, get_child))
 
+def get_buffers(Node):
+    names = []
+    for b in vim.buffers:
+        p = b.name
+        if not p:
+            continue
+
+        if b.options['buftype'] != '':
+            continue
+
+        names.append(p)
+    names.sort()
+    for p in names:
+        Node.append(frainui.Leaf(libpath.basename(p), p, leaf_handle))
+    Node.need_fresh = True
+
 def FrainListShowHook(listwin):
     def vimleave():
         Project.emit("FrainLeave")
@@ -59,6 +76,10 @@ def FrainListRefreshHook(listwin):
         return
 
 def FrainListRefreshPreHook(listwin):
+    if not Project.All:
+        listwin.Title = 'Frain'
+        return
+
     p = Project.All[0]
     gitinfo = p.gitinfo
     if not gitinfo:
@@ -67,13 +88,6 @@ def FrainListRefreshPreHook(listwin):
         listwin.Title = "%s(%s)" % (p.name, gitinfo["branch"])
 
 
-def FrainListGetRootsHook(node):
-    pyvim.Roots = []  # 整个vim 可用的变量
-    for p in Project.All:
-        pyvim.Roots.append(p.root)
-        root = frainui.Node(p.name, p.root, get_child)
-
-        node.append(root)
 
 
 def FrainListGetNames(listwin):
@@ -99,7 +113,28 @@ def FrainListGetNames(listwin):
 
 ################################################################################
 
-class FrainList(object):
+class Events(object):
+    def del_root_handle(self, node):
+        for p in Project.All:
+            if p.root == node.ctx:
+                p.close()
+                self.listwin.refresh()
+
+    def FrainListGetRootsHook(self, node):
+        pyvim.Roots = []  # 整个vim 可用的变量
+
+        if vim.vars.get("frain_buffer", 0) == 1:
+            root = frainui.Node("Buffers", None, get_buffers)
+            node.append(root)
+
+        for p in Project.All:
+            pyvim.Roots.append(p.root)
+            root = frainui.Node(p.name, p.root, get_child)
+            root.FREventBind("delete", self.del_root_handle)
+
+            node.append(root)
+
+class FrainList(Events):
     @classmethod
     def get_instance(cls):
         if hasattr(cls, '_instance'):
@@ -116,7 +151,7 @@ class FrainList(object):
         if hasattr(self, 'listwin'):
             return
 
-        self.listwin = LIST(FrainListGetRootsHook)
+        self.listwin = LIST(self.FrainListGetRootsHook)
         self.listwin.FREventBind("ListReFreshPost",    FrainListRefreshHook)
         self.listwin.FREventBind("ListReFreshPre", FrainListRefreshPreHook)
         self.listwin.FREventBind("ListShow",       FrainListShowHook)

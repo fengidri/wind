@@ -64,6 +64,10 @@ class Project(object):
         self.gitinfo = gitinfo.gitinfo(root)
         Project.All.append(self)
 
+    def close(self):
+        self.save_curfile()
+        Project.All.remove(self)
+
 
 
     def save_curfile(self):

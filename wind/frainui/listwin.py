@@ -16,7 +16,8 @@ class LISTOPTIONS(object):
     def open(self):
         l, c = vim.current.window.cursor
         node = Item.getnode()
-        node._open(l)
+        if node:
+            node._open(l)
 
     def close(self):  # 关闭父级目录
         node = Item.getnode()
@@ -28,6 +29,12 @@ class LISTOPTIONS(object):
         linenu = self.getlinenu(fa)
         fa._open(linenu)
         self.win.cursor = (linenu, 0)
+
+    def delete(self):
+        l, c = vim.current.window.cursor
+        node = Item.getnode()
+        if node:
+            node.FREventEmit("delete")
 
     def refresh(self):
         self.win.clear()
@@ -73,7 +80,6 @@ class LISTOPTIONS(object):
             w = vim.current.window
             vim.current.window = self.win.w
 
-        logging.error('route: %s', route)
         for n in route[1:-1]:
             n.node_open(self.getlinenu(n))
 
@@ -120,7 +126,11 @@ class LISTOPTIONS(object):
         if not route:
             return
 
-        path = '/'.join([r.name for r in route[1:]])
+        try:
+            ps = route[1:-1]
+            path = '/'.join([r.name for r in ps])
+        except:
+            path = route[1].name
         self.win.b.vars['frain_status_path'] = path
 
     def settitle(self, name):#设置vim 窗口的title
@@ -171,11 +181,10 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
         if self.win.is_focus():
             return
 
-        if vim.current.buffer.name == '':
-            return -1
         if vim.current.buffer.options[ 'buftype' ] != '':
             return -1
-        if pyvim.is_empty( ):
+
+        if vim.current.buffer.name == '':
             return -1
 
         w = vim.current.window
