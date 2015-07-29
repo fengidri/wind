@@ -11,7 +11,7 @@ def FSearch(sel = False):
     else:
         word = pyvim.select()
         word = word.replace("'", "\\'")
-    pyvim.log.error(">%s", word)
+    pyvim.log.info(">%s", word)
 
     filter = ''
 

@@ -148,7 +148,7 @@ __Event_Index = 0
 def event_callback( cbid ):#事件回调函数  @event: 当前的事件
     cb = __Event_Map.get(cbid)
     if not cb:
-        logging.error("Not Found cb for: %s" % cbid)
+        logging.info("Not Found cb for: %s" % cbid)
     cb()
 
 

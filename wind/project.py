@@ -19,7 +19,7 @@ class Project(object):
     @classmethod
     def emit(cls, single):
         func = 'Hook_%s' % single
-        logging.error(func)
+        logging.info(func)
 
         if hasattr(cls, func):
             getattr(cls, func)()
@@ -34,7 +34,7 @@ class Project(object):
         ## last open
         if len(cls.All) > 0:
            files = cls.All[0].kvdb.get("lastopen")
-           logging.error(files)
+           logging.info(files)
            if files:
                  pyvim.openfiles(files)
 

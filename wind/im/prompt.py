@@ -54,7 +54,7 @@ def Init():
 
     plugins = Plugins(ftpath)
     plugins.loads()
-    log.error(__Handles)
+    log.info(__Handles)
 
 
 class NotPrompt(Exception):
@@ -134,10 +134,10 @@ def findstart():
             col = -3
 
         if col > -1:
-            log.error('@findstart redirect: %s' % hd)
+            log.info('@findstart redirect: %s' % hd)
             Status.name = hd
             _col = env.col - col
-            log.error("find start: %s %s %s", _col, col, env.col)
+            log.info("find start: %s %s %s", _col, col, env.col)
             return _col
     return col
 

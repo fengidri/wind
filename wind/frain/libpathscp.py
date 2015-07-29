@@ -26,7 +26,7 @@ def listdir(path):
     if s != 0:
         pyvim.echoline('ssh error: %s' % o)
         return None, None
-    logging.error(o)
+    logging.info(o)
 
     lines = o.split('\n')
     fs = []

@@ -13,7 +13,7 @@ def handle(key, value):
             rc.IM_Wubi = True
         else:
             rc.IM_Wubi = False
-        log.error("IM Setting: %s: %s", key, value)
+        log.info("IM Setting: %s: %s", key, value)
 
 
 if __name__ == "__main__":

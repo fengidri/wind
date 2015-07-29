@@ -17,7 +17,7 @@ import requests
 import frainui
 
 
-SERVER="blog.fengidri.me"
+SERVER="shell.fengidri.me"
 
 TEXLIST = None
 
@@ -42,7 +42,7 @@ class Remote(object):
                 return ID
 
     def load_list(self):
-        URL = "http://blog.fengidri.me/store/index.json"
+        URL = "http://shell.fengidri.me/store/index.json"
         try:
             response = urllib2.urlopen(URL)
             info = response.read()
@@ -73,9 +73,9 @@ class Remote(object):
         if tmp:
             return tmp
 
-        url = 'http://%s/store/%s/index.mkiv' % (SERVER, ID)
+        url = 'http://%s/store/%s/index.md' % (SERVER, ID)
         req = urllib2.Request(url)
-        tmp = tempfile.mktemp(suffix='.mkiv', prefix='fwiki_%s_' % ID)
+        tmp = tempfile.mktemp(suffix='.md', prefix='shell_%s_' % ID)
         try:
             res = urllib2.urlopen(req).read()
         except Exception, e:
