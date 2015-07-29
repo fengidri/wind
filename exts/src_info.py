@@ -3,7 +3,7 @@ import pyvim
 import vim
 import time
 import os
-author = "丁雪峰"
+author = "陈小雪"
 email = "fengidri@yeah.net"
 _infos = """
 >sh
