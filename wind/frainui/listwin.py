@@ -63,10 +63,7 @@ class LISTOPTIONS(object):
         #self.LS_Refresh_Hook()
         self.FREventEmit("ListReFreshPost")
         self.nu_refresh += 1
-        self.find()
-
-    def setnames(self, names):
-        self.names_for_find = names
+        #self.find()
 
     def show_item(self, item):
         route = item.route()
@@ -79,19 +76,23 @@ class LISTOPTIONS(object):
             w = vim.current.window
             vim.current.window = self.win.w
 
+        ############## start
+
         for n in route[1:-1]:
             n.node_open(self.getlinenu(n))
 
         linenu = self.getlinenu(route[-1])
         self.win.cursor = (linenu, 0)
+
         self.update_status()
         vim.command('normal zz')
+        ############## start
 
         if w:
             vim.current.window = w
         return True
 
-    def LS_Find(self):
+    def find(self, names):
         """
           在 list win 中显示由 names 指定的条目
           使用 names 指定 item 而不是通过, 在全局nodes 里查找node 的原因:
@@ -99,9 +100,6 @@ class LISTOPTIONS(object):
                 如果进行全局性地查找是找不到的
             2.
         """
-        self.names_for_find = None
-        self.FREventEmit("ListNames")
-        names = self.names_for_find
 
         if not names: return
         if not self.root: return
@@ -111,6 +109,7 @@ class LISTOPTIONS(object):
         leaf = self.root.find(names)
         if not leaf:
             self.win.cursor = (1, 0)
+            logging.error('@@@@@@@ find leaf false')
             return False
 
         return self.show_item(leaf)
@@ -154,7 +153,7 @@ class LISTNODS(object):
         return self.root.sub_nodes
 
 class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
-    def __init__(self, name = "list", get_roots=None):
+    def __init__(self, name, get_roots):
         self.FRRegister(name)
         self.names_for_find = None
         self.nu_refresh     = 0         # count the refresh
@@ -173,44 +172,18 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
                 title = "Frain",
                 ft="frainlist")
 
-        self.win.FREventBind("BufNew", hook)
-        self.win.FREventBind("open",   self.open)
-        self.win.FREventBind("close",  self.close)
-        self.win.FREventBind("delete", self.delete)
-        self.win.FREventBind("focus",  self.focus)
-        self.win.FREventBind("refresh",  self.refresh)
+        self.win.FREventBind("BufNew",  hook)
+        self.win.FREventBind("open",    self.open)
+        self.win.FREventBind("close",   self.close)
+        self.win.FREventBind("delete",  self.delete)
+        self.win.FREventBind("focus",   self.focus)
+        self.win.FREventBind("refresh", self.refresh)
 
-    def find(self):
-        if self.win.is_focus():
-            return
-
-        if vim.current.buffer.options[ 'buftype' ] != '':
-            return -1
-
-        if vim.current.buffer.name == '':
-            return -1
-
-        w = vim.current.window
-
-        self.LS_Find()
-
-        #s =
-        #if s == 'NROOT':
-        #    frain.add_cur_path()
-        #    frain.refresh()
-        #    frain.find()
-
-        #if not s:
-        #    frain.refresh()
-        #    frain.find()
-
-        vim.current.window = w
 
 
     def show(self):
         self.win.show()
         Item.lswin = self.win
-        pyvim.addevent("BufEnter", self.find)
         pyvim.addevent('CursorMoved', self.update_status, self.win.b)
 
 

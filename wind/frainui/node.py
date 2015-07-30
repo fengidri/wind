@@ -67,12 +67,14 @@ class Item(utils.Object):# Node与Leaf 的父类
 
         # 这个处理是针对于node 节点的
         self._get_child()
+
         for n in self.sub_nodes: # node 在子节点中找
             m = n.find(names)
             if m:
                 return m
         else:
             return #子节点中没有找到
+
 
     def route(self):
         # 返回从最高层, 到本节点的路径中的所有的节点(包括自身)

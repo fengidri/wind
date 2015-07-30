@@ -163,8 +163,8 @@ def GetNames(listwin):
         names = ['UnPost', info.get('title')]
     else:
         names = ['TexList', info.get('title')]
-    logging.error(names)
-    listwin.setnames(names)
+
+    listwin.find(names)
 
 
 def ReFreshPre(listwin):
@@ -177,12 +177,14 @@ def ReFreshPre(listwin):
 @pyvim.cmd()
 def TexList():
     global  TEXLIST
-    TEXLIST = frainui.LIST(GetRoots)
+    TEXLIST = frainui.LIST("TexList", GetRoots)
 
     TEXLIST.FREventBind("ListNames", GetNames)
     TEXLIST.FREventBind("ListReFreshPre", ReFreshPre)
     TEXLIST.show()
     TEXLIST.refresh()
+
+    pyvim.addevent("BufEnter", GetNames)
 
 
 

@@ -90,26 +90,6 @@ def FrainListRefreshPreHook(listwin):
 
 
 
-def FrainListGetNames(listwin):
-    """显示当前的 buffer 对应的文件在 win list 中的位置
-
-    如果, buffer 不属于任何一个 project, 返回 `NROOT'
-
-    之后生成当前 buffer 在 win list 中的 url, 由 win list 进行查询.
-    """
-    path = utils.bufferpath()
-    if not path:
-        return
-
-    for p in Project.All:
-        if path.startswith(p.root):
-            break
-    else:
-        return
-        return 'NROOT' # not found root
-
-    names = utils.getnames(p.root, path)
-    listwin.setnames(names)
 
 ################################################################################
 
@@ -155,9 +135,48 @@ class FrainList(Events):
         self.listwin.FREventBind("ListReFreshPost",    FrainListRefreshHook)
         self.listwin.FREventBind("ListReFreshPre", FrainListRefreshPreHook)
         self.listwin.FREventBind("ListShow",       FrainListShowHook)
-        self.listwin.FREventBind("ListNames",      FrainListGetNames)
 
         self.listwin.show()
+        pyvim.addevent("BufEnter", self.find)
+
+    def find(self):
+        if vim.current.buffer.options[ 'buftype' ] != '':
+            return -1
+
+        if vim.current.buffer.name == '':
+            return -1
+
+        """显示当前的 buffer 对应的文件在 win list 中的位置
+
+        如果, buffer 不属于任何一个 project, 返回 `NROOT'
+
+        之后生成当前 buffer 在 win list 中的 url, 由 win list 进行查询.
+        """
+        path = utils.bufferpath()
+        if not path:
+            return
+
+        for p in Project.All:
+            if path.startswith(p.root):
+                break
+        else:
+            return
+            return 'NROOT' # not found root
+
+        names = utils.getnames(p.root, path)
+        self.listwin.find(names)
+
+
+        #s =
+        #if s == 'NROOT':
+        #    frain.add_cur_path()
+        #    frain.refresh()
+        #    frain.find()
+
+        #if not s:
+        #    frain.refresh()
+        #    frain.find()
+
 
     def add(self, path, name = ''):
         "增加一个新的 project, 提供参数 path, name"
