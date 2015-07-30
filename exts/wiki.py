@@ -17,8 +17,8 @@ import requests
 import frainui
 
 
-SERVER="shell.fengidri.me"
-
+#SERVER="shell.fengidri.me"
+SERVER = "127.0.0.1:8001"
 TEXLIST = None
 
 ################################################################################
@@ -42,7 +42,8 @@ class Remote(object):
                 return ID
 
     def load_list(self):
-        URL = "http://shell.fengidri.me/store/index.json"
+        URL = "http://%s/store/index.json"%(SERVER)
+        #URL = "http://shell.fengidri.me/store/index.json"
         try:
             response = urllib2.urlopen(URL)
             info = response.read()
@@ -86,15 +87,16 @@ class Remote(object):
         return tmp
 
     def post_tex(self, tex, ID):
-        j = { 'tex': tex, 'html': html(buf = tex) }
+        j = { 'tex': tex }
         if ID:
             method = "PUT"
-            uri = 'http://%s/fwikiapi/chapters/%s' % (SERVER, ID)
+            uri = 'http://%s/blog/chapters/%s' % (SERVER, ID)
         else:
             method = "POST"
-            uri = 'http://%s/fwikiapi/chapters' % SERVER
+            uri = 'http://%s/blog/chapters/' % SERVER
 
         headers = {'Content-Type': "application/json"};
+        logging.info("url:%s"%uri)
 
         res = requests.request(method, uri, headers=headers, data=json.dumps(j))
         return int(res.text)
