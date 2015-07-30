@@ -80,7 +80,6 @@ def handle(tp, key):
     """
     if pyvim.pumvisible():
         if call("prompt", tp, key):
-            imrc.emit_event('InsertCharPost')
             return
 
     log.debug("key: %s", key)
@@ -90,7 +89,6 @@ def handle(tp, key):
         if call(hd, tp, key):
             break
 
-    imrc.emit_event('InsertCharPost')
 
     call("activeprompt", tp, key)
 
