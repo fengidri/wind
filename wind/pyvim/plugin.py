@@ -148,7 +148,7 @@ __Event_Index = 0
 def event_callback( cbid ):#事件回调函数  @event: 当前的事件
     cb = __Event_Map.get(cbid)
     if not cb:
-        logging.debug("Not Found cb for: %s" % cbid)
+        logging.error("Not Found cb for: %s" % cbid)
         return
     cb()
 
@@ -158,9 +158,7 @@ def addevent(event, cb, pat='*'):
     global __Event_Index
     __Event_Index += 1
 
-
     autocmd_cmd_format = "autocmd {event} {pat} {cmd}"
-
 
     cbid = "%s_%s" % (cb.func_code.co_name, __Event_Index)
     cmd = "py IM('event', '%s')" % cbid
@@ -170,17 +168,14 @@ def addevent(event, cb, pat='*'):
         pat = "<buffer=%s>" % pat.number
 
     autocmd_cmd =  autocmd_cmd_format.format(event = event, pat = pat, cmd = cmd)
+    vim.command("augroup %s" % cbid)
     vim.command(autocmd_cmd)
+    vim.command("augroup END")
 
     return (cbid, event, pat, cmd)
 
 def delevent(evhandle):
-    # TODO 删除事件过多
-    autocmd_cmd_format = "autocmd! {event} {pat}"
-    autocmd_cmd = autocmd_cmd_format.format(event=evhandle[1],
-            pat = evhandle[2])
-    logging.error(autocmd_cmd)
-    vim.command(autocmd_cmd)
+    vim.command("autocmd! %s" % evhandle[0])
     del __Event_Map[evhandle[0]]
 
 
