@@ -37,6 +37,14 @@ def add_hook(event, cb):
     else:
         cblist.append(cb)
 
+def rm_hook(event, cb):
+    cblist = __event_cb.get(event, [])
+    while True:
+        if cb in cblist:
+            cblist.remove(cb)
+        else:
+            return
+
 #---------------------------------- hook ------------------------------------
 @hook('start')
 def start():
