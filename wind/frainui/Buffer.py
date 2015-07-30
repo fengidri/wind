@@ -40,6 +40,7 @@ class Buffer(utils.Object):
 
         pyvim.addevent("WinLeave", self._previous)
 
+
     def _previous(self):
         self.previous = vim.current.window
 
@@ -106,6 +107,7 @@ class Buffer(utils.Object):
                 pyvim.addevent('QuitPre', self.Buf_Close_Hook, self.b)
 
             self.b = vim.current.buffer
+            utils.Objects[self.b] = self
 
 
 

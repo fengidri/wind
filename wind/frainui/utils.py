@@ -40,6 +40,7 @@ class Object(object):
         else:
             self.__CB[event] = [cb]
 
+
     def FRRegister(self, name):
         Objects[name] = self
 

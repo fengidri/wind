@@ -46,7 +46,7 @@ vmap w=            <esc>:silent Align<cr>
 imap <F11>         <esc>:GotoInc<cr>
 map  <F11>         <esc>:GotoInc<cr>
 
-map  <tab>         :py IM("frainui", "list", "focus")<CR>
+map  <tab>         :py IM("frainui", "focus", "frain")<CR>
 "map  <F4>          :ProjectSync<cr>
 "map  <F6>          :Project<cr>
 map *              viw""y/<C-R>0<CR>

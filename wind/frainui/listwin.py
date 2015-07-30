@@ -13,13 +13,13 @@ import pyvim
 import utils
 
 class LISTOPTIONS(object):
-    def open(self):
+    def open(self, win):
         l, c = vim.current.window.cursor
         node = Item.getnode()
         if node:
             node._open(l)
 
-    def close(self):  # 关闭父级目录
+    def close(self, win):  # 关闭父级目录
         node = Item.getnode()
         route = node.route()
         fa = route[-2]
@@ -30,13 +30,16 @@ class LISTOPTIONS(object):
         fa._open(linenu)
         self.win.cursor = (linenu, 0)
 
-    def delete(self):
+    def delete(self, win):
         l, c = vim.current.window.cursor
         node = Item.getnode()
         if node:
             node.FREventEmit("delete")
 
-    def refresh(self):
+    def focus(self, win):
+        win.show()
+
+    def refresh(self, win=None):
         self.win.clear()
         self.win.b[0] = "FrainUI"
         Item.nodes = {}
@@ -61,10 +64,6 @@ class LISTOPTIONS(object):
         self.FREventEmit("ListReFreshPost")
         self.nu_refresh += 1
         self.find()
-
-
-    def focus(self):# 切换到list 窗口,
-        self.win.show()
 
     def setnames(self, names):
         self.names_for_find = names
@@ -155,9 +154,8 @@ class LISTNODS(object):
         return self.root.sub_nodes
 
 class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
-    def __init__(self, get_roots=None):
-        self.FRRegister("list")
-
+    def __init__(self, name = "list", get_roots=None):
+        self.FRRegister(name)
         self.names_for_find = None
         self.nu_refresh     = 0         # count the refresh
         self.get_roots      = get_roots
@@ -176,6 +174,11 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
                 ft="frainlist")
 
         self.win.FREventBind("BufNew", hook)
+        self.win.FREventBind("open",   self.open)
+        self.win.FREventBind("close",  self.close)
+        self.win.FREventBind("delete", self.delete)
+        self.win.FREventBind("focus",  self.focus)
+        self.win.FREventBind("refresh",  self.refresh)
 
     def find(self):
         if self.win.is_focus():
