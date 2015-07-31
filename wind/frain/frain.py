@@ -16,6 +16,8 @@ from pyvim import log
 from project import Project
 from white_black import black_filter_files, sorted_by_expand_name
 
+BufNewFile = {}
+
 def leaf_handle(leaf):
     log.debug('leaf_handle: %s', leaf.ctx)
     vim.command( "update")
@@ -31,6 +33,18 @@ def get_child(Node):
     dirs, names = libpath.listdir(path)
     if dirs == None:
         return []
+
+    ######## handle for new file
+    dels = []
+    for f in BufNewFile.get(path, []):
+        if f in names:
+            dels.append(f)
+            continue
+        names.append(f)
+    if dels:
+        for f in dels:
+            BufNewFile.get(path).remove(f)
+
 
     names = black_filter_files(names)
     names = sorted_by_expand_name(names)
@@ -138,6 +152,16 @@ class FrainList(Events):
 
         self.listwin.show()
         pyvim.addevent("BufEnter", self.find)
+        pyvim.addevent("BufNewFile", self.bufnewfile)
+
+    def bufnewfile(self):
+        path = vim.current.buffer.name
+        dirname = os.path.dirname(path)
+        basename = os.path.basename(path)
+        if BufNewFile.get(dirname):
+            BufNewFile.get(dirname).append(basename)
+        else:
+            BufNewFile[dirname] = [basename]
 
     def find(self):
         if vim.current.buffer.options[ 'buftype' ] != '':
@@ -161,22 +185,9 @@ class FrainList(Events):
                 break
         else:
             return
-            return 'NROOT' # not found root
 
         names = utils.getnames(p.root, path)
         self.listwin.find(names)
-
-
-        #s =
-        #if s == 'NROOT':
-        #    frain.add_cur_path()
-        #    frain.refresh()
-        #    frain.find()
-
-        #if not s:
-        #    frain.refresh()
-        #    frain.find()
-
 
     def add(self, path, name = ''):
         "增加一个新的 project, 提供参数 path, name"
@@ -187,7 +198,6 @@ class FrainList(Events):
             name = libpath.basename(path)
         if path:
             Project(path, name)
-
 
         self.listwin.refresh()
 

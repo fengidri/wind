@@ -43,7 +43,7 @@ class Item(utils.Object):# Node与Leaf 的父类
             node_index = int(line.split('<|>')[1])
             return cls.nodes.get(node_index)
         except:
-            logging.error('getnode: fail')
+            logging.debug('getnode by linenu: fail')
 
 
 
