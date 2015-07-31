@@ -151,7 +151,7 @@ def GetRoots(node):
     node.append(n)
 
 
-def GetNames(listwin):
+def GetNames():
     remote = Remote()
     ID = remote.file_to_id(vim.current.buffer.name)
     if not ID:
@@ -164,7 +164,7 @@ def GetNames(listwin):
     else:
         names = ['TexList', info.get('title')]
 
-    listwin.find(names)
+    TEXLIST.find(names)
 
 
 def ReFreshPre(listwin):

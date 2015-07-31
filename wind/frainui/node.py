@@ -30,8 +30,6 @@ class Item(utils.Object):# Node与Leaf 的父类
     def getnode(cls, linenu = None):
         if not cls.lswin:
             return
-        if not cls.lswin.is_focus():
-            return
 
         if linenu == None: # 没有输入行号, 使用当前行
             line = vim.current.line
@@ -51,7 +49,6 @@ class Item(utils.Object):# Node与Leaf 的父类
 
     def find(self, names):
         " 查找一个节点, 目标如['etc', 'nginx', 'conf.d']"
-
         # 好喜欢这个函数啊!! 哈哈, good
         if self.level >= len(names):#超出层级了
             return
@@ -73,7 +70,14 @@ class Item(utils.Object):# Node与Leaf 的父类
             if m:
                 return m
         else:
-            return #子节点中没有找到
+            logging.error('refind: %s', self.name)
+            self.need_fresh = True
+            self._get_child()
+            for n in self.sub_nodes: # node 在子节点中找
+                logging.error(n.name)
+                m = n.find(names)
+                if m:
+                    return m
 
 
     def route(self):
@@ -107,6 +111,12 @@ class Node(Item):
 
         self.sub_nodes.append(node)
 
+    def get(self, name):
+        for n in self.sub_nodes:
+            if n.name == name:
+                return n
+
+
     def show(self):
         if self.opened:
             flag = '-'
@@ -135,8 +145,6 @@ class Node(Item):
 
 
         self._get_child()
-        #if not self.OpenPre(): return
-
 
         buf = self.lswin.b
         buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)
@@ -151,7 +159,6 @@ class Node(Item):
 
     def node_close(self, linenu): #
         if not self.opened: return
-        logging.error('close')
         self.opened = False
 
         buf = self.lswin.b
@@ -165,6 +172,7 @@ class Node(Item):
             if node.level <= self.level:
                 break
             linenu += 1
+
         end  = linenu
 
         if end > start:

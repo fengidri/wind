@@ -17,14 +17,15 @@ logging.basicConfig(filename="/dev/null", level=logging.DEBUG)
 handlers = logging.handlers.RotatingFileHandler(LOGFILE, maxBytes=MAXBYTES)
 #formatter = logging.Formatter('>>%(levelname)s: %(message)s')
 formatter = logging.Formatter(
-        '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
+        ('%d ' % os.getpid())  +
+        '%(filename)s:%(lineno)d %(levelname)s: %(message)s')
 handlers.setFormatter(formatter)
 
 log = logging.getLogger("wind")
 log.setLevel(logging.INFO)
 log.addHandler(handlers)
 
-log.error("\n\n\n\n\n\nVIM Start.............................")
+log.error(">>>>>>>>>>>>>>> VIM Start<<<<<<<<<<<<<")
 
 def excepthook(type, value, trace):
     if type == KeyboardInterrupt:

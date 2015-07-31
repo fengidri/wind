@@ -49,12 +49,6 @@ class LISTOPTIONS(object):
         Item.clear() # 在刷新的时候, 把旧的所有 nodes 释放掉
         self.root = node.Node("root", None, self.get_roots)
 
-        #self.root = node.Node('root')
-
-        ## hooks
-        #for r in self.LS_GetRoots():
-        #    self.root.append(r)
-
         self.root.node_open(1)
 
         if self.Title:
@@ -64,33 +58,6 @@ class LISTOPTIONS(object):
         self.FREventEmit("ListReFreshPost")
         self.nu_refresh += 1
         #self.find()
-
-    def show_item(self, item):
-        route = item.route()
-        if not route:
-            self.win.cursor = (1, 0)
-            return False
-
-        w = None
-        if vim.current.window != self.win.w:
-            w = vim.current.window
-            vim.current.window = self.win.w
-
-        ############## start
-
-        for n in route[1:-1]:
-            n.node_open(self.getlinenu(n))
-
-        linenu = self.getlinenu(route[-1])
-        self.win.cursor = (linenu, 0)
-
-        self.update_status()
-        vim.command('normal zz')
-        ############## start
-
-        if w:
-            vim.current.window = w
-        return True
 
     def find(self, names):
         """
@@ -104,15 +71,33 @@ class LISTOPTIONS(object):
         if not names: return
         if not self.root: return
 
-        names.insert(0, 'root')
+        node = self.root
+        for name in names:
+            subnode = node.get(name)
+            if not subnode:
+                node.node_close(self.getlinenu(node))
+                node.need_fresh = True
+                node.node_open(self.getlinenu(node))
+                subnode = node.get(name)
+                if not subnode:
+                    break
+            else:
+                node.node_open(self.getlinenu(node))
+            node = subnode
+        else:
+            if subnode:
+                linenu = self.getlinenu(subnode)
 
-        leaf = self.root.find(names)
-        if not leaf:
-            self.win.cursor = (1, 0)
-            logging.error('@@@@@@@ find leaf false')
-            return False
+                self.win.cursor = (linenu, 0)
+                vim.command('normal zz')
 
-        return self.show_item(leaf)
+                self.update_status()
+                return
+
+        self.win.cursor = (1, 0)
+
+
+
 
 
     def update_status(self):
