@@ -8,8 +8,11 @@ class _input_post( ):
     def __init__( self ):
         self.lastword = ''
         self.match_id = ''
-        vim.command( "hi CurrentWord guibg=#3f3853 gui=None")
-        vim.command( "syn keyword CurrentWord CurrentWord"   )
+        self.ids = {}
+
+        vim.command("hi CurrentWord guibg=#3f3853 gui=None")
+        vim.command("syn keyword CurrentWord CurrentWord")
+
     def input_post( self ):
         self.hi_current_word( )
 
@@ -18,15 +21,23 @@ class _input_post( ):
 
         if current.isspace() or current == '':
             return -2
+
+        if len(current) < 4:
+            return
+
         if self.lastword == current:
             return -1
         self.lastword = current
-        if self.match_id != "":
-            try:
-                vim.command( "call matchdelete(%s)" % self.match_id)
-            except:
-                pass
-        self.match_id = vim.eval( "matchadd('CurrentWord', '\<%s\>')" % current)
+
+
+        pyvim.log.error('current: %s' % current)
+
+        mid = self.ids.get(vim.current.buffer)
+        if mid:
+            fu = vim.Function("matchdelete")(mid)
+
+        fu = vim.Function("matchadd")
+        self.ids[vim.current.buffer] = fu("CurrentWord", "\<%s\>" % current, 11)
 
 input_post = _input_post( )
 
