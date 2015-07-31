@@ -18,7 +18,8 @@ import frainui
 
 
 #SERVER="shell.fengidri.me"
-SERVER = "127.0.0.1:8001"
+HOST = "127.0.0.1:8001"
+SERVER = "blog.shell.me"
 TEXLIST = None
 
 ################################################################################
@@ -90,10 +91,10 @@ class Remote(object):
         j = { 'tex': tex }
         if ID:
             method = "PUT"
-            uri = 'http://%s/blog/chapters/%s' % (SERVER, ID)
+            uri = 'http://%s/blog/chapters/?id=%s' % (HOST, ID)
         else:
             method = "POST"
-            uri = 'http://%s/blog/chapters/' % SERVER
+            uri = 'http://%s/blog/chapters/' % HOST
 
         headers = {'Content-Type': "application/json"};
         logging.info("url:%s"%uri)
@@ -165,7 +166,7 @@ def GetNames(listwin):
         names = ['UnPost', info.get('title')]
     else:
         names = ['TexList', info.get('title')]
-    logging.error(names)
+    logging.info(names)
     listwin.setnames(names)
 
 
@@ -204,17 +205,17 @@ def WikiPost():
     remote.map_id_tmp_file[ID] = vim.current.buffer.name
     TEXLIST.refresh()
 
-@pyvim.event("CursorHold", "*.mkiv")
-@pyvim.event("CursorHoldI", "*.mkiv")
-def SendBuf():
-    ShowUrl = 'http://localhost/texshow/data'
-    data = urllib.urlencode(
-            {   "data": '\n'.join(vim.current.buffer),
-                "type": "mkiv"})
-
-    req = urllib2.Request(ShowUrl, data)
-    try:
-        urllib2.urlopen(req).read()
-    except Exception, e:
-        logging.error(e)
-
+#@pyvim.event("CursorHold", "*.mkiv")
+#@pyvim.event("CursorHoldI", "*.mkiv")
+#def SendBuf():
+#    ShowUrl = 'http://localhost/texshow/data'
+#    data = urllib.urlencode(
+#            {   "data": '\n'.join(vim.current.buffer),
+#                "type": "mkiv"})
+#
+#    req = urllib2.Request(ShowUrl, data)
+#    try:
+#        urllib2.urlopen(req).read()
+#    except Exception, e:
+#        logging.error(e)
+#

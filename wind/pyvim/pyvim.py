@@ -15,7 +15,7 @@ MAXBYTES = 1024 * 1024 * 10
 logging.basicConfig(filename="/dev/null", level=logging.DEBUG)
 
 handlers = logging.handlers.RotatingFileHandler(LOGFILE, maxBytes=MAXBYTES)
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
 handlers.setFormatter(formatter)
 
 log = logging.getLogger("wind")
