@@ -98,7 +98,7 @@ class CSameChange(object):
             pyvim.log.error("%s, %s", self.indent, self.get_indent(line))
             indent = self.get_indent(line)
 
-            if indent = len(line):
+            if indent == len(line):
                 continue
 
             if indent <= self.indent:

@@ -7,35 +7,8 @@
 import vim
 import os
 import logging
-import logging.handlers
-import sys
-LOGFILE = "/tmp/vimlog"
-MAXBYTES = 1024 * 1024 * 10
-
-logging.basicConfig(filename="/dev/null", level=logging.DEBUG)
-
-handlers = logging.handlers.RotatingFileHandler(LOGFILE, maxBytes=MAXBYTES)
-#formatter = logging.Formatter('>>%(levelname)s: %(message)s')
-formatter = logging.Formatter(
-        ('%d ' % os.getpid())  +
-        '%(filename)s:%(lineno)d %(levelname)s: %(message)s')
-handlers.setFormatter(formatter)
-
 log = logging.getLogger("wind")
-log.setLevel(logging.INFO)
-log.addHandler(handlers)
 
-log.error(">>>>>>>>>>>>>>> VIM Start<<<<<<<<<<<<<")
-
-def excepthook(type, value, trace):
-    if type == KeyboardInterrupt:
-        print ""
-        return
-    echoline(">>Error(%s): %s: " % (LOGFILE, type.__name__ + str(value)))
-
-    log.error("Uncaught exception:", exc_info =(type, value, trace))
-
-sys.excepthook = excepthook
 
 def origin_win( ):
     vim.command( "wincmd p")

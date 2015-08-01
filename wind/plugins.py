@@ -9,6 +9,7 @@
 import os
 import imp
 from pyvim import log as logging
+import pyvim
 
 class Plugins(object):
     def __init__(self, path):
@@ -30,7 +31,13 @@ class Plugins(object):
 
             module_path = os.path.join(self.path, module)
             sys_name = module_path.replace('.', '_')
-            module_loaded = imp.load_source(sys_name, module_path)
+
+            try:
+                module_loaded = imp.load_source(sys_name, module_path)
+            except:
+                pyvim.echo("Load [%s] Fail"% module_name)
+                import traceback
+                logging.error(traceback.format_exc())
             if self.hook_init:
                 self.hook_init(module_name, module_loaded)
 
