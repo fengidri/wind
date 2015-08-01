@@ -96,7 +96,12 @@ class CSameChange(object):
         regex = r'\b%s\b' % word
         for i, line in enumerate(vim.current.buffer[linenu:]):
             pyvim.log.error("%s, %s", self.indent, self.get_indent(line))
-            if self.get_indent(line) <= self.indent:
+            indent = self.get_indent(line)
+
+            if indent = len(line):
+                continue
+
+            if indent <= self.indent:
                 break
 
             pyvim.log.error("word: %s" % regex)
