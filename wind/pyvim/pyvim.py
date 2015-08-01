@@ -245,26 +245,26 @@ def current_word( from_vim=True ):
     if from_vim:
         return vim.eval("expand('<cword>')");
     else:
-        buf = [   ]
-        tmp = str_before_cursor( )
+        buf = []
+        tmp = str_before_cursor()
 
         for i in range(len(tmp) -1 , -1,-1):
-            c = tmp[ i ]
+            c = tmp[i]
 
-            if not (c.isalpha( ) or c == '_'):
-                buf.append( tmp[i+1:] )
+            if not (c.isalpha() or c == '_'):
+                buf.append(tmp[i+1:])
                 break
             if i == 0:
-                buf.append( tmp)
+                buf.append(tmp)
 
 
-        for c in str_after_cursor( ):
-            if (c.isalpha( ) or c == '_'):
-                buf.append( c )
+        for c in str_after_cursor():
+            if (c.isalpha() or c == '_'):
+                buf.append(c)
             else:
                 break
 
-        return  ''.join( buf )
+        return  ''.join(buf)
 
 #如果有错误文件,打开quickfix
 def quickfix(hight = 15):

@@ -89,7 +89,7 @@ class LISTOPTIONS(object):
                 linenu = self.getlinenu(subnode)
 
                 self.win.cursor = (linenu, 0)
-                vim.command('normal zz')
+                #vim.command('normal zz')
 
                 self.update_status()
                 return

@@ -29,9 +29,6 @@ class _input_post( ):
             return -1
         self.lastword = current
 
-
-        pyvim.log.error('current: %s' % current)
-
         mid = self.ids.get(vim.current.buffer)
         if mid:
             fu = vim.Function("matchdelete")(mid)
