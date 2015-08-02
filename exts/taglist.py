@@ -73,9 +73,9 @@ class CTagList(object):
             if tag[2] == 'f':
                 name = '\\red%s\end' % tag[0]
             elif tag[2] == 'm':
-                name = '\\blue%s\end' % tag[0]
-            elif tag[2] == 'v':
                 name = '\\green%s\end' % tag[0]
+            elif tag[2] == 'v':
+                name = '\\blue%s\end' % tag[0]
             else:
                 name = tag[0]
             n = frainui.Leaf(name, tag[1], self.fr_tag_pos)
