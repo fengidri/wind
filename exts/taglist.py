@@ -70,7 +70,15 @@ class CTagList(object):
     def fr_list_cls(self, Node):
         tags = self.ctag()[Node.ctx]
         for tag in tags:
-            n = frainui.Leaf(tag[0], tag[1], self.fr_tag_pos)
+            if tag[2] == 'f':
+                name = '\\red%s\end' % tag[0]
+            elif tag[2] == 'm':
+                name = '\\blue%s\end' % tag[0]
+            elif tag[2] == 'v':
+                name = '\\green%s\end' % tag[0]
+            else:
+                name = tag[0]
+            n = frainui.Leaf(name, tag[1], self.fr_tag_pos)
             Node.append(n)
 
     def fr_tag_pos(self, leaf):
