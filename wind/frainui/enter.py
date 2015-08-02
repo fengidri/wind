@@ -15,6 +15,9 @@ class EnterLine(utils.Object):
     def focus(self):
         pass
 
+    def input(self, key):
+        pass
+
 
 
 if __name__ == "__main__":
