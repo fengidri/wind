@@ -138,7 +138,7 @@ class LISTNODS(object):
         return self.root.sub_nodes
 
 class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
-    def __init__(self, name, get_roots):
+    def __init__(self, name, get_roots, **kw):
         self.FRRegister(name)
         self.names_for_find = None
         self.nu_refresh     = 0         # count the refresh
@@ -150,12 +150,14 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
             self.FREventEmit("ListShow")
 
         import Buffer
+        if not kw.get("position"):
+            kw["position"] = Buffer.TOPLEFT
+
         self.win = Buffer.Buffer(
                 vertical = True,
-                position = Buffer.TOPLEFT,
                 width = 25,
                 title = "Frain",
-                ft="frainlist")
+                ft="frainlist", **kw)
 
         self.win.FREventBind("BufNew",  hook)
         self.win.FREventBind("open",    self.open)

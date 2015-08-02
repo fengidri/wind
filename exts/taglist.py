@@ -48,9 +48,15 @@ class CTagList(object):
         self.tags = {}
         self.b = vim.current.buffer
 
-        self.listwin = frainui.LIST("TagList", self.getcls)
+        self.listwin = frainui.LIST("TagList", self.getcls, position="botright")
         self.listwin.show()
         self.listwin.refresh()
+
+   #     pyvim.addevent("BufEnter", self.event_enter_buffer)
+
+   # def event_enter_buffer(self):
+   #     self.b = vim.current.buffer
+   #     self.listwin.refresh()
 
 
     def ctag(self):
@@ -85,7 +91,6 @@ class CTagList(object):
         vim.current.window.cursor = (leaf.ctx, 0)
 
 TAGLIST = None
-
 @pyvim.cmd()
 def TagList():
     global TAGLIST

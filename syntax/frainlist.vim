@@ -112,10 +112,11 @@ hi def link PATHS_EXPFileTypeSh Tag
 hi def link PATHS_EXPFileTypeH Tag
 hi def link  Folded Normal
 
+"use for color set in py"
 syntax match FrainUiSig "\\red"   conceal cchar=\ contained
-syntax match FrainUiSig "\\end"   conceal cchar=\ contained
 syntax match FrainUiSig "\\blue"  conceal cchar=\ contained
 syntax match FrainUiSig "\\green" conceal cchar=\ contained
+syntax match FrainUiSig "\\end"   conceal cchar=\ contained
 
 syntax match FrainUIRed   "\\red.*\\end"   contains=FrainUiSig
 syntax match FrainUIBlue  "\\blue.*\\end"  contains=FrainUiSig
