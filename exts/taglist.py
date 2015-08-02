@@ -55,6 +55,8 @@ class CTagList(object):
    #     pyvim.addevent("BufEnter", self.event_enter_buffer)
 
    # def event_enter_buffer(self):
+   #    if vim.current.buffer.name == '':
+   #        return -1
    #     self.b = vim.current.buffer
    #     self.listwin.refresh()
 
