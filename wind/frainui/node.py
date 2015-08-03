@@ -45,6 +45,18 @@ class Item(utils.Object):# Node与Leaf 的父类
         except:
             logging.debug('getnode by linenu: fail')
 
+    def getlinenu(self, node):
+        num = 0
+        for linenu, line in enumerate(self.lswin.b):
+            try:
+                ID = int(line.split('<|>')[1])
+                if ID == node.ID:
+                    num = linenu
+                    break
+            except:
+                pass
+        return num + 1
+
 
 
     def find(self, names):
@@ -117,6 +129,14 @@ class Node(Item):
             if n.name == name:
                 return n
 
+    def refresh(self):
+        self.need_fresh = True
+        if self.opened:
+            cursor = self.lswin.cursor
+            self.node_close()
+            self.node_open()
+            self.lswin.cursor = cursor
+
 
     def show(self):
         if self.display:
@@ -131,13 +151,13 @@ class Node(Item):
 
         return "%s%s%s/<|>%s" % ("  " * (self.level  -1), flag, dp, self.ID)
 
-    def _open(self, linenu): # 回车 TODO
+    def _open(self): # 回车 TODO
         logging.error("node _open")
 
         if self.opened:
-            self.node_close(linenu)
+            self.node_close()
         else:
-            self.node_open(linenu)
+            self.node_open()
 
     def _get_child(self):
         if self.need_fresh and self.get_child:
@@ -145,9 +165,11 @@ class Node(Item):
             self.need_fresh = False
             self.get_child(self)
 
-    def node_open(self, linenu):
+    def node_open(self):
         if self.opened: return
         self.opened = True
+
+        linenu = self.getlinenu(self)
 
 
         self._get_child()
@@ -163,9 +185,11 @@ class Node(Item):
 
 
 
-    def node_close(self, linenu): #
+    def node_close(self): #
         if not self.opened: return
         self.opened = False
+
+        linenu = self.getlinenu(self)
 
         buf = self.lswin.b
         buf[linenu - 1] = buf[linenu - 1].replace('-', '+', 1)
@@ -200,9 +224,11 @@ class Leaf(Item):
             dp = self.name
         return "%s %s<|>%s" % ("  " * (self.level  -1), dp, self.ID)
 
-    def _open(self, linenu):#TODO
+    def _open(self):#TODO
         if not self.lswin.previous:
             return
+
+        linenu = self.getlinenu(self)
 
         vim.current.window = self.lswin.previous
         if self.lswin.is_focus():

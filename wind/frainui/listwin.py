@@ -14,10 +14,9 @@ import utils
 
 class LISTOPTIONS(object):
     def open(self, win):
-        l, c = vim.current.window.cursor
         node = Item.getnode()
         if node:
-            node._open(l)
+            node._open()
 
     def close(self, win):  # 关闭父级目录
         node = Item.getnode()
@@ -27,7 +26,7 @@ class LISTOPTIONS(object):
             return # 已经是root 了, 不可以关闭
 
         linenu = self.getlinenu(fa)
-        fa._open(linenu)
+        fa._open()
         self.win.cursor = (linenu, 0)
 
     def delete(self, win):
@@ -49,7 +48,7 @@ class LISTOPTIONS(object):
         Item.clear() # 在刷新的时候, 把旧的所有 nodes 释放掉
         self.root = node.Node("root", None, self.get_roots)
 
-        self.root.node_open(1)
+        self.root.node_open()
 
         if self.Title:
             self.settitle(self.Title)
@@ -75,14 +74,14 @@ class LISTOPTIONS(object):
         for name in names:
             subnode = node.get(name)
             if not subnode:
-                node.node_close(self.getlinenu(node))
+                node.node_close()
                 node.need_fresh = True
-                node.node_open(self.getlinenu(node))
+                node.node_open()
                 subnode = node.get(name)
                 if not subnode:
                     break
             else:
-                node.node_open(self.getlinenu(node))
+                node.node_open()
             node = subnode
         else:
             if subnode:

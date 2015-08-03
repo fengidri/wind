@@ -161,9 +161,7 @@ def leaf_handle(leaf):
 def leaf_delete(leaf):
     url = URL_PUT % (SERVER, leaf.ctx)
     res = requests.request('delete', url)
-    cursor = vim.current.window.cursor
-    TEXLIST.refresh()
-    vim.current.window.cursor = cursor
+    leaf.father.refresh()
 
 
 def list_tex(node):
