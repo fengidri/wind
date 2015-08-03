@@ -28,7 +28,7 @@ def leaf_handle(leaf):
 
 def get_child(Node):
     path = Node.ctx
-    log.error("get child path: %s", path)
+    log.debug("get child path: %s", path)
 
     dirs, names = libpath.listdir(path)
     if dirs == None:

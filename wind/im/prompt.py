@@ -134,10 +134,9 @@ def findstart():
             col = -3
 
         if col > -1:
-            log.error('@findstart redirect: %s' % hd)
+            log.debug('@findstart redirect: %s' % hd)
             Status.name = hd
             _col = env.col - col
-            log.error("find start: %s %s %s", _col, col, env.col)
             return _col
     return col
 
