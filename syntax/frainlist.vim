@@ -64,7 +64,7 @@ syn match PATHS_EXPTreeLink #[^-| `].* -> # contains=PATHS_EXPTreeBookmark,PATHS
 
 "highlighing for directory nodes and file nodes
 syn match PATHS_EXPTreeDirSlash #/#
-syn match PATHS_EXPTreeDir #[+-].*/# contains=PATHS_EXPTreeLink,PATHS_EXPTreeDirSlash,PATHS_EXPTreeOpenable,PATHS_EXPTreeClosable
+syn match PATHS_EXPTreeDir #[+-].*/# contains=PATHS_EXPTreeLink,PATHS_EXPTreeDirSlash,PATHS_EXPTreeOpenable,PATHS_EXPTreeClosable,FrainUIRed,FrainUIBlue,FrainUIGreen
 syn match PATHS_EXPTreeExecFile  #[|` ].*\*\($\| \)# contains=PATHS_EXPTreeLink,PATHS_EXPTreePart,PATHS_EXPTreeRO,PATHS_EXPTreePartFile,PATHS_EXPTreeBookmark
 syn match PATHS_EXPTreeFile  #|-.*# contains=PATHS_EXPTreeLink,PATHS_EXPTreePart,PATHS_EXPTreeRO,PATHS_EXPTreePartFile,PATHS_EXPTreeBookmark,PATHS_EXPTreeExecFile
 syn match PATHS_EXPTreeFile  #`-.*# contains=PATHS_EXPTreeLink,PATHS_EXPTreePart,PATHS_EXPTreeRO,PATHS_EXPTreePartFile,PATHS_EXPTreeBookmark,PATHS_EXPTreeExecFile

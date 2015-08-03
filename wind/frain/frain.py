@@ -122,7 +122,9 @@ class Events(object):
         pyvim.Roots = []  # 整个vim 可用的变量
 
         if vim.vars.get("frain_buffer", 0) == 1:
-            root = frainui.Node("Buffers", None, get_buffers)
+            dp = "\\green;Buffers\\end;"
+            root = frainui.Node("Buffers", None, get_buffers, dp)
+            self.buf_node = root
             node.append(root)
 
         for p in Project.All:
@@ -157,6 +159,12 @@ class FrainList(Events):
         self.listwin.show()
         pyvim.addevent("BufEnter", self.find)
         pyvim.addevent("BufNewFile", self.bufnewfile)
+        pyvim.addevent("BufNew", self.bufnew)
+
+    def bufnew(self):
+        log.error("BufNew")
+        if self.buf_node:
+            self.buf_node.refresh()
 
     def bufnewfile(self):
         path = vim.current.buffer.name

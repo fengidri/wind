@@ -45,12 +45,12 @@ class Item(utils.Object):# Node与Leaf 的父类
         except:
             logging.debug('getnode by linenu: fail')
 
-    def getlinenu(self, node):
+    def getlinenu(self):
         num = 0
         for linenu, line in enumerate(self.lswin.b):
             try:
                 ID = int(line.split('<|>')[1])
-                if ID == node.ID:
+                if ID == self.ID:
                     num = linenu
                     break
             except:
@@ -169,7 +169,7 @@ class Node(Item):
         if self.opened: return
         self.opened = True
 
-        linenu = self.getlinenu(self)
+        linenu = self.getlinenu()
 
 
         self._get_child()
@@ -189,7 +189,7 @@ class Node(Item):
         if not self.opened: return
         self.opened = False
 
-        linenu = self.getlinenu(self)
+        linenu = self.getlinenu()
 
         buf = self.lswin.b
         buf[linenu - 1] = buf[linenu - 1].replace('-', '+', 1)
@@ -228,7 +228,7 @@ class Leaf(Item):
         if not self.lswin.previous:
             return
 
-        linenu = self.getlinenu(self)
+        linenu = self.getlinenu()
 
         vim.current.window = self.lswin.previous
         if self.lswin.is_focus():

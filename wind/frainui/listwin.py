@@ -25,12 +25,10 @@ class LISTOPTIONS(object):
         if fa == self.root:
             return # 已经是root 了, 不可以关闭
 
-        linenu = self.getlinenu(fa)
         fa._open()
-        self.win.cursor = (linenu, 0)
+        self.win.cursor = (fa.getlinenu(), 0)
 
     def delete(self, win):
-        l, c = vim.current.window.cursor
         node = Item.getnode()
         if node:
             node.FREventEmit("delete")
@@ -85,9 +83,8 @@ class LISTOPTIONS(object):
             node = subnode
         else:
             if subnode:
-                linenu = self.getlinenu(subnode)
 
-                self.win.cursor = (linenu, 0)
+                self.win.cursor = (subnode.getlinenu(), 0)
                 #vim.command('normal zz')
 
                 self.update_status()
@@ -121,18 +118,6 @@ class LISTOPTIONS(object):
         vim.command( "set title titlestring=%s" % vim_title )
 
 class LISTNODS(object):
-    def getlinenu(self, node):
-        num = 0
-        for linenu, line in enumerate(self.win.b):
-            try:
-                ID = int(line.split('<|>')[1])
-                if ID == node.ID:
-                    num = linenu
-                    break
-            except:
-                pass
-        return num + 1
-
     def getroots(self):
         return self.root.sub_nodes
 
