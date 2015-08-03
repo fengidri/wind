@@ -13,13 +13,11 @@ import tempfile
 from textohtml import html
 from pyvim import log as logging
 import requests
-
+import os
 import frainui
 
-
-#SERVER="shell.fengidri.me"
-HOST = "127.0.0.1:8001"
-SERVER = "blog.shell.me"
+#HOST = "127.i.0.1:8001"
+#SERVER = "blog.shell.me"
 TEXLIST = None
 
 ################################################################################
@@ -38,13 +36,13 @@ class Remote(object):
         self.map_id_tmp_file = {}
 
     def file_to_id(self, f):
+
         for ID, _f in self.map_id_tmp_file.items():
-            if _f == f:
+            if os.path.realpath(_f) == os.path.realpath(f):
                 return ID
 
     def load_list(self):
         URL = "http://%s/store/index.json"%(SERVER)
-        #URL = "http://shell.fengidri.me/store/index.json"
         try:
             response = urllib2.urlopen(URL)
             info = response.read()
@@ -91,14 +89,13 @@ class Remote(object):
         j = { 'tex': tex }
         if ID:
             method = "PUT"
-            uri = 'http://%s/blog/chapters/?id=%s' % (HOST, ID)
+            uri = 'http://%s/api/blog/chapters/?id=%s' % (HOST, ID)
         else:
             method = "POST"
-            uri = 'http://%s/blog/chapters/' % HOST
+            uri = 'http://%s/api/blog/chapters/' % HOST
 
         headers = {'Content-Type': "application/json"};
         logging.info("url:%s"%uri)
-
         res = requests.request(method, uri, headers=headers, data=json.dumps(j))
         return int(res.text)
 
@@ -113,7 +110,7 @@ class Remote(object):
 ################################################################################
 
 def add_new(node):
-    tmp = tempfile.mktemp(suffix='.mkiv', prefix='fwiki_')
+    tmp = tempfile.mktemp(suffix='.md', prefix='shell_')
     vim.command('e %s' % tmp)
     vim.current.buffer.append('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', 0)
     vim.current.buffer.append('%Post:1', 0)
@@ -159,6 +156,7 @@ def GetNames(listwin):
     ID = remote.file_to_id(vim.current.buffer.name)
     if not ID:
         return
+
     info = remote.info.get(str(ID))
     if not info:
         return
@@ -166,7 +164,6 @@ def GetNames(listwin):
         names = ['UnPost', info.get('title')]
     else:
         names = ['TexList', info.get('title')]
-    logging.info(names)
     listwin.setnames(names)
 
 
@@ -194,7 +191,6 @@ def WikiPost():
     if not TEXLIST: return
 
     remote = Remote()
-
     ID = remote.file_to_id(vim.current.buffer.name)
     ID = remote.post_tex('\n'.join(vim.current.buffer), ID)
 
