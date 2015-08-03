@@ -146,9 +146,9 @@ class FrainList(Events):
             return
 
         self.listwin = LIST("frain", self.FrainListGetRootsHook)
-        self.listwin.FREventBind("ListReFreshPost",    FrainListRefreshHook)
-        self.listwin.FREventBind("ListReFreshPre", FrainListRefreshPreHook)
-        self.listwin.FREventBind("ListShow",       FrainListShowHook)
+        self.listwin.FREventBind("ListReFreshPost", FrainListRefreshHook)
+        self.listwin.FREventBind("ListReFreshPre",  FrainListRefreshPreHook)
+        self.listwin.FREventBind("ListShow",        FrainListShowHook)
 
         self.listwin.show()
         pyvim.addevent("BufEnter", self.find)
