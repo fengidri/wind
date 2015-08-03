@@ -31,7 +31,10 @@ class _input_post( ):
 
         mid = self.ids.get(vim.current.buffer)
         if mid:
-            fu = vim.Function("matchdelete")(mid)
+            try:
+                fu = vim.Function("matchdelete")(mid)
+            except:
+                pass
 
         fu = vim.Function("matchadd")
         self.ids[vim.current.buffer] = fu("CurrentWord", "\<%s\>" % current, 11)

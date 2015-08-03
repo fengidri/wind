@@ -158,19 +158,29 @@ def leaf_handle(leaf):
         return
     vim.command("edit %s" % tmp)
 
+def leaf_delete(leaf):
+    url = URL_PUT % (SERVER, leaf.ctx)
+    res = requests.request('delete', url)
+    cursor = vim.current.window.cursor
+    TEXLIST.refresh()
+    vim.current.window.cursor = cursor
+
+
 def list_tex(node):
     remote = Remote()
     remote.load_list()
     for ID_s, info in remote.iter():
-        if node.ctx == "TexList" and info.get("post") != '0':
-            name = info.get("title")
-            leaf = frainui.Leaf(name, ID_s, leaf_handle)
-            node.append(leaf)
+        if node.ctx == "TexList" and info.get("post") == '0':
+            continue
 
-        if node.ctx == "UnPost" and info.get("post") == '0':
-            name = info.get("title")
-            leaf = frainui.Leaf(name, ID_s, leaf_handle)
-            node.append(leaf)
+        if node.ctx == "UnPost" and info.get("post") == '1':
+            continue
+
+        name = info.get("title")
+        leaf = frainui.Leaf(name, ID_s, leaf_handle)
+        leaf.FREventBind("delete", leaf_delete)
+        node.append(leaf)
+
 
 def List1(node):
     Remote().load_list() # 重新更新一下数据

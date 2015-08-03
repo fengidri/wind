@@ -11,7 +11,11 @@ EVENT_BIND_TYPE_CHAIN = 1
 class Object(object):
     __CB = {}
     def FREventEmit(self, event):
-        cbs = self.__CB.get(event)
+        evs = self.__CB.get(self)
+        if not evs:
+            return
+
+        cbs = evs.get(event)
         if not cbs:
             return
 
@@ -34,11 +38,16 @@ class Object(object):
             tp = EVENT_BIND_TYPE_NORMAL
 
         cb = {"fun": fun, "arg": arg, "type": tp}
-        funs = self.__CB.get(event)
+        evs = self.__CB.get(self)
+
+        if not evs:
+            evs = self.__CB[self] = {}
+
+        funs = evs.get(event)
         if funs:
             funs.append(cb)
         else:
-            self.__CB[event] = [cb]
+            evs[event] = [cb]
 
 
     def FRRegister(self, name):
