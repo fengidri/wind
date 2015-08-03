@@ -79,11 +79,11 @@ class CTagList(object):
         tags = self.ctag()[Node.ctx]
         for tag in tags:
             if tag[2] == 'f':
-                name = '\\red%s\end' % tag[0]
+                name = '\\red;%s\end;' % tag[0]
             elif tag[2] == 'm':
-                name = '\\green%s\end' % tag[0]
+                name = '\\green;%s\end;' % tag[0]
             elif tag[2] == 'v':
-                name = '\\blue%s\end' % tag[0]
+                name = '\\blue;%s\end;' % tag[0]
             else:
                 name = tag[0]
             n = frainui.Leaf(name, tag[1], self.fr_tag_pos)

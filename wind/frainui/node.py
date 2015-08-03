@@ -96,14 +96,15 @@ class Item(utils.Object):# Node与Leaf 的父类
 
 
 class Node(Item):
-    def __init__(self, name, ctx=None, get_child=None):
+    def __init__(self, name, display=None, ctx=None, get_child=None):
         Item.__init__(self)
-        self.sub_nodes = []
-        self.name = name
-        self.opened = False
-        self.ctx = ctx
-        self.need_fresh = True # opened or not
-        self.get_child = get_child
+        self.sub_nodes       = []
+        self.name            = name
+        self.display         = display
+        self.opened          = False
+        self.ctx             = ctx
+        self.need_fresh      = True      # opened or not
+        self.get_child       = get_child
 
     def append(self, node):
         node.level = self.level + 1 # 用于方便得到层级关系
@@ -118,12 +119,17 @@ class Node(Item):
 
 
     def show(self):
+        if self.display:
+            dp = self.display
+        else:
+            dp = self.name
+
         if self.opened:
             flag = '-'
         else:
             flag = '+'
-        return "%s%s%s/<|>%s" % ("  " * (self.level  -1), flag, self.name,
-                self.ID)
+
+        return "%s%s%s/<|>%s" % ("  " * (self.level  -1), flag, dp, self.ID)
 
     def _open(self, linenu): # 回车 TODO
         logging.error("node _open")
@@ -180,14 +186,19 @@ class Node(Item):
 
 
 class Leaf(Item):
-    def __init__(self, name, ctx=None, handle=None):
+    def __init__(self, name, display=display, ctx=None, handle=None):
         Item.__init__(self)
-        self.name   = name
-        self.ctx    = ctx
-        self.handle = handle
+        self.name    = name
+        self.display = display
+        self.ctx     = ctx
+        self.handle  = handle
 
     def show(self):
-        return "%s %s<|>%s" % ("  " * (self.level  -1), self.name, self.ID)
+        if self.display:
+            dp = self.display
+        else:
+            dp = self.name
+        return "%s %s<|>%s" % ("  " * (self.level  -1), dp, self.ID)
 
     def _open(self, linenu):#TODO
         if not self.lswin.previous:

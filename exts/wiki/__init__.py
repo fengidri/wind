@@ -10,16 +10,26 @@ import json
 import urllib
 import urllib2
 import tempfile
-from textohtml import html
 from pyvim import log as logging
 import requests
 
 import frainui
+from textohtml import html
+
+URL_INDEX   = "http://blog.fengidri.me/store/index.json"
+URL_CHAPTER = 'http://%s/store/%s/index.mkiv'            # 后缀用于临时文件的类型
+URL_PUT     = 'http://%s/fwikiapi/chapters/%s'
+URL_POST    = 'http://%s/fwikiapi/chapters'
 
 
 SERVER="blog.fengidri.me"
 
 TEXLIST = None
+
+
+def tmpfile():
+    sf = ".%s" % URL_CHAPTER.split('.')[-1]
+    return tempfile.mktemp(suffix=sf, prefix='fwiki_')
 
 ################################################################################
 # 连接服务器
@@ -42,9 +52,8 @@ class Remote(object):
                 return ID
 
     def load_list(self):
-        URL = "http://blog.fengidri.me/store/index.json"
         try:
-            response = urllib2.urlopen(URL)
+            response = urllib2.urlopen(URL_INDEX)
             info = response.read()
             info = json.loads(info)
         except:
@@ -73,26 +82,31 @@ class Remote(object):
         if tmp:
             return tmp
 
-        url = 'http://%s/store/%s/index.mkiv' % (SERVER, ID)
+        url = URL_CHAPTER % (SERVER, ID)
         req = urllib2.Request(url)
-        tmp = tempfile.mktemp(suffix='.mkiv', prefix='fwiki_%s_' % ID)
         try:
             res = urllib2.urlopen(req).read()
         except Exception, e:
             pyvim.echo(e)
             return
+
+        tmp = tmpfile()
         open(tmp, 'wb').write(res)
         self.map_id_tmp_file[ID] = tmp
         return tmp
 
     def post_tex(self, tex, ID):
-        j = { 'tex': tex, 'html': html(buf = tex) }
+        j = { 'tex': tex }
+
+        if URL_CHAPTER.endswith('.mkiv'):
+            j['html'] = html(buf = tex)
+
         if ID:
             method = "PUT"
-            uri = 'http://%s/fwikiapi/chapters/%s' % (SERVER, ID)
+            uri = URL_PUT % (SERVER, ID)
         else:
             method = "POST"
-            uri = 'http://%s/fwikiapi/chapters' % SERVER
+            uri = URL_POST % SERVER
 
         headers = {'Content-Type': "application/json"};
 
@@ -110,8 +124,7 @@ class Remote(object):
 ################################################################################
 
 def add_new(node):
-    tmp = tempfile.mktemp(suffix='.mkiv', prefix='fwiki_')
-    vim.command('e %s' % tmp)
+    vim.command('e %s' % tmpfile())
     vim.current.buffer.append('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', 0)
     vim.current.buffer.append('%Post:1', 0)
     vim.current.buffer.append('%Class:', 0)
@@ -141,7 +154,7 @@ def list_tex(node):
             node.append(leaf)
 
 def GetRoots(node):
-    leaf = frainui.Leaf("NewWiki", -1, add_new)
+    leaf = frainui.Leaf("\\red;NewWiki\\end;", -1, add_new)
     node.append(leaf)
 
     n = frainui.Node("TexList", "TexList", list_tex)
@@ -177,6 +190,8 @@ def ReFreshPre(listwin):
 @pyvim.cmd()
 def TexList():
     global  TEXLIST
+    if TEXLIST:
+        return
     TEXLIST = frainui.LIST("TexList", GetRoots)
 
     TEXLIST.FREventBind("ListNames", GetNames)
