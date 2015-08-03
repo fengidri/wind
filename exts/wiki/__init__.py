@@ -159,6 +159,9 @@ def leaf_handle(leaf):
     vim.command("edit %s" % tmp)
 
 def leaf_delete(leaf):
+    if not vim.vars.get('wiki_del_enable'):
+        pyvim.echo('Please let g:wiki_del_enable=1')
+        return
     url = URL_PUT % (SERVER, leaf.ctx)
     res = requests.request('delete', url)
     leaf.father.refresh()
