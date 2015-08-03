@@ -44,12 +44,26 @@ class Remote(object):
     def __init__(self):
         if hasattr(self, "map_id_tmp_file"):
             return
-        self.map_id_tmp_file = {}
 
-    def file_to_id(self, f):
+        self.map_id_tmp_file = {}
+        self.news = []
+        self.load_list()
+
+    def get_id_by_name(self, name): # 返回的ID 是str
+        if name in self.news:
+            return None
+
         for ID, _f in self.map_id_tmp_file.items():
-            if _f == f:
-                return ID
+            if _f == name:
+                return str(ID)
+
+    def update(self, ID, name):
+        ID = str(ID)
+        if name in self.news:
+            self.news.remove(name)
+
+        self.map_id_tmp_file[ID] = name
+
 
     def load_list(self):
         try:
@@ -74,15 +88,15 @@ class Remote(object):
         keys.sort()
         keys.reverse()
         for k in keys:
-            yield k, self.info[str(k)]
+            yield str(k), self.info[str(k)]
 
 
-    def load_tex(self, ID):
-        tmp = self.map_id_tmp_file.get(ID)
+    def load_tex(self, ID_s):
+        tmp = self.map_id_tmp_file.get(ID_s)
         if tmp:
             return tmp
 
-        url = URL_CHAPTER % (SERVER, ID)
+        url = URL_CHAPTER % (SERVER, ID_s)
         req = urllib2.Request(url)
         try:
             res = urllib2.urlopen(req).read()
@@ -92,15 +106,16 @@ class Remote(object):
 
         tmp = tmpfile()
         open(tmp, 'wb').write(res)
-        self.map_id_tmp_file[ID] = tmp
+        self.map_id_tmp_file[ID_s] = tmp
         return tmp
 
-    def post_tex(self, tex, ID):
+    def post_tex(self, tex, name): # 返回的 ID 是 int
         j = { 'tex': tex }
 
         if URL_CHAPTER.endswith('.mkiv'):
             j['html'] = html(buf = tex)
 
+        ID = self.get_id_by_name(name)
         if ID:
             method = "PUT"
             uri = URL_PUT % (SERVER, ID)
@@ -124,12 +139,16 @@ class Remote(object):
 ################################################################################
 
 def add_new(node):
-    vim.command('e %s' % tmpfile())
+    tmp = tmpfile()
+    vim.command('e %s' % tmp)
     vim.current.buffer.append('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', 0)
     vim.current.buffer.append('%Post:1', 0)
     vim.current.buffer.append('%Class:', 0)
     vim.current.buffer.append('%Title:', 0)
     vim.current.buffer.append('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', 0)
+    Remote().news.append(tmp)
+    TEXLIST.refresh()
+    find()
     return
 
 def leaf_handle(leaf):
@@ -142,20 +161,28 @@ def leaf_handle(leaf):
 def list_tex(node):
     remote = Remote()
     remote.load_list()
-    for ID, info in remote.iter():
+    for ID_s, info in remote.iter():
         if node.ctx == "TexList" and info.get("post") != '0':
             name = info.get("title")
-            leaf = frainui.Leaf(name, int(ID), leaf_handle)
+            leaf = frainui.Leaf(name, ID_s, leaf_handle)
             node.append(leaf)
 
         if node.ctx == "UnPost" and info.get("post") == '0':
             name = info.get("title")
-            leaf = frainui.Leaf(name, int(ID), leaf_handle)
+            leaf = frainui.Leaf(name, ID_s, leaf_handle)
             node.append(leaf)
 
-def GetRoots(node):
-    leaf = frainui.Leaf("\\red;NewWiki\\end;", -1, add_new)
+def List1(node):
+    Remote().load_list() # 重新更新一下数据
+
+    leaf = frainui.Leaf("NewWiki", -1, add_new, display = "\\red;NewWiki\\end;")
     node.append(leaf)
+
+    for i, new in enumerate(Remote().news):
+        name = "undefined:%d" % i
+        dp   = "\\blue;%s\\end;" % name
+        leaf = frainui.Leaf(name, new, leaf_handle, display = dp)
+        node.append(leaf)
 
     n = frainui.Node("TexList", "TexList", list_tex)
     node.append(n)
@@ -164,20 +191,28 @@ def GetRoots(node):
     node.append(n)
 
 
-def GetNames():
-    remote = Remote()
-    ID = remote.file_to_id(vim.current.buffer.name)
-    if not ID:
-        return
-    info = remote.info.get(str(ID))
-    if not info:
-        return
-    if info.get('post', '1') == '0':
-        names = ['UnPost', info.get('title')]
-    else:
-        names = ['TexList', info.get('title')]
+def find(filename = None):
+    if not filename:
+        filename = vim.current.buffer.name
 
-    TEXLIST.find(names)
+    remote = Remote()
+    ID_s = remote.get_id_by_name(filename)
+
+    if ID_s == None:
+        if filename in remote.news:
+            i = remote.news.index(filename)
+            TEXLIST.find(["undefined:%d" % i])
+    else:
+        info = remote.info.get(ID_s)
+        if not info:
+            return
+        if info.get('post', '1') == '0':
+            names = ['UnPost', info.get('title')]
+        else:
+            names = ['TexList', info.get('title')]
+
+        TEXLIST.find(names)
+
 
 
 def ReFreshPre(listwin):
@@ -192,14 +227,13 @@ def TexList():
     global  TEXLIST
     if TEXLIST:
         return
-    TEXLIST = frainui.LIST("TexList", GetRoots)
 
-    TEXLIST.FREventBind("ListNames", GetNames)
+    TEXLIST = frainui.LIST("TexList", List1)
     TEXLIST.FREventBind("ListReFreshPre", ReFreshPre)
     TEXLIST.show()
     TEXLIST.refresh()
 
-    pyvim.addevent("BufEnter", GetNames)
+    pyvim.addevent("BufEnter", find)
 
 
 
@@ -208,16 +242,17 @@ def WikiPost():
     if not TEXLIST: return
 
     remote = Remote()
+    curfile = vim.current.buffer.name
 
-    ID = remote.file_to_id(vim.current.buffer.name)
-    ID = remote.post_tex('\n'.join(vim.current.buffer), ID)
+    ID_i = remote.post_tex('\n'.join(vim.current.buffer), curfile)
 
-    if ID < 0:
+    if ID_i < 0:
         pyvim.echo("POST error: %d" % ID)
         return
 
-    remote.map_id_tmp_file[ID] = vim.current.buffer.name
+    remote.update(ID_i, curfile)
     TEXLIST.refresh()
+    find(curfile)
 
 @pyvim.event("CursorHold", "*.mkiv")
 @pyvim.event("CursorHoldI", "*.mkiv")

@@ -96,7 +96,7 @@ class Item(utils.Object):# Node与Leaf 的父类
 
 
 class Node(Item):
-    def __init__(self, name, display=None, ctx=None, get_child=None):
+    def __init__(self, name, ctx=None, get_child=None, display=None):
         Item.__init__(self)
         self.sub_nodes       = []
         self.name            = name
@@ -186,7 +186,7 @@ class Node(Item):
 
 
 class Leaf(Item):
-    def __init__(self, name, display=display, ctx=None, handle=None):
+    def __init__(self, name, ctx=None, handle=None, display=None):
         Item.__init__(self)
         self.name    = name
         self.display = display
