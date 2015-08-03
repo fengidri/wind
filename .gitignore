@@ -6,8 +6,8 @@ __pycache__/
 # C extensions
 *.so
 *.o
-#doc/*.html
-#doc/tex2html
+doc/*.html
+doc/tex2html
 
 # Distribution / packaging
 .Python
