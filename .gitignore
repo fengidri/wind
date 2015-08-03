@@ -3,7 +3,6 @@ __pycache__/
 *.py[cod]
 .*
 *.un~
-vuirpc_server
 # C extensions
 *.so
 *.o

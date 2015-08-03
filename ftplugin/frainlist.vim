@@ -1,9 +1,9 @@
-map <buffer> <cr>          :py IM("frainui", "list", "open")<CR>
-map <buffer> <2-LeftMouse> :py IM("frainui", "list", "open")<CR>
-map <buffer> o             :py IM("frainui", "list", "open")<CR>
-map <buffer> <bs>          :py IM("frainui", "list", "close")<CR>
-map <buffer> R             :py IM("frainui", "list", "refresh")<CR>
-map <buffer> dd            :py IM("frainui", "list", "delete")<CR>
+map <buffer> <cr>          :py IM("frainui", "open")<CR>
+map <buffer> <2-LeftMouse> :py IM("frainui", "open")<CR>
+map <buffer> o             :py IM("frainui", "open")<CR>
+map <buffer> <bs>          :py IM("frainui", "close")<CR>
+map <buffer> R             :py IM("frainui", "refresh")<CR>
+map <buffer> dd            :py IM("frainui", "delete")<CR>
 map <buffer> <tab>         :wincmd p<cr>
 
 "map <buffer> H :FrainFilter<CR>

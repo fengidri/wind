@@ -30,8 +30,6 @@ class Item(utils.Object):# Node与Leaf 的父类
     def getnode(cls, linenu = None):
         if not cls.lswin:
             return
-        if not cls.lswin.is_focus():
-            return
 
         if linenu == None: # 没有输入行号, 使用当前行
             line = vim.current.line
@@ -45,13 +43,24 @@ class Item(utils.Object):# Node与Leaf 的父类
             node_index = int(line.split('<|>')[1])
             return cls.nodes.get(node_index)
         except:
-            logging.error('getnode: fail')
+            logging.debug('getnode by linenu: fail')
+
+    def getlinenu(self):
+        num = 0
+        for linenu, line in enumerate(self.lswin.b):
+            try:
+                ID = int(line.split('<|>')[1])
+                if ID == self.ID:
+                    num = linenu
+                    break
+            except:
+                pass
+        return num + 1
 
 
 
     def find(self, names):
         " 查找一个节点, 目标如['etc', 'nginx', 'conf.d']"
-
         # 好喜欢这个函数啊!! 哈哈, good
         if self.level >= len(names):#超出层级了
             return
@@ -67,12 +76,21 @@ class Item(utils.Object):# Node与Leaf 的父类
 
         # 这个处理是针对于node 节点的
         self._get_child()
+
         for n in self.sub_nodes: # node 在子节点中找
             m = n.find(names)
             if m:
                 return m
         else:
-            return #子节点中没有找到
+            logging.error('refind: %s', self.name)
+            self.need_fresh = True
+            self._get_child()
+            for n in self.sub_nodes: # node 在子节点中找
+                logging.error(n.name)
+                m = n.find(names)
+                if m:
+                    return m
+
 
     def route(self):
         # 返回从最高层, 到本节点的路径中的所有的节点(包括自身)
@@ -90,14 +108,15 @@ class Item(utils.Object):# Node与Leaf 的父类
 
 
 class Node(Item):
-    def __init__(self, name, ctx=None, get_child=None):
+    def __init__(self, name, ctx=None, get_child=None, display=None):
         Item.__init__(self)
-        self.sub_nodes = []
-        self.name = name
-        self.opened = False
-        self.ctx = ctx
-        self.need_fresh = True # opened or not
-        self.get_child = get_child
+        self.sub_nodes       = []
+        self.name            = name
+        self.display         = display
+        self.opened          = False
+        self.ctx             = ctx
+        self.need_fresh      = True      # opened or not
+        self.get_child       = get_child
 
     def append(self, node):
         node.level = self.level + 1 # 用于方便得到层级关系
@@ -105,21 +124,40 @@ class Node(Item):
 
         self.sub_nodes.append(node)
 
+    def get(self, name):
+        for n in self.sub_nodes:
+            if n.name == name:
+                return n
+
+    def refresh(self):
+        self.need_fresh = True
+        if self.opened:
+            cursor = self.lswin.cursor
+            self.node_close()
+            self.node_open()
+            self.lswin.cursor = cursor
+
+
     def show(self):
+        if self.display:
+            dp = self.display
+        else:
+            dp = self.name
+
         if self.opened:
             flag = '-'
         else:
             flag = '+'
-        return "%s%s%s/<|>%s" % ("  " * (self.level  -1), flag, self.name,
-                self.ID)
 
-    def _open(self, linenu): # 回车 TODO
-        logging.info("node _open")
+        return "%s%s%s/<|>%s" % ("  " * (self.level  -1), flag, dp, self.ID)
+
+    def _open(self): # 回车 TODO
+        logging.error("node _open")
 
         if self.opened:
-            self.node_close(linenu)
+            self.node_close()
         else:
-            self.node_open(linenu)
+            self.node_open()
 
     def _get_child(self):
         if self.need_fresh and self.get_child:
@@ -127,14 +165,14 @@ class Node(Item):
             self.need_fresh = False
             self.get_child(self)
 
-    def node_open(self, linenu):
+    def node_open(self):
         if self.opened: return
         self.opened = True
 
+        linenu = self.getlinenu()
+
 
         self._get_child()
-        #if not self.OpenPre(): return
-
 
         buf = self.lswin.b
         buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)
@@ -147,10 +185,11 @@ class Node(Item):
 
 
 
-    def node_close(self, linenu): #
+    def node_close(self): #
         if not self.opened: return
-        logging.error('close')
         self.opened = False
+
+        linenu = self.getlinenu()
 
         buf = self.lswin.b
         buf[linenu - 1] = buf[linenu - 1].replace('-', '+', 1)
@@ -163,6 +202,7 @@ class Node(Item):
             if node.level <= self.level:
                 break
             linenu += 1
+
         end  = linenu
 
         if end > start:
@@ -170,18 +210,25 @@ class Node(Item):
 
 
 class Leaf(Item):
-    def __init__(self, name, ctx=None, handle=None):
+    def __init__(self, name, ctx=None, handle=None, display=None):
         Item.__init__(self)
-        self.name   = name
-        self.ctx    = ctx
-        self.handle = handle
+        self.name    = name
+        self.display = display
+        self.ctx     = ctx
+        self.handle  = handle
 
     def show(self):
-        return "%s %s<|>%s" % ("  " * (self.level  -1), self.name, self.ID)
+        if self.display:
+            dp = self.display
+        else:
+            dp = self.name
+        return "%s %s<|>%s" % ("  " * (self.level  -1), dp, self.ID)
 
-    def _open(self, linenu):#TODO
+    def _open(self):#TODO
         if not self.lswin.previous:
             return
+
+        linenu = self.getlinenu()
 
         vim.current.window = self.lswin.previous
         if self.lswin.is_focus():

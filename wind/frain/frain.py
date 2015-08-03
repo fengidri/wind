@@ -16,6 +16,8 @@ from pyvim import log
 from project import Project
 from white_black import black_filter_files, sorted_by_expand_name
 
+BufNewFile = {}
+
 def leaf_handle(leaf):
     log.debug('leaf_handle: %s', leaf.ctx)
     vim.command( "update")
@@ -32,15 +34,31 @@ def get_child(Node):
     if dirs == None:
         return []
 
+    ######## handle for new file
+    dels = []
+    for f in BufNewFile.get(path, []):
+        if f in names:
+            dels.append(f)
+            continue
+        names.append(f)
+    if dels:
+        for f in dels:
+            BufNewFile.get(path).remove(f)
+
+
     names = black_filter_files(names)
     names = sorted_by_expand_name(names)
 
     dirs  = sorted(black_filter_files(dirs))
 
+    def delete(leaf):
+        leaf.father.refresh()
 
     for n in names:
         p = libpath.join(path, n)
-        Node.append(frainui.Leaf(n, p, leaf_handle))
+        l = frainui.Leaf(n, p, leaf_handle)
+        l.FREventBind('delete', delete)
+        Node.append(l)
 
     for d in dirs:
         p = libpath.join(path, d)
@@ -90,26 +108,6 @@ def FrainListRefreshPreHook(listwin):
 
 
 
-def FrainListGetNames(listwin):
-    """显示当前的 buffer 对应的文件在 win list 中的位置
-
-    如果, buffer 不属于任何一个 project, 返回 `NROOT'
-
-    之后生成当前 buffer 在 win list 中的 url, 由 win list 进行查询.
-    """
-    path = utils.bufferpath()
-    if not path:
-        return
-
-    for p in Project.All:
-        if path.startswith(p.root):
-            break
-    else:
-        return
-        return 'NROOT' # not found root
-
-    names = utils.getnames(p.root, path)
-    listwin.setnames(names)
 
 ################################################################################
 
@@ -124,7 +122,9 @@ class Events(object):
         pyvim.Roots = []  # 整个vim 可用的变量
 
         if vim.vars.get("frain_buffer", 0) == 1:
-            root = frainui.Node("Buffers", None, get_buffers)
+            dp = "\\green;Buffers\\end;"
+            root = frainui.Node("Buffers", None, get_buffers, dp)
+            self.buf_node = root
             node.append(root)
 
         for p in Project.All:
@@ -151,13 +151,55 @@ class FrainList(Events):
         if hasattr(self, 'listwin'):
             return
 
-        self.listwin = LIST(self.FrainListGetRootsHook)
-        self.listwin.FREventBind("ListReFreshPost",    FrainListRefreshHook)
-        self.listwin.FREventBind("ListReFreshPre", FrainListRefreshPreHook)
-        self.listwin.FREventBind("ListShow",       FrainListShowHook)
-        self.listwin.FREventBind("ListNames",      FrainListGetNames)
+        self.listwin = LIST("frain", self.FrainListGetRootsHook)
+        self.listwin.FREventBind("ListReFreshPost", FrainListRefreshHook)
+        self.listwin.FREventBind("ListReFreshPre",  FrainListRefreshPreHook)
+        self.listwin.FREventBind("ListShow",        FrainListShowHook)
 
         self.listwin.show()
+        pyvim.addevent("BufEnter", self.find)
+        pyvim.addevent("BufNewFile", self.bufnewfile)
+        pyvim.addevent("BufNew", self.bufnew)
+
+    def bufnew(self):
+        log.error("BufNew")
+        if self.buf_node:
+            self.buf_node.refresh()
+
+    def bufnewfile(self):
+        path = vim.current.buffer.name
+        dirname = os.path.dirname(path)
+        basename = os.path.basename(path)
+        if BufNewFile.get(dirname):
+            BufNewFile.get(dirname).append(basename)
+        else:
+            BufNewFile[dirname] = [basename]
+
+    def find(self):
+        if vim.current.buffer.options[ 'buftype' ] != '':
+            return -1
+
+        if vim.current.buffer.name == '':
+            return -1
+
+        """显示当前的 buffer 对应的文件在 win list 中的位置
+
+        如果, buffer 不属于任何一个 project, 返回 `NROOT'
+
+        之后生成当前 buffer 在 win list 中的 url, 由 win list 进行查询.
+        """
+        path = utils.bufferpath()
+        if not path:
+            return
+
+        for p in Project.All:
+            if path.startswith(p.root):
+                break
+        else:
+            return
+
+        names = utils.getnames(p.root, path)
+        self.listwin.find(names)
 
     def add(self, path, name = ''):
         "增加一个新的 project, 提供参数 path, name"
@@ -168,7 +210,6 @@ class FrainList(Events):
             name = libpath.basename(path)
         if path:
             Project(path, name)
-
 
         self.listwin.refresh()
 

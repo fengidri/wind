@@ -7,32 +7,11 @@
 import vim
 import os
 import logging
-import logging.handlers
 import sys
-LOGFILE = "/tmp/vimlog"
-MAXBYTES = 1024 * 1024 * 10
-
-logging.basicConfig(filename="/dev/null", level=logging.DEBUG)
-
-handlers = logging.handlers.RotatingFileHandler(LOGFILE, maxBytes=MAXBYTES)
-formatter = logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
-handlers.setFormatter(formatter)
 
 log = logging.getLogger("wind")
-log.setLevel(logging.INFO)
-log.addHandler(handlers)
 
-log.info("\n\n\n\n\n\nVIM Start.............................")
-
-def excepthook(type, value, trace):
-    if type == KeyboardInterrupt:
-        print ""
-        return
-    echoline(">>Error(%s): %s: " % (LOGFILE, type.__name__ + str(value)))
-
-    log.error("Uncaught exception:", exc_info =(type, value, trace))
-
-sys.excepthook = excepthook
+log.info("..................VIM Start.............................")
 
 def origin_win( ):
     vim.command( "wincmd p")
@@ -242,26 +221,26 @@ def current_word( from_vim=True ):
     if from_vim:
         return vim.eval("expand('<cword>')");
     else:
-        buf = [   ]
-        tmp = str_before_cursor( )
+        buf = []
+        tmp = str_before_cursor()
 
         for i in range(len(tmp) -1 , -1,-1):
-            c = tmp[ i ]
+            c = tmp[i]
 
-            if not (c.isalpha( ) or c == '_'):
-                buf.append( tmp[i+1:] )
+            if not (c.isalpha() or c == '_'):
+                buf.append(tmp[i+1:])
                 break
             if i == 0:
-                buf.append( tmp)
+                buf.append(tmp)
 
 
-        for c in str_after_cursor( ):
-            if (c.isalpha( ) or c == '_'):
-                buf.append( c )
+        for c in str_after_cursor():
+            if (c.isalpha() or c == '_'):
+                buf.append(c)
             else:
                 break
 
-        return  ''.join( buf )
+        return  ''.join(buf)
 
 #如果有错误文件,打开quickfix
 def quickfix(hight = 15):

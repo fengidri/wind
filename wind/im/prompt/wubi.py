@@ -73,7 +73,7 @@ def handle():
 
 @handle.base
 def wubi(patten):
-    log.error("wubi patten: %s", patten)
+    log.debug("wubi patten: %s", patten)
     words, associate = search(''.join(patten))
 
     #abuild(" ", "%s                  " %  patten)

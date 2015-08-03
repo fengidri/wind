@@ -10,7 +10,7 @@ syn match PATHS_TITLE           #^>>>[a-zA-Z0-9_ -.]\+#
 syntax match Index "<|>.*$" conceal cchar=\
 
 syn match PATHS_EXPFileTypePy   #.\+\.py\>#
-syn match PATHS_EXPFileTypeLua   #.\+\.lua\>#
+syn match PATHS_EXPFileTypeLua  #.\+\.lua\>#
 syn match PATHS_EXPFileTypeSh   #.\+\.mk\>#
 syn match PATHS_EXPFileTypeSh   #.\+\.sh\>#
 syn match PATHS_EXPFileTypeC    #.\+\.c\>#
@@ -20,7 +20,7 @@ syn match PATHS_EXPFileTypeH    #.\+\.h\>#
 syn match PATHS_EXPFileTypeJS   #.\+\.js\>#
 syn match PATHS_EXPFileTypeHtml #.\+\.html\>#
 syn match PATHS_EXPFileTypeHtml #.\+\.tpl\>#
-syn match PATHS_EXPTreeDirName #[+-].\+/#
+syn match PATHS_EXPTreeDirName  #[+-].\+/#
 "以.h结尾的文件使用另一种色彩"
 
 hi clear Folded
@@ -64,7 +64,7 @@ syn match PATHS_EXPTreeLink #[^-| `].* -> # contains=PATHS_EXPTreeBookmark,PATHS
 
 "highlighing for directory nodes and file nodes
 syn match PATHS_EXPTreeDirSlash #/#
-syn match PATHS_EXPTreeDir #[+-].*/# contains=PATHS_EXPTreeLink,PATHS_EXPTreeDirSlash,PATHS_EXPTreeOpenable,PATHS_EXPTreeClosable
+syn match PATHS_EXPTreeDir #[+-].*/# contains=PATHS_EXPTreeLink,PATHS_EXPTreeDirSlash,PATHS_EXPTreeOpenable,PATHS_EXPTreeClosable,FrainUIRed,FrainUIBlue,FrainUIGreen
 syn match PATHS_EXPTreeExecFile  #[|` ].*\*\($\| \)# contains=PATHS_EXPTreeLink,PATHS_EXPTreePart,PATHS_EXPTreeRO,PATHS_EXPTreePartFile,PATHS_EXPTreeBookmark
 syn match PATHS_EXPTreeFile  #|-.*# contains=PATHS_EXPTreeLink,PATHS_EXPTreePart,PATHS_EXPTreeRO,PATHS_EXPTreePartFile,PATHS_EXPTreeBookmark,PATHS_EXPTreeExecFile
 syn match PATHS_EXPTreeFile  #`-.*# contains=PATHS_EXPTreeLink,PATHS_EXPTreePart,PATHS_EXPTreeRO,PATHS_EXPTreePartFile,PATHS_EXPTreeBookmark,PATHS_EXPTreeExecFile
@@ -110,5 +110,35 @@ hi def link PATHS_EXPFileTypePy Function
 hi def link PATHS_EXPFileTypeLua  Question
 hi def link PATHS_EXPFileTypeSh Tag
 hi def link PATHS_EXPFileTypeH Tag
-hi def link  Folded Normal
+hi def link Folded Normal
+
+"use for color set in py"
+syntax match FrainUiSig "\\red;"   conceal cchar=\   contained
+syntax match FrainUiSig "\\blue;"  conceal cchar=\   contained
+syntax match FrainUiSig "\\green;" conceal cchar=\   contained
+syntax match FrainUiSig "\\end;"   conceal cchar=\   contained
+
+syntax match FrainUIRed   "\\red;.*\\end;"   contains=FrainUiSig
+syntax match FrainUIBlue  "\\blue;.*\\end;"  contains=FrainUiSig
+syntax match FrainUIGreen "\\green;.*\\end;" contains=FrainUiSig
+
+hi FrainUIRed   guifg=red
+hi FrainUIBlue  guifg=blue
+hi FrainUIGreen guifg=green
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

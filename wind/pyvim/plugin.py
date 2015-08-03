@@ -88,7 +88,7 @@ def __command(vimcmd, fun, complete):
             index=len(CMDS))
 
     CMDS.append(fun)
-    logging.error(c)
+    logging.debug(c)
     vim.command(c)
 
 
@@ -149,20 +149,16 @@ def event_callback( cbid ):#事件回调函数  @event: 当前的事件
     cb = __Event_Map.get(cbid)
     if not cb:
         logging.info("Not Found cb for: %s" % cbid)
+        return
     cb()
 
 
 
 def addevent(event, cb, pat='*'):
-    #TODO 一些不再用到的事件要进行删除: 如 <buffer> 的事件在 buffer 退出后
-    # 如果回调来自于实例, 是不是要进行释放
     global __Event_Index
     __Event_Index += 1
 
-
     autocmd_cmd_format = "autocmd {event} {pat} {cmd}"
-
-    es = event.split(',')
 
     cbid = "%s_%s" % (cb.func_code.co_name, __Event_Index)
     cmd = "py IM('event', '%s')" % cbid
@@ -171,10 +167,18 @@ def addevent(event, cb, pat='*'):
     if not isinstance(pat, basestring):
         pat = "<buffer=%s>" % pat.number
 
-    for e in es:
-        autocmd_cmd =  autocmd_cmd_format.format(
-                event = e, pat = pat, cmd = cmd)
-        vim.command(autocmd_cmd)
+    autocmd_cmd =  autocmd_cmd_format.format(event = event, pat = pat, cmd = cmd)
+    vim.command("augroup %s" % cbid)
+    vim.command(autocmd_cmd)
+    vim.command("augroup END")
+
+    return (cbid, event, pat, cmd)
+
+def delevent(evhandle):
+    vim.command("autocmd! %s" % evhandle[0])
+    del __Event_Map[evhandle[0]]
+
+
 
 
 def event(e, pat='*'):
