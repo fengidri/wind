@@ -11,6 +11,17 @@ import setting
 import frainui
 from imrc import emit_event
 
+
+RouteMap = {
+        "prompt":       prompt.handle,
+        "key":          stream.handle,
+        "setting":      setting.handle,
+        "command":      pyvim.cmd_cb,
+        "event":        pyvim.event_callback,
+        "cmd_complete": pyvim.command_complete,
+        "frainui":      frainui.handle,
+        }
+
 def IM_Init():
     stream.Init()
     prompt.Init()
@@ -29,26 +40,11 @@ def IM(*args):
     log.debug('---------------------%s--------------------------', cls)
     emit_event('start')
 
-    if cls == "prompt":
-        prompt.handle(*args[1:])
-
-    elif cls == "key":
-        stream.handle(*args[1:])
-
-    elif cls == "setting":
-        setting.handle(*args[1:])
-
-    elif cls == "command":
-        pyvim.cmd_cb(*args[1:])
-
-    elif cls == "event":
-        pyvim.event_callback(*args[1:])
-
-    elif cls == "cmd_complete":
-        pyvim.command_complete(*args[1:])
-
-    elif cls == "frainui":
-        frainui.handle(*args[1:])
+    handle = RouteMap.get(cls)
+    if handle:
+        handle(*args[1:])
+    else:
+        log.error("IM: Not Found Cls: %s", cls)
 
     emit_event('pre-stop')
 

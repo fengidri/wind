@@ -5,7 +5,8 @@
 #    version   :   1.0.1
 
 import utils
-class EnterLine(utils.Object):
+import im
+class EnterLine(utils.Object, im.keybase.BaseEnd):
     def __init__(self, buf, linenu, prefix = ''):
         self.b = buf
         self.linenu = linenu

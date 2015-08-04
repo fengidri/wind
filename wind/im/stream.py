@@ -16,12 +16,14 @@ from pyvim import log
 
 __Handles = {}
 
-def stream(name):
+def stream(name): # use for stream plugin
     def _fun(cls):
-        __Handles[name.lower()] = cls()
+        register(name, cls())
         return cls
     return _fun
 
+def register(name, obj): # api
+    __Handles[name.lower()] = obj
 
 def Init():
     ftpath = os.path.realpath(__file__)
