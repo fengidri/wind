@@ -151,6 +151,8 @@ class FrainList(Events):
         if hasattr(self, 'listwin'):
             return
 
+        self.buf_node = None
+
         self.listwin = LIST("frain", self.FrainListGetRootsHook)
         self.listwin.FREventBind("ListReFreshPost", FrainListRefreshHook)
         self.listwin.FREventBind("ListReFreshPre",  FrainListRefreshPreHook)
