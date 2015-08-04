@@ -15,8 +15,6 @@ class EnterLine(utils.Object, im.keybase.BaseEnd):
         self.Buffer = buf
 
 
-    def input(self, key):
-        pass
 
 
 

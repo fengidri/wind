@@ -9,15 +9,14 @@ from pyvim import log
 import utils
 import vim
 
-def inputstream(key):
-
+def inputstream(tp, key):
     obj = utils.Objects.get(vim.current.buffer)
     if not obj:
         return
 
     widget = obj.input_focus
     if widget:
-        widget.input(key)
+        getattr(widget, attr_nm)(key)
 
     logging.error('inputstream: %s' % key)
 

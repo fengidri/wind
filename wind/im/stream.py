@@ -13,6 +13,9 @@ import imrc
 import pyvim
 import vim
 from pyvim import log
+import env
+
+import frainui
 
 __Handles = {}
 
@@ -59,38 +62,34 @@ def Init():
                             (key, cls, name)
             vim.command(command)
 
-def call(hd, tp, key):
-    """
-       调用 handle, 依赖于 tp 调用不同的接口
-    """
 
-    handle = __Handles.get(hd)
-    if not handle:
-        return
-
-    attr_nm = "im_%s" % tp
-    if not hasattr(handle, attr_nm):
-        return
-
-    log.debug('redirct to handle: %s', hd)
-
-    return getattr(handle, attr_nm)(key)
+def call(handles, tp, key):
+    for handle in handles:
+        attr_nm = "im_%s" % tp
+        getattr(handle, attr_nm)(key)
 
 def handle(tp, key):
     """
        重定向处理
     """
+    if env.ft.startswith('frainui'):
+        frainui.inputstream(tp, key)
+        return
+
     if pyvim.pumvisible():
         if call("prompt", tp, key):
             return
 
     log.debug("key: %s", key)
 
-    handle_list = Redirect().getcur('stream')
-    for hd in handle_list:
-        if call(hd, tp, key):
-            break
+    name_list = Redirect().getcur('stream')
+    handle_list = []
+    for n in name_list:
+        h = __Handles.get(n)
+        if h:
+            handle_list.append(h)
 
+    call(handle_list)
 
     call("activeprompt", tp, key)
 

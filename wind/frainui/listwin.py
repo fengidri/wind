@@ -149,7 +149,7 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
                 vertical = True,
                 width = 25,
                 title = "Frain",
-                ft="frainlist", **kw)
+                ft="frainuilist", **kw)
 
         self.win.FREventBind("BufNew",  hook)
         self.win.FREventBind("open",    self.open)
