@@ -333,11 +333,14 @@ class class_tag:
 
 
 @pyvim.cmd()
-def TagJump():
+def TagJump(tag = None):
     global Tag
     if Tag == None:
         Tag = class_tag()
-    tag = pyvim.current_word()
+
+    if not tag:
+        tag = pyvim.current_word()
+
     Tag.jump(tag)
 
 @pyvim.cmd()

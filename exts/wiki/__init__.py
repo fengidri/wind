@@ -111,7 +111,11 @@ class Remote(object):
         j = { 'tex': tex }
 
         if URL_CHAPTER.endswith('.mkiv'):
-            j['html'] = html(buf = tex)
+            try:
+                j['html'] = html(buf = tex)
+            except Exception, e:
+                pyvim.echo(e, hl=True)
+                return
 
         ID = self.get_id_by_name(name)
         if ID:
