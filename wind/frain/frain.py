@@ -159,9 +159,9 @@ class FrainList(Events):
         self.listwin.FREventBind("ListShow",        FrainListShowHook)
 
         self.listwin.show()
-        pyvim.addevent("BufEnter", self.find)
+        pyvim.addevent("BufEnter",   self.find)
         pyvim.addevent("BufNewFile", self.bufnewfile)
-        pyvim.addevent("BufNew", self.bufnew)
+        pyvim.addevent("BufNew",     self.bufnew)
 
     def bufnew(self):
         log.error("BufNew")

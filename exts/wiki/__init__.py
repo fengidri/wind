@@ -233,6 +233,10 @@ def ReFreshPre(listwin):
 ################################################################################
 @pyvim.cmd()
 def TexList():
+    if not (SERVER and URL_INDEX and URL_CHAPTER and URL_PUT and URL_POST):
+        pyvim.echo("Please set config for wiki.", hl=True)
+        return
+
     global  TEXLIST
     if TEXLIST:
         return
