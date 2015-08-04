@@ -32,7 +32,7 @@ class Item(utils.Object):# Node与Leaf 的父类
             return
 
         if linenu == None: # 没有输入行号, 使用当前行
-            line = vim.current.line
+            line = cls.lswin.b[cls.lswin.w.cursor[0] - 1]
         else:
             if linenu >= cls.lswin.linenu():
                 return
@@ -43,7 +43,7 @@ class Item(utils.Object):# Node与Leaf 的父类
             node_index = int(line.split('<|>')[1])
             return cls.nodes.get(node_index)
         except:
-            logging.debug('getnode by linenu: fail')
+            logging.debug('getnode by line [%s]: fail' % line)
 
     def getlinenu(self):
         num = 0

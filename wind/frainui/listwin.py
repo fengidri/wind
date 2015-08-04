@@ -85,12 +85,20 @@ class LISTOPTIONS(object):
             if subnode:
 
                 self.win.cursor = (subnode.getlinenu(), 0)
-                #vim.command('normal zz')
-
                 self.update_status()
+
+                w = None
+                if self.win.w != vim.current.window:
+                    w = vim.current.window
+                    vim.current.window = self.win.w
+
+                vim.command('normal zz')
+                if w:
+                    vim.current.window = w
                 return
 
         self.win.cursor = (1, 0)
+
 
 
 
