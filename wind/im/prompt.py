@@ -54,7 +54,7 @@ def Init():
 
     plugins = Plugins(ftpath)
     plugins.loads()
-    log.debug(__Handles)
+    log.info(__Handles)
 
 
 class NotPrompt(Exception):

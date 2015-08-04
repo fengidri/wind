@@ -12,17 +12,18 @@ import urllib2
 import tempfile
 from pyvim import log as logging
 import requests
+import os
 
 import frainui
 from textohtml import html
 
-URL_INDEX   = "http://blog.fengidri.me/store/index.json"
-URL_CHAPTER = 'http://%s/store/%s/index.mkiv'            # 后缀用于临时文件的类型
-URL_PUT     = 'http://%s/fwikiapi/chapters/%s'
-URL_POST    = 'http://%s/fwikiapi/chapters'
+URL_INDEX   = "http://shell.fengidri.me/store/index.json"
+URL_CHAPTER = 'http://%s/store/%s/index.md'            # 后缀用于临时文件的类型
+URL_PUT     = 'http://%s/api/blog/chapters/?id=%s'
+URL_POST    = 'http://%s/api/blog/chapters/'
 
 
-SERVER="blog.fengidri.me"
+SERVER="shell.fengidri.me"
 
 TEXLIST = None
 
@@ -54,7 +55,7 @@ class Remote(object):
             return None
 
         for ID, _f in self.map_id_tmp_file.items():
-            if _f == name:
+            if os.path.realpath(_f) == os.path.realpath(name):
                 return str(ID)
 
     def update(self, ID, name):
@@ -258,7 +259,7 @@ def WikiPost():
     ID_i = remote.post_tex('\n'.join(vim.current.buffer), curfile)
 
     if ID_i < 0:
-        pyvim.echo("POST error: %d" % ID)
+        pyvim.echo("POST error: %d" % ID_i)
         return
 
     remote.update(ID_i, curfile)

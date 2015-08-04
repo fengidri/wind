@@ -10,7 +10,7 @@ import utils
 import vim
 
 def inputstream(key):
-    logging.error('inputstream: %s' % key)
+    logging.info('inputstream: %s' % key)
 
 def handle(ev, name = None):
     # 目前这种 UI 事件的方式并不好.

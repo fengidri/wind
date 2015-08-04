@@ -28,7 +28,7 @@ def leaf_handle(leaf):
 
 def get_child(Node):
     path = Node.ctx
-    log.debug("get child path: %s", path)
+    log.info("get child path: %s", path)
 
     dirs, names = libpath.listdir(path)
     if dirs == None:
@@ -150,6 +150,7 @@ class FrainList(Events):
     def __init__(self):
         if hasattr(self, 'listwin'):
             return
+        self.buf_node = None
 
         self.listwin = LIST("frain", self.FrainListGetRootsHook)
         self.listwin.FREventBind("ListReFreshPost", FrainListRefreshHook)

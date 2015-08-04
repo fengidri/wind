@@ -4,6 +4,7 @@ import os
 import vim
 from vuirpc import VuiClient
 
+
 @pyvim.cmd()
 def GoAny( self ):
     vim.command("update")

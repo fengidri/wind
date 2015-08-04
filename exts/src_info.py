@@ -3,8 +3,8 @@ import pyvim
 import vim
 import time
 import os
-author = "丁雪峰"
-email = "fengidri@yeah.net"
+author = "陈小雪"
+email = "shell_chen@yeah.net"
 _infos = """
 >sh
 #!/usr/bin/env sh
@@ -23,6 +23,16 @@ _infos = """
 
 if __name__ == "__main__":
     pass
+
+>js
+/**
+ *   author       :   {author}
+ *   time         :   {time}
+ *   email        :   {email}
+ *   version      :   1.0.1
+ *   description  :
+**/
+
 >c
 /**
  *   author       :   {author}
@@ -85,7 +95,7 @@ def run():
 
 @pyvim.cmd()
 def SrcInfoAdd():
-        add_src_info()
+    aasctimedd_src_info()
 
 
 

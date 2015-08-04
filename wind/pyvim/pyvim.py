@@ -7,8 +7,11 @@
 import vim
 import os
 import logging
+import sys
+
 log = logging.getLogger("wind")
 
+log.info("..................VIM Start.............................")
 
 def origin_win( ):
     vim.command( "wincmd p")

@@ -4,7 +4,7 @@ import os
 import pyvim
 import ctags
 import sys
-import logging
+from pyvim import log as logging
 
 
 class TagList:
@@ -25,7 +25,7 @@ class TagList:
             self.entry = ctags.TagEntry()
             return True
         else:
-            logging.error( '%s is no tags.' % tagsfile)
+            logging.info( '%s is no tags.' % tagsfile)
             return False
     def get_items( self ):
         if self.items == None:
@@ -80,7 +80,7 @@ class TagList:
             vim.command("echo 'the ctags is ok'")
             self.open( )
         else:
-            logging.error("this is not a project" )
+            logging.info("this is not a project" )
 
 
 

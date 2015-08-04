@@ -5,7 +5,7 @@
 #    version   :   1.0.1
 import pyvim
 import vim
-import logging
+from pyvim  import log as logging
 
 @pyvim.cmd()
 def Poshl():
@@ -20,7 +20,7 @@ def poshl(s, e):
     st = "\\%%%dl\\%%%dc" % s
     en = "\\%%%dl\\%%%dc" % e
     cmd = 'syntax region Todo start=/%s/ end=/%s/' % (st, en)
-    logging.error(cmd)
+    logging.info(cmd)
 
     vim.command(cmd)
 
