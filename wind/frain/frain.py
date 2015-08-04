@@ -150,6 +150,7 @@ class FrainList(Events):
     def __init__(self):
         if hasattr(self, 'listwin'):
             return
+        self.buf_node = None
 
         self.listwin = LIST("frain", self.FrainListGetRootsHook)
         self.listwin.FREventBind("ListReFreshPost", FrainListRefreshHook)

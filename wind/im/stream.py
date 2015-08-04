@@ -55,7 +55,7 @@ def Init():
 
             command='inoremap <expr> %s Input_Monitor("%s", "%s")' % \
                             (key, cls, name)
-    #        vim.command(command)
+            vim.command(command)
 
 def call(hd, tp, key):
     """
