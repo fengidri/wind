@@ -147,9 +147,9 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
         self.win.FREventBind("open",    self.open)
         self.win.FREventBind("close",   self.close)
         self.win.FREventBind("delete",  self.delete)
-        self.win.FREventBind("focus",   self.focus)
         self.win.FREventBind("refresh", self.refresh)
 
+        self.FREventBind("focus",   self.focus)
 
 
     def show(self):

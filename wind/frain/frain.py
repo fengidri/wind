@@ -51,13 +51,10 @@ def get_child(Node):
 
     dirs  = sorted(black_filter_files(dirs))
 
-    def delete(leaf):
-        leaf.father.refresh()
 
     for n in names:
         p = libpath.join(path, n)
         l = frainui.Leaf(n, p, leaf_handle)
-        l.FREventBind('delete', delete)
         Node.append(l)
 
     for d in dirs:

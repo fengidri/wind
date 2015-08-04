@@ -5,7 +5,7 @@
 #    version   :   1.0.1
 from node import Node, Leaf
 from listwin import LIST
-import logging
+from pyvim import log
 import utils
 import vim
 
@@ -22,6 +22,7 @@ def handle(ev, name = None):
     """
     if not name:
         name = vim.current.buffer
+    log.debug(utils.Objects)
 
     obj = utils.Objects.get(name)
     if not obj:

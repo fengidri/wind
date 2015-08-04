@@ -30,6 +30,9 @@ set omnifunc="wind#Prompt"
 "auto CursorHoldI  * py IM('event', "CursorHoldI")
 auto CompleteDone * py IM("prompt", "done")
 
+"map  <F4>          :ProjectSync<cr>
+"map  <F6>          :Project<cr>
+
 map  <F2>          :update<cr>
 imap <F2>          <esc>:update<cr>
 map  <F7>          <esc>:MarkTo<cr>
@@ -48,7 +51,5 @@ map  <F11>         <esc>:GotoInc<cr>
 imap <C-s>         <esc>:SameWord<cr>a
 
 map  <tab>         :py IM("frainui", "focus", "frain")<CR>
-"map  <F4>          :ProjectSync<cr>
-"map  <F6>          :Project<cr>
 map *              viw""y/<C-R>0<CR>
 vnoremap /         ""y/<C-R>0<CR>
