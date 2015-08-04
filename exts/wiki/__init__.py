@@ -16,13 +16,11 @@ import requests
 import frainui
 from textohtml import html
 
-URL_INDEX   = "http://blog.fengidri.me/store/index.json"
-URL_CHAPTER = 'http://%s/store/%s/index.mkiv'            # 后缀用于临时文件的类型
-URL_PUT     = 'http://%s/fwikiapi/chapters/%s'
-URL_POST    = 'http://%s/fwikiapi/chapters'
-
-
-SERVER="blog.fengidri.me"
+SERVER      = vim.vars.get("wind_wiki_server")
+URL_INDEX   = vim.vars.get("wind_wiki_index")
+URL_CHAPTER = vim.vars.get('wind_wiki_chapter')      # 后缀用于临时文件的类型
+URL_PUT     = vim.vars.get("wind_wiki_api_chapter")
+URL_POST    = vim.vars.get("wind_wiki_api_chapters")
 
 TEXLIST = None
 
@@ -67,11 +65,11 @@ class Remote(object):
 
     def load_list(self):
         try:
-            response = urllib2.urlopen(URL_INDEX)
+            response = urllib2.urlopen(URL_INDEX % SERVER)
             info = response.read()
             info = json.loads(info)
         except:
-            pyvim.echo("load index.json fail!")
+            pyvim.echo("load index.json fail!", hl=True)
             info = {}
 
         for v in info.values():
@@ -101,7 +99,7 @@ class Remote(object):
         try:
             res = urllib2.urlopen(req).read()
         except Exception, e:
-            pyvim.echo(e)
+            pyvim.echo(e, hl=True)
             return
 
         tmp = tmpfile()
@@ -160,7 +158,7 @@ def leaf_handle(leaf):
 
 def leaf_delete(leaf):
     if not vim.vars.get('wiki_del_enable'):
-        pyvim.echo('Please let g:wiki_del_enable=1')
+        pyvim.echo('Please let g:wiki_del_enable=1', hl=True)
         return
     url = URL_PUT % (SERVER, leaf.ctx)
     res = requests.request('delete', url)
@@ -258,7 +256,7 @@ def WikiPost():
     ID_i = remote.post_tex('\n'.join(vim.current.buffer), curfile)
 
     if ID_i < 0:
-        pyvim.echo("POST error: %d" % ID)
+        pyvim.echo("POST error: %d" % ID, hl=True)
         return
 
     remote.update(ID_i, curfile)
