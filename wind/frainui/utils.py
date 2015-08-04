@@ -10,6 +10,7 @@ EVENT_BIND_TYPE_CHAIN = 1
 
 class Object(object):
     __CB = {}
+    Buffer = None
     def FREventEmit(self, event):
         evs = self.__CB.get(self)
         if not evs:
@@ -52,6 +53,9 @@ class Object(object):
 
     def FRRegister(self, name):
         Objects[name] = self
+
+    def get_input_focus(self):
+        self.Buffer.input_focus = self
 
 
 

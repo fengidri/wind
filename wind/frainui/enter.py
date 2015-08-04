@@ -11,9 +11,8 @@ class EnterLine(utils.Object):
         self.linenu = linenu
         self.b[linenu] = "%s:" % prefix
         self.col = len(prefix) + 1
+        self.Buffer = buf
 
-    def focus(self):
-        pass
 
     def input(self, key):
         pass

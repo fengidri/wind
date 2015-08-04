@@ -10,6 +10,15 @@ import utils
 import vim
 
 def inputstream(key):
+
+    obj = utils.Objects.get(vim.current.buffer)
+    if not obj:
+        return
+
+    widget = obj.input_focus
+    if widget:
+        widget.input(key)
+
     logging.error('inputstream: %s' % key)
 
 def handle(ev, name = None):

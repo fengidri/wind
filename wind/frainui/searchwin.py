@@ -3,28 +3,33 @@
 #    time      :   2015-05-21 09:30:59
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
+import os
+def getfiles(path):
+    cmd = 'cd {path}; find . {filter} 2>/dev/null'
+    fs = [
+            " -type d -name '.*' -prune -o ",
+            " -type f  ! -name '.*' -and ",
+            " -type f  ! -name '*.o' -and ",
+            " -type f  ! -name '*.so' ",
+            " -print "
+            ]
+    cmd = cmd.format(path = path, filter = ''.join(fs))
+    return os.popen(cmd).readlines()
+
+
 
 class SearchWIN(object):
-    def createwin(self):
-        vim.command("10new")
-        vim.command("set ft=frainsearch")
-        w = vim.current.window
-        b = vim.current.buffer
-        b[0] = '>>'
-        return (w, b)
+    def __init__(self):
+        import Buffer
+        import enter
+        import tree
+        self.buf = Buffer.Buffer(title = "Search", ft="frainSearch")
+        self.buf.show()
 
-class SearchApi(object):
-    def getfiles(self, path):
-        cmd = 'cd {path}; find . {filter} 2>/dev/null'
-        fs = [
-                " -type d -name '.*' -prune -o ",
-                " -type f  ! -name '.*' -and ",
-                " -type f  ! -name '*.o' -and ",
-                " -type f  ! -name '*.so' ",
-                " -print "
-                ]
-        cmd = cmd.format(path = path, filter = ''.join(fs))
-        return os.popen(cmd).readlines()
+        self.enter = enter.EnterLine(self.buf, 0, "Search:")
+        self.tree  = tree.Tree(self.buf, 2, 15) 
+
+
 
 class SearchInputWin(object):# 过滤条件的输入
     def __init__(self, w, b, select):

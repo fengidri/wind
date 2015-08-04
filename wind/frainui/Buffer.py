@@ -13,6 +13,7 @@ TOPLEFT    = "topleft"
 BOTRIGHT   = "boright"
 
 class Buffer(utils.Object):
+    buf = None
     def __init__(self, title='', position = '',
             vertical=False, width=25, height=15, ft='fraintmp'):
         self.b = None
@@ -39,6 +40,8 @@ class Buffer(utils.Object):
         self.previous = None
 
         pyvim.addevent("WinLeave", self._previous)
+        self.Buffer = self
+        self.input_focus = None
 
 
     def _previous(self):
