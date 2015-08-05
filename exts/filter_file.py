@@ -69,6 +69,7 @@ class FilterFile(object):
                 path = os.path.join(self.path, line)
                 vim.command("edit %s" % path)
                 vim.command("doautocmd BufRead")
+                vim.command("doautocmd BufEnter")
 
         #vim.command("quit")
 

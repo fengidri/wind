@@ -90,8 +90,8 @@ class Buffer(utils.Object):
 
 
 
-        cmd = "{pos} {size}{cmd} {file}".format(size = self.size,
-                cmd = self.cmd, file=self.title,
+        cmd = "{pos} {size}{cmd}".format(size = self.size,
+                cmd = self.cmd,
                 pos = self.position)
 
         vim.command(cmd)
