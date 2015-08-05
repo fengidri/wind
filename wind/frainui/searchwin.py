@@ -37,7 +37,6 @@ class SearchWIN(utils.Object):
         #import tree
         #self.tree  = tree.Tree(self.buf, 2, 15)
         self.show_list(lines)
-        self.match_id = []
 
         self.match_line = None
 
@@ -58,15 +57,11 @@ class SearchWIN(utils.Object):
 
 
         fadd = vim.Function('matchadd')
-        fdel = vim.Function('matchdelete')
-        for i in self.match_id:
-            fdel(i)
 
-        del self.match_id[:]
+        vim.command("clearmatches()")
 
         for pat in pats:
-            i = fadd('keyword', pat)
-            self.match_id.append(i)
+            fadd('keyword', pat)
 
 
     def active(self, enter):
