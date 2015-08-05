@@ -9,7 +9,7 @@ import im
 import pyvim
 import vim
 
-class EnterLineIM(im.keybase.BaseEnd)
+class EnterLineIM(im.keybase.BaseEnd):
     def cb_enter(self):
         pyvim.log.error('cb_enter')
         self.FREventEmit('enter_active')
@@ -32,8 +32,6 @@ class EnterLineIM(im.keybase.BaseEnd)
 
 class EnterLine(utils.Object):
     def __init__(self, buf, linenu, prefix = ''):
-        im.keybase.BaseEnd.__init__(self)
-
         prefix = "\\green;%s\\end;" % prefix
 
         self.buf = buf
@@ -42,7 +40,32 @@ class EnterLine(utils.Object):
         self.col = len(prefix)
 
         self.Buffer = buf
-        self.IM = EnterLine()
+        self.IM = EnterLineIM()
+        self.IM.col = self.col
+
+        self.last_content = ""
+        pyvim.addevent("CursorMovedI", self.cursor_moved, self.buf.b)
+
+    def cursor_moved(self):
+        l, c = vim.current.window.cursor
+        if self.linenu != l - 1 or c <= self.col:
+            c = len(self.buf.b[self.linenu])
+            vim.current.window.cursor = (self.linenu + 1, c)
+
+        c = self.get_content()
+        if c != self.last_content:
+            self.last_content = c
+            self.FREventEmit('change', c)
+
+
+    def get_content(self):
+        c = self.buf.b[self.linenu][self.col:]
+        pyvim.log.error("enter content: %s", c)
+
+        return self.buf.b[self.linenu][self.col:]
+
+
+
 
 
 

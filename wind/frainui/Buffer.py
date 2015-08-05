@@ -70,8 +70,6 @@ class Buffer(utils.Object):
             return vim.current.line
         return self.b[linenu]
 
-
-
     def show(self):
         """显示当前 buffer 窗口
         如果已经显示, 会 focus 到那个窗口

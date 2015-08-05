@@ -12,7 +12,7 @@ class Object(object):
     __CB = {}
     Buffer = None
     IM     = None
-    def FREventEmit(self, event):
+    def FREventEmit(self, event, *k):
         evs = self.__CB.get(self)
         if not evs:
             return
@@ -28,7 +28,7 @@ class Object(object):
             if tp == EVENT_BIND_TYPE_CHAIN:
                 fun.FREventEmit(args)
             else:
-                fun(self)
+                fun(self, *k)
 
     def FREventBind(self, event, fun, arg = None):
         # 绑定对于事件 event 的处理函数
@@ -62,6 +62,10 @@ class Object(object):
         if self.IM:
             attr_nm = "im_%s" % tp
             getattr(self.IM, attr_nm)(key)
+            self.im_post()
+
+    def im_post(self):
+        pass
 
 
 

@@ -19,7 +19,6 @@ def inputstream(tp, key):
     if widget:
         widget.FRIM(tp, key)
 
-    log.error('inputstream: %s' % key)
 
 def handle(ev, name = None):
     # 目前这种 UI 事件的方式并不好.
