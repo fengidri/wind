@@ -5,6 +5,7 @@
 #    version   :   1.0.1
 from node import Node, Leaf
 from listwin import LIST
+from searchwin import SearchWIN
 from pyvim import log
 import utils
 import vim
@@ -16,9 +17,9 @@ def inputstream(tp, key):
 
     widget = obj.input_focus
     if widget:
-        getattr(widget, attr_nm)(key)
+        widget.FRIM(tp, key)
 
-    logging.error('inputstream: %s' % key)
+    log.error('inputstream: %s' % key)
 
 def handle(ev, name = None):
     # 目前这种 UI 事件的方式并不好.

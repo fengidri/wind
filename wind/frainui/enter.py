@@ -6,13 +6,45 @@
 
 import utils
 import im
-class EnterLine(utils.Object, im.keybase.BaseEnd):
+import pyvim
+import vim
+
+class EnterLineIM(im.keybase.BaseEnd)
+    def cb_enter(self):
+        pyvim.log.error('cb_enter')
+        self.FREventEmit('enter_active')
+        return True
+
+    def cb_backspace(self):
+        pyvim.log.error('cb_bs')
+        l, c = vim.current.window.cursor
+
+        if c == self.col:
+            pass
+
+        elif c < self.col:
+            vim.current.window.cursor = (l, self.col)
+
+        else:
+            im.imrc.feedkeys('\<bs>')
+        return True
+
+
+class EnterLine(utils.Object):
     def __init__(self, buf, linenu, prefix = ''):
-        self.b = buf
+        im.keybase.BaseEnd.__init__(self)
+
+        prefix = "\\green;%s\\end;" % prefix
+
+        self.buf = buf
         self.linenu = linenu
-        self.b[linenu] = "%s:" % prefix
-        self.col = len(prefix) + 1
+        self.buf.b[linenu] = prefix
+        self.col = len(prefix)
+
         self.Buffer = buf
+        self.IM = EnterLine()
+
+
 
 
 
