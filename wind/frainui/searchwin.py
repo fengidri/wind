@@ -5,22 +5,23 @@
 #    version   :   1.0.1
 import os
 import pyvim
-def getfiles(path):
-    cmd = 'cd {path}; find . {filter} 2>/dev/null'
-    fs = [
-            " -type d -name '.*' -prune -o ",
-            " -type f  ! -name '.*' -and ",
-            " -type f  ! -name '*.o' -and ",
-            " -type f  ! -name '*.so' ",
-            " -print "
-            ]
-    cmd = cmd.format(path = path, filter = ''.join(fs))
-    return os.popen(cmd).readlines()
+import utils
+import vim
+
+def match_lines(pats, lines):
+    tmp = []
+    for line in lines:
+        for pat in pats:
+            if not pat in line:
+                break
+        else:
+            tmp.append(line)
+    return tmp
 
 
 
-class SearchWIN(object):
-    def __init__(self):
+class SearchWIN(utils.Object):
+    def __init__(self, lines):
         import Buffer
         import enter
         self.buf = Buffer.Buffer(title = "Search", ft="frainuiSearch")
@@ -29,11 +30,55 @@ class SearchWIN(object):
         self.enter = enter.EnterLine(self.buf, 0, "Search:")
         self.enter.FRInputFocus()
         self.enter.FREventBind("change", self.enter_change)
+        self.enter.FREventBind("active", self.active)
+        self.enter.FREventBind("quit", self.quit)
+
+        self.lines = lines
         #import tree
         #self.tree  = tree.Tree(self.buf, 2, 15)
+        self.show_list(lines)
+        self.match_id = []
+
+        self.match_line = None
+
+    def show_list(self, lines, num=15):
+        num = min(len(lines), num)
+        for i in range(0, num):
+            line = lines[i]
+            self.buf.b.append(line, 1)
+
 
     def enter_change(self, enter, c):
-        pyvim.log.error("enter_change: %s", c)
+
+        pats = c.split()
+        lines = match_lines(pats, self.lines)
+        del self.buf.b[1:]
+
+        self.show_list(lines)
+
+
+        fadd = vim.Function('matchadd')
+        fdel = vim.Function('matchdelete')
+        for i in self.match_id:
+            fdel(i)
+
+        del self.match_id[:]
+
+        for pat in pats:
+            i = fadd('keyword', pat)
+            self.match_id.append(i)
+
+
+    def active(self, enter):
+        self.match_line = self.buf.b[1]
+
+    def quit(self, enter):
+        self.FREventEmit('quit', self.match_line)
+
+
+
+
+
 
 
 

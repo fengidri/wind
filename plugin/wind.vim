@@ -49,7 +49,7 @@ vmap w=            <esc>:silent Align<cr>
 imap <F11>         <esc>:GotoInc<cr>
 map  <F11>         <esc>:GotoInc<cr>
 imap <C-s>         <esc>:SameWord<cr>a
-
 map  <tab>         :py IM("frainui", "focus", "frain")<CR>
 map *              viw""y/<C-R>0<CR>
 vnoremap /         ""y/<C-R>0<CR>
+map gf             :FileFilter<cr>

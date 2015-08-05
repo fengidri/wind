@@ -43,7 +43,8 @@ input_post = _input_post( )
 
 @pyvim.event("CursorMovedI")
 def run():
-    input_post.input_post(  )
+    if vim.current.buffer.options['buftype'] == '':
+        input_post.input_post()
 
 #@pyvim.event("CursorMoved")
 #def run():

@@ -167,6 +167,8 @@ class FrainList(Events):
 
     def bufnewfile(self):
         path = vim.current.buffer.name
+        if vim.current.buffer.options['buftype'] != '':
+            return
         dirname = os.path.dirname(path)
         basename = os.path.basename(path)
         if BufNewFile.get(dirname):

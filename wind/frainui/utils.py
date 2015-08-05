@@ -26,7 +26,7 @@ class Object(object):
             args = cb["arg"]
             tp   = cb["type"]
             if tp == EVENT_BIND_TYPE_CHAIN:
-                fun.FREventEmit(args)
+                fun.FREventEmit(args, *k)
             else:
                 fun(self, *k)
 

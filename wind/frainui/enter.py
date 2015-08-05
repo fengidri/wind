@@ -11,19 +11,19 @@ import vim
 
 class EnterLineIM(im.keybase.BaseEnd):
     def cb_enter(self):
-        pyvim.log.error('cb_enter')
-        self.FREventEmit('enter_active')
+        self.enter.FREventEmit('active')
+        im.imrc.feedkeys('\<esc>')
         return True
 
     def cb_backspace(self):
         pyvim.log.error('cb_bs')
         l, c = vim.current.window.cursor
 
-        if c == self.col:
+        if c == self.enter.col:
             pass
 
-        elif c < self.col:
-            vim.current.window.cursor = (l, self.col)
+        elif c < self.enter.col:
+            vim.current.window.cursor = (l, self.enter.col)
 
         else:
             im.imrc.feedkeys('\<bs>')
@@ -32,25 +32,44 @@ class EnterLineIM(im.keybase.BaseEnd):
 
 class EnterLine(utils.Object):
     def __init__(self, buf, linenu, prefix = ''):
-        prefix = "\\green;%s\\end;" % prefix
 
         self.buf = buf
         self.linenu = linenu
-        self.buf.b[linenu] = prefix
+
+
+        #prefix = "\\red;%s\\end;" % prefix
+
         self.col = len(prefix)
+
+        vim.Function("matchaddpos")("TODO", [[1, 1, self.col]], 11)
+
+        self.buf.b[linenu] = "%s " % prefix
+
+        self.prefix_len = len(prefix)
 
         self.Buffer = buf
         self.IM = EnterLineIM()
-        self.IM.col = self.col
+        self.IM.enter = self
 
         self.last_content = ""
+
         pyvim.addevent("CursorMovedI", self.cursor_moved, self.buf.b)
+        pyvim.addevent("InsertLeave", self.quit, self.buf.b)
+
+        vim.current.window.cursor = (1, 999)
+        vim.command("startinsert!")
+
+    def quit(self):
+        self.FREventEmit('quit')
 
     def cursor_moved(self):
         l, c = vim.current.window.cursor
-        if self.linenu != l - 1 or c <= self.col:
-            c = len(self.buf.b[self.linenu])
-            vim.current.window.cursor = (self.linenu + 1, c)
+
+        #pyvim.log.error("%s %s %s %s", self.linenu, self.col, l, c)
+
+        #if self.linenu != l - 1 or c <= self.col:
+        #    c = len(self.buf.b[self.linenu])
+        #    vim.current.window.cursor = (self.linenu + 1, c)
 
         c = self.get_content()
         if c != self.last_content:
@@ -59,10 +78,10 @@ class EnterLine(utils.Object):
 
 
     def get_content(self):
-        c = self.buf.b[self.linenu][self.col:]
+        c = self.buf.b[self.linenu][self.prefix_len:]
         pyvim.log.error("enter content: %s", c)
 
-        return self.buf.b[self.linenu][self.col:]
+        return self.buf.b[self.linenu][self.col:].strip()
 
 
 
