@@ -62,11 +62,13 @@ class FilterFile(object):
 
         count = vim.current.window.number
         vim.current.window = self.edit_win
-        vim.command("%swincmd q" % count)
-        if line:
-            path = os.path.join(self.path, line)
-            vim.command("edit %s" % path)
-            vim.command("doautocmd BufRead")
+        if self.edit_win.valid:
+            vim.command("%swincmd q" % count)
+
+            if line:
+                path = os.path.join(self.path, line)
+                vim.command("edit %s" % path)
+                vim.command("doautocmd BufRead")
 
         #vim.command("quit")
 
