@@ -58,7 +58,7 @@ class SearchWIN(utils.Object):
 
         fadd = vim.Function('matchadd')
 
-        vim.command("clearmatches()")
+        vim.command("call clearmatches()")
 
         for pat in pats:
             fadd('keyword', pat)
@@ -69,6 +69,7 @@ class SearchWIN(utils.Object):
 
     def quit(self, enter):
         self.FREventEmit('quit', self.match_line)
+        self.buf.delete()
 
 
 

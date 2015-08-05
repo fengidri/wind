@@ -53,11 +53,13 @@ class EnterLine(utils.Object):
 
         self.last_content = ""
 
-        pyvim.addevent("CursorMovedI", self.cursor_moved, self.buf.b)
-        pyvim.addevent("InsertLeave", self.quit, self.buf.b)
+        self.handle1 = pyvim.addevent("CursorMovedI", self.cursor_moved, self.buf.b)
+        self.handle2 = pyvim.addevent("InsertLeave", self.quit, self.buf.b)
 
         vim.current.window.cursor = (1, 999)
         vim.command("startinsert!")
+
+        pyvim.log.error("enter init: %s", id(self.buf.b))
 
     def quit(self):
         self.FREventEmit('quit')

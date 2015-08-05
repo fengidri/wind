@@ -34,11 +34,12 @@ def getfiles(path):
             if f[0] == '.':
                 continue
 
-            if f.endswith('.o'):
-                continue
+            suffix = f.split('.')
+            if len(suffix) > 1:
+                suffix = suffix[-1]
+                if suffix in ['o', 'so', 'pyc', 'lo']:
+                    continue
 
-            if f.endswith('.so'):
-                continue
             f = os.path.join(root, f)
             lines.append(f[lenght:])
     return lines

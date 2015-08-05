@@ -13,7 +13,6 @@ TOPLEFT    = "topleft"
 BOTRIGHT   = "boright"
 
 class Buffer(utils.Object):
-    buf = None
     def __init__(self, title='', position = '',
             vertical=False, width=25, height=15, ft='fraintmp'):
         self.b = None
@@ -40,6 +39,7 @@ class Buffer(utils.Object):
         self.previous = None
 
         pyvim.addevent("WinLeave", self._previous)
+
         self.Buffer = self
         self.input_focus = None
 
@@ -69,6 +69,12 @@ class Buffer(utils.Object):
         if not linenu:
             return vim.current.line
         return self.b[linenu]
+
+    def delete(self):
+        pyvim.log.error('@@@@@@@@@@@@@delete Buffer: %s' % id(self.b))
+        vim.command("bunload %s"% self.b.number)
+        vim.command("bdelete %s"% self.b.number)
+        self.b = None
 
     def show(self):
         """显示当前 buffer 窗口
@@ -109,6 +115,7 @@ class Buffer(utils.Object):
 
             self.b = vim.current.buffer
             utils.Objects[self.b] = self
+            pyvim.log.error('@@@@@@@@@@@@new Buffer: %s' % id(self.b))
 
 
 
