@@ -40,6 +40,7 @@ class SearchWIN(utils.Object):
         self.show_list(lines)
 
         self.match_line = None
+        self.match_id = []
 
     def show_list(self, lines, num=15):
         num = min(len(lines), num)
@@ -57,12 +58,20 @@ class SearchWIN(utils.Object):
         self.show_list(lines)
 
 
-        fadd = vim.Function('matchadd')
 
-        vim.command("call clearmatches()")
+        fadd = vim.Function('matchadd')
+        fdel = vim.Function('matchdelete')
+        for i in self.match_id:
+            try:
+                fdel(i)
+            except:
+                pass
+
+        del self.match_id[:]
 
         for pat in pats:
-            fadd('keyword', pat)
+            i = fadd('keyword', pat)
+            self.match_id.append(i)
 
 
     def active(self, enter):
