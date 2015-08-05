@@ -87,6 +87,9 @@ class EnterLine(utils.Object):
 
 
 
+    def delete(self):
+        pyvim.delevent(self.handle1)
+        pyvim.delevent(self.handle2)
 
 
 

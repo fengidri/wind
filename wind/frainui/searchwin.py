@@ -28,10 +28,11 @@ class SearchWIN(utils.Object):
         self.buf.show()
 
         self.enter = enter.EnterLine(self.buf, 0, "Search:")
-        self.enter.FRInputFocus()
         self.enter.FREventBind("change", self.enter_change)
         self.enter.FREventBind("active", self.active)
         self.enter.FREventBind("quit", self.quit)
+
+        self.enter.FRInputFocus()
 
         self.lines = lines
         #import tree
@@ -70,6 +71,7 @@ class SearchWIN(utils.Object):
     def quit(self, enter):
         self.FREventEmit('quit', self.match_line)
         self.buf.delete()
+        self.enter.delete()
 
 
 
