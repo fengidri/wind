@@ -9,12 +9,13 @@
 Objects = {}
 
 class Object(object):
-    __CB = {}
     Buffer = None
     IM     = None # 要处理输入流的对象应该提供这个属性
     def FREventEmit(self, event, *k):
+        if not hasattr(self, '_CB_'):
+            return
         try:
-            cbs = Object.__CB.get(self).get(event, [])
+            cbs = self._CB_.get(self).get(event, [])
         except:
             return
 
@@ -22,10 +23,13 @@ class Object(object):
             cb(self, *k)
 
     def FREventBind(self, event, cb):
-        evs = self.__CB.get(self)
+        if not hasattr(self, '_CB_'):
+            self._CB_ = {}
+
+        evs = self._CB_.get(self)
 
         if not evs:
-            evs = self.__CB[self] = {}
+            evs = self._CB_[self] = {}
 
         funs = evs.get(event)
         if funs:
