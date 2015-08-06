@@ -6,7 +6,7 @@
 
 import os
 import pyvim
-from frainui import SearchWIN
+from frainui import Search
 import vim
 
 def ctag(filename):
@@ -35,32 +35,21 @@ class tag_filter(object):
     def __init__(self):
         tag_filter.INSTANCE = self
 
-        self.edit_win = vim.current.window
-
         vim.command('update')
-        self.tags = ctag(self.edit_win.buffer.name)
+        self.tags = ctag(vim.current.buffer.name)
 
-        self.win = SearchWIN(self.tags.keys())
+        self.win = Search(self.tags.keys())
 
         self.win.FREventBind("quit", self.quit)
-
-        self.search_win = vim.current.window
 
 
     def quit(self, win, line):
         tag_filter.INSTANCE = None
-
-
-        vim.current.window = self.edit_win
-
-        if self.search_win.valid:
-            vim.command("%swincmd q" % self.search_win.number)
-
-            if line:
-                linenu = self.tags.get(line)
-                if linenu:
-                    pyvim.log.info("i got : %s %s", line, linenu)
-                    vim.current.window.cursor = (linenu, 0)
+        if line:
+            linenu = self.tags.get(line)
+            if linenu:
+                pyvim.log.info("i got : %s %s", line, linenu)
+                vim.current.window.cursor = (linenu, 0)
 
 
 @pyvim.cmd()

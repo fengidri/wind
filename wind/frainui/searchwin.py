@@ -32,29 +32,6 @@ def match_lines(pats, ng_pats, lines, mx = None):
 
 
 class SearchWIN(utils.Object):
-    def __init__(self, lines):
-        import Buffer
-        import enter
-        self.buf = Buffer.Buffer(title = "Search", ft="frainuiSearch")
-        self.buf.show()
-
-        self.enter = enter.EnterLine(self.buf, 0, "Search:")
-        self.enter.FREventBind("change", self.enter_change)
-        self.enter.FREventBind("active", self.active)
-        self.enter.FREventBind("quit", self.quit)
-
-        self.enter.FRInputFocus()
-
-        self.lines = lines
-        #import tree
-        #self.tree  = tree.Tree(self.buf, 2, 15)
-        self.show_list(lines)
-
-        self.match_line = None
-        self.match_id = []
-
-
-
     def enter_change(self, enter, c):
         if c.find(';') > -1:
             return
@@ -112,11 +89,36 @@ class SearchWIN(utils.Object):
         self.match_line = self.buf.b[num]
 
     def quit(self, enter):
-        self.FREventEmit('quit', self.match_line)
+        vim.current.window = self.edit_win
+        self.FREventEmit("quit", self.match_line)
         self.buf.delete()
         self.enter.delete()
 
 
+
+class Search(SearchWIN):
+    def __init__(self, lines):
+        import Buffer
+        import enter
+        self.edit_win = vim.current.window
+
+        self.buf = Buffer.Buffer(title = "Search", ft="frainuiSearch")
+        self.buf.show()
+
+        self.enter = enter.EnterLine(self.buf, 0, "Search:")
+        self.enter.FREventBind("change", self.enter_change)
+        self.enter.FREventBind("active", self.active)
+        self.enter.FREventBind("quit", self.quit)
+
+        self.enter.FRInputFocus()
+
+        self.lines = lines
+        #import tree
+        #self.tree  = tree.Tree(self.buf, 2, 15)
+        self.show_list(lines)
+
+        self.match_line = None
+        self.match_id = []
 
 
 

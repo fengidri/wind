@@ -6,7 +6,7 @@
 
 import os
 import pyvim
-from frainui import SearchWIN
+from frainui import Search
 import vim
 
 def getfiles(path):
@@ -31,43 +31,34 @@ def getfiles(path):
     return lines
 
 
-class Filefilter(object):
+
+class file_filter(object):
     INSTANCE = None
     def __init__(self, path):
-        Filefilter.INSTANCE = self
-
-        self.edit_win = vim.current.window
+        file_filter.INSTANCE = self
 
         self.path = path
 
-        self.win = SearchWIN(getfiles(path))
+        self.win = Search(getfiles(path))
         self.win.FREventBind("quit", self.quit)
-
-        self.search_win = vim.current.window
 
 
     def quit(self, win, line):
-        Filefilter.INSTANCE = None
+        file_filter.INSTANCE = None
 
+        if line:
+            path = os.path.join(self.path, line)
+            pyvim.log.info("i got : %s", path)
 
-        vim.current.window = self.edit_win
+            vim.command("update")
+            vim.command("edit %s" % path)
+            vim.command("doautocmd BufRead")
+            vim.command("doautocmd BufEnter")
 
-        if self.search_win.valid:
-            vim.command("%swincmd q" % self.search_win.number)
-
-            if line:
-                path = os.path.join(self.path, line)
-
-                pyvim.log.info("i got : %s", path)
-
-                vim.command("update")
-                vim.command("edit %s" % path)
-                vim.command("doautocmd BufRead")
-                vim.command("doautocmd BufEnter")
 
 @pyvim.cmd()
 def FileFilter():
-    if Filefilter.INSTANCE:
+    if file_filter.INSTANCE:
         return
 
     name = vim.current.buffer.name
@@ -85,7 +76,7 @@ def FileFilter():
         return
 
     if root:
-        Filefilter(root)
+        file_filter(root)
 
 
 if __name__ == "__main__":

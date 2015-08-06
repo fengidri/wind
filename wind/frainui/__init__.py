@@ -5,7 +5,7 @@
 #    version   :   1.0.1
 from node import Node, Leaf
 from listwin import LIST
-from searchwin import SearchWIN
+from searchwin import Search
 from pyvim import log
 import utils
 import vim
