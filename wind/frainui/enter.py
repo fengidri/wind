@@ -16,7 +16,6 @@ class EnterLineIM(im.keybase.BaseEnd):
         return True
 
     def cb_backspace(self):
-        pyvim.log.error('cb_bs')
         l, c = vim.current.window.cursor
 
         if c == self.enter.col:
@@ -76,7 +75,7 @@ class EnterLine(utils.Object):
 
     def get_text(self):
         c = self.Buffer.b[self.linenu][self.prefix_len:]
-        pyvim.log.error("enter content: %s", c)
+        pyvim.log.info("enter content: %s", c)
 
         return self.Buffer.b[self.linenu][self.col:].strip()
 

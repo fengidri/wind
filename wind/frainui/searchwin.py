@@ -9,7 +9,6 @@ import utils
 import vim
 
 def match_lines(pats, ng_pats, lines, mx = None):
-    pyvim.log.error("%s %s", pats, ng_pats)
     tmp = []
     index = 0
     if mx == None:

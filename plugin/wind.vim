@@ -53,3 +53,4 @@ map  <tab>         :py IM("frainui", "focus", "frain")<CR>
 map *              viw""y/<C-R>0<CR>
 vnoremap /         ""y/<C-R>0<CR>
 map gf             :FileFilter<cr>
+map gt             :TagFilter<cr>
