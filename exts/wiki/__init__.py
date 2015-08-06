@@ -114,7 +114,7 @@ class Remote(object):
             try:
                 j['html'] = html(buf = tex)
             except Exception, e:
-                pyvim.echo(e, hl=True)
+                pyvim.echo(str(e), hl=True)
                 return
 
         ID = self.get_id_by_name(name)

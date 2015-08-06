@@ -11,7 +11,7 @@ def FSearch(sel = False):
     else:
         word = pyvim.select()
         word = word.replace("'", "\\'")
-    pyvim.log.error(">%s", word)
+    pyvim.log.error(": %s", word)
 
     filter = ''
 
@@ -20,6 +20,7 @@ def FSearch(sel = False):
     if not command:
         return
 
+    pyvim.log.error("search cmd: %s", command)
     f_popen = os.popen(command)
     lines = f_popen.readlines()
     if lines:
@@ -72,7 +73,7 @@ def context(word, filter=""):
     cmd = "cd {dirname};grep -RHn --binary-file=without-match "\
             "{include} '{word}' {target} "
 
-    cmd.format( dirname = dirname, include = include, word    = word,
+    cmd = cmd.format( dirname = dirname, include = include, word    = word,
             target  = target,)
 
     return cmd, dirname
