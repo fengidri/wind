@@ -64,8 +64,6 @@ class BasePass(object):
         else:
             return False
 
-    def im_event(self, ev):
-        return False
 
     im_digit = im_upper = im_lower = output
     im_punc  = im_mult  = run_handle

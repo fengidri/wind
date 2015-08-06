@@ -11,23 +11,22 @@ import utils
 import vim
 
 def inputstream(tp, key):
+    # 处理从 IM Stream 过来的输入流
+    # 输入流必然会进入 Buffer 对象
     obj = utils.Objects.get(vim.current.buffer)
     if not obj:
         return
 
     widget = obj.input_focus
-    if widget:
-        widget.FRIM(tp, key)
+    if widget and widget.IM:
+        getattr(widget.IM, tp)(key)
 
 
 def handle(ev, name = None):
-    # 目前这种 UI 事件的方式并不好.
-    # 后期应该通过判断用户在哪一个 ui object 里输入, 即把输入流引入到这个
-    # ui object. 由这个 object 自己完成对于 key event 的处理.
-    """
-        @paser: name ui object name
-        @ev:    method of the object
-    """
+    #处理由 IM 触发的事件
+    # 在不指定 name 的情况下, 会把事件传递给当前的 buffer
+    # 所以多大情况下, 在 Buffer 对象会是 widget 的事件代理.
+
     if not name:
         name = vim.current.buffer
     log.debug(utils.Objects)
@@ -36,5 +35,6 @@ def handle(ev, name = None):
     if not obj:
         return
 
+    # 由 IM 触发 object 的事件
     obj.FREventEmit(ev)
 

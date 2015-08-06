@@ -12,6 +12,29 @@ RIGHTBELOW = "rightbelow"
 TOPLEFT    = "topleft"
 BOTRIGHT   = "boright"
 
+class options(object):
+    def get_cursor(self):
+        return self.w.cursor
+
+    def set_cursor(self, cursor):
+        self.w.cursor = cursor
+
+    cursor = property(get_cursor, set_cursor)
+
+    def is_focus(self):
+        return vim.current.window == self.w
+
+    def clear(self):
+        del self.b[:]
+
+    def linenu(self):
+        return len(self.b)
+
+    def getline(self, linenu = None):
+        if not linenu:
+            return vim.current.line
+        return self.b[linenu]
+
 class Buffer(utils.Object):
     def __init__(self, title='',
             position = '',
@@ -43,30 +66,9 @@ class Buffer(utils.Object):
         self.Buffer = self
         self.input_focus = None
 
-    def get_cursor(self):
-        return self.w.cursor
 
-    def set_cursor(self, cursor):
-        self.w.cursor = cursor
-
-    cursor = property(get_cursor, set_cursor)
-
-    def is_focus(self):
-        return vim.current.window == self.w
-
-    def clear(self):
-        del self.b[:]
-
-    def linenu(self):
-        return len(self.b)
-
-    def getline(self, linenu = None):
-        if not linenu:
-            return vim.current.line
-        return self.b[linenu]
 
     def delete(self):
-        pyvim.log.error('@@@@@@@@@@@@@delete Buffer: %s' % id(self.b))
         vim.command("bunload %s"% self.b.number)
 #        vim.command("bdelete %s"% self.b.number)
         self.b = None
@@ -101,8 +103,6 @@ class Buffer(utils.Object):
 
             self.FREventEmit("BufNew")
 
-            #if self.Buf_New_Hook:
-            #    self.Buf_New_Hook()
 
             if self.Buf_Close_Hook:
                # pyvim.addevent('BufUnload', self.close_hook, '<buffer>')
@@ -110,7 +110,6 @@ class Buffer(utils.Object):
 
             self.b = vim.current.buffer
             utils.Objects[self.b] = self
-            pyvim.log.error('@@@@@@@@@@@@new Buffer: %s' % id(self.b))
 
 
 

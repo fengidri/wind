@@ -65,13 +65,11 @@ def Init():
 
 def call(handles, tp, key):
     for handle in handles:
-        attr_nm = "im_%s" % tp
-        getattr(handle, attr_nm)(key)
+        getattr(handle, tp)(key)
 
 def handle(tp, key):
-    """
-       重定向处理
-    """
+    tp = "im_%s" % tp
+
     if env.ft.startswith('frainui'):
         frainui.inputstream(tp, key)
         return

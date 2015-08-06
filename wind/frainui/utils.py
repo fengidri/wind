@@ -4,42 +4,24 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
+#    对于 object 进行记录. 一般的 object 要用 name 进行注册
+#    Buffer object 使用 vim.buffer 对象进行注册
 Objects = {}
-EVENT_BIND_TYPE_NORMAL = 0
-EVENT_BIND_TYPE_CHAIN = 1
 
 class Object(object):
     __CB = {}
     Buffer = None
-    IM     = None
+    IM     = None # 要处理输入流的对象应该提供这个属性
     def FREventEmit(self, event, *k):
-        evs = self.__CB.get(self)
-        if not evs:
-            return
-
-        cbs = evs.get(event)
-        if not cbs:
+        try:
+            cbs = Object.__CB.get(self).get(event, [])
+        except:
             return
 
         for cb in cbs:
-            fun  = cb["fun"]
-            args = cb["arg"]
-            tp   = cb["type"]
-            if tp == EVENT_BIND_TYPE_CHAIN:
-                fun.FREventEmit(args, *k)
-            else:
-                fun(self, *k)
+            cb(self, *k)
 
-    def FREventBind(self, event, fun, arg = None):
-        # 绑定对于事件 event 的处理函数
-        """
-
-        """
-        tp = EVENT_BIND_TYPE_NORMAL
-        if isinstance(fun, Object):
-            tp = EVENT_BIND_TYPE_NORMAL
-
-        cb = {"fun": fun, "arg": arg, "type": tp}
+    def FREventBind(self, event, cb):
         evs = self.__CB.get(self)
 
         if not evs:
@@ -53,20 +35,12 @@ class Object(object):
 
 
     def FRRegister(self, name):
+        # let all
         Objects[name] = self
 
     def FRInputFocus(self):
+        # set the focus in the is self
         self.Buffer.input_focus = self
-
-    def FRIM(self, tp, key):
-        if self.IM:
-            attr_nm = "im_%s" % tp
-            getattr(self.IM, attr_nm)(key)
-            self.im_post()
-
-    def im_post(self):
-        pass
-
 
 
 
