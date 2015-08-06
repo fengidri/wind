@@ -52,8 +52,6 @@ class file_filter(object):
 
             vim.command("update")
             vim.command("edit %s" % path)
-            vim.command("doautocmd BufRead")
-            vim.command("doautocmd BufEnter")
 
 
 @pyvim.cmd()

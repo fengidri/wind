@@ -88,12 +88,15 @@ class SearchWIN(utils.Object):
                     num = 1
 
         self.match_line = self.buf.b[num]
+        # 进入异步模式
         im.imrc.feedkeys(":py IM('frainui', 'vimquit', '%s')\<cr>" % self.name)
 
 
     def quit(self, enter):
         vim.current.window = self.edit_win
+
         self.FREventEmit("quit", self.match_line)
+
         self.buf.delete()
         self.enter.delete()
 
@@ -114,6 +117,7 @@ class Search(SearchWIN):
         self.enter = enter.EnterLine(self.buf, 0, "Search:")
         self.enter.FREventBind("change", self.enter_change)
         self.enter.FREventBind("active", self.active)
+
         self.FREventBind("vimquit", self.quit)
 
         self.enter.FRInputFocus()
