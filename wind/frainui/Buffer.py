@@ -62,15 +62,11 @@ class Buffer(utils.Object, options):
             self.size = self.height
             self.cmd = "new"
 
-        self.previous = None
         self.Buffer = self
         self.input_focus = None
 
-
-
     def delete(self):
-        vim.command("bunload %s"% self.b.number)
-#        vim.command("bdelete %s"% self.b.number)
+        vim.command("bdelete %s"% self.b.number)
         self.b = None
 
     def show(self):
