@@ -24,12 +24,12 @@ formatter = logging.Formatter(
 handlers.setFormatter(formatter)
 
 log = logging.getLogger("wind")
-#log.setLevel(logging.INFO)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
+#log.setLevel(logging.DEBUG)
 log.addHandler(handlers)
 
 
-log.error(">>>>>>>>>>>>>>> VIM Start<<<<<<<<<<<<<")
+log.error(">>>>>>>>>>>>>>> VIM Start <<<<<<<<<<<<<")
 
 def excepthook(type, value, trace):
     if type == KeyboardInterrupt:

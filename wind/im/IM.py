@@ -35,7 +35,7 @@ def IM(*args):
        tp 可以是 digit, upper, lower, punc, mult 也可以是 event
     """
     cls = args[0]
-    log.debug('------------------- %s -----------------------', args)
+    log.debug('IM >>>> %s <<<<', args)
     emit_event('start')
 
     handle = RouteMap.get(cls)

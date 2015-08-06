@@ -35,7 +35,7 @@ class options(object):
             return vim.current.line
         return self.b[linenu]
 
-class Buffer(utils.Object):
+class Buffer(utils.Object, options):
     def __init__(self, title='',
             position = '',
             vertical=False,

@@ -75,7 +75,7 @@ def handle(tp, key):
         return
 
     if pyvim.pumvisible():
-        if getattr(__Handles.get("prompt"), 'im_%s' % tp)(key):
+        if getattr(__Handles.get("prompt"), tp)(key):
             return
 
     name_list = Redirect().getcur('stream')
@@ -86,7 +86,7 @@ def handle(tp, key):
             handle_list.append(h)
 
     call(handle_list, tp, key)
-    getattr(__Handles.get("activeprompt"), 'im_%s' % tp)(key)
+    getattr(__Handles.get("activeprompt"), tp)(key)
  #   call(__Handles"activeprompt", tp, key)
 
 if __name__ == "__main__":
