@@ -11,8 +11,8 @@ import vim
 
 class EnterLineIM(im.keybase.BaseEnd):
     def cb_enter(self):
-        self.enter.FREventEmit('active')
         im.imrc.feedkeys('\<esc>')
+        self.enter.FREventEmit('active')
         return True
 
     def cb_backspace(self):
@@ -56,7 +56,8 @@ class EnterLine(utils.Object):
         vim.command("startinsert!")
 
     def quit(self):
-        self.FREventEmit('quit')
+        pass
+        #self.FREventEmit('quit')
 
     def cursor_moved(self):
         l, c = vim.current.window.cursor

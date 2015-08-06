@@ -7,6 +7,7 @@ import os
 import pyvim
 import utils
 import vim
+import im
 
 def match_lines(pats, ng_pats, lines, mx = None):
     tmp = []
@@ -87,6 +88,8 @@ class SearchWIN(utils.Object):
                     num = 1
 
         self.match_line = self.buf.b[num]
+        im.imrc.feedkeys(":py IM('frainui', 'vimquit', '%s')\<cr>" % self.name)
+
 
     def quit(self, enter):
         vim.current.window = self.edit_win
@@ -97,9 +100,12 @@ class SearchWIN(utils.Object):
 
 
 class Search(SearchWIN):
-    def __init__(self, lines):
+    def __init__(self, lines, name='search'):
         import Buffer
         import enter
+
+        self.FRRegister(name)
+        self.name = name
         self.edit_win = vim.current.window
 
         self.buf = Buffer.Buffer(title = "Search", ft="frainuiSearch")
@@ -108,7 +114,7 @@ class Search(SearchWIN):
         self.enter = enter.EnterLine(self.buf, 0, "Search:")
         self.enter.FREventBind("change", self.enter_change)
         self.enter.FREventBind("active", self.active)
-        self.enter.FREventBind("quit", self.quit)
+        self.FREventBind("vimquit", self.quit)
 
         self.enter.FRInputFocus()
 
