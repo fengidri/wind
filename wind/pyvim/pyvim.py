@@ -9,6 +9,17 @@ import os
 import logging
 log = logging.getLogger("wind")
 
+import plugin
+
+
+__previous = None
+def previous():
+    return __previous
+
+@plugin.event("WinLeave")
+def _previous():
+    global __previous
+    __previous = vim.current.window
 
 def origin_win( ):
     vim.command( "wincmd p")

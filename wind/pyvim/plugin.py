@@ -6,7 +6,8 @@
 from events import EventNames
 import os
 import vim
-from pyvim import log as logging
+import logging
+log = logging.getLogger("wind")
 
 class complete(object):
     augroup       = "augroup"               # autocmd groups

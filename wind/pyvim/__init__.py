@@ -9,7 +9,6 @@ Pyvim is a lib for ext and other modules.
 
 from plugin import *
 from pyvim import *
-import pyvim
 
 Roots = [] # 当前在编辑中的文件的根目录
 

@@ -6,6 +6,7 @@
 
 from pyvim import log as logging
 import vim
+import pyvim
 import utils
 
 class Item(utils.Object):# Node与Leaf 的父类
@@ -225,12 +226,9 @@ class Leaf(Item):
         return "%s %s<|>%s" % ("  " * (self.level  -1), dp, self.ID)
 
     def _open(self):#TODO
-        if not self.lswin.previous:
-            return
-
         linenu = self.getlinenu()
 
-        vim.current.window = self.lswin.previous
+        vim.current.window = pyvim.previous()
         if self.lswin.is_focus():
             return
 

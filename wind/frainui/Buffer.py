@@ -13,21 +13,23 @@ TOPLEFT    = "topleft"
 BOTRIGHT   = "boright"
 
 class Buffer(utils.Object):
-    def __init__(self, title='', position = '',
-            vertical=False, width=25, height=15, ft='fraintmp'):
+    def __init__(self, title='',
+            position = '',
+            vertical=False,
+            width=25,
+            height=15,
+            ft='fraintmp'):
+
         self.b = None
         self.w = None
 
         self.title = title
         self.Buf_Close_Hook = None
-        self.Buf_New_Hook = None
 
-        self.ft = ft
-
-        self.width = width
-        self.height = height
+        self.ft       = ft
+        self.width    = width
+        self.height   = height
         self.position = position
-
         self.vertical = vertical
 
         if self.vertical:
@@ -36,17 +38,10 @@ class Buffer(utils.Object):
         else:
             self.size = self.height
             self.cmd = "new"
+
         self.previous = None
-
-        pyvim.addevent("WinLeave", self._previous)
-
         self.Buffer = self
         self.input_focus = None
-
-
-    def _previous(self):
-        self.previous = vim.current.window
-
 
     def get_cursor(self):
         return self.w.cursor
