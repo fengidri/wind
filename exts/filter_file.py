@@ -29,7 +29,7 @@ def getfiles(path):
     if path[-1] != '/':
         lenght += 1
     for root, ds, fs  in os.walk(path):
-        ds = [d for d in ds if d[0] != '.']
+        ds[:] = [d for d in ds if d[0] != '.']
         for f in fs:
             if f[0] == '.':
                 continue

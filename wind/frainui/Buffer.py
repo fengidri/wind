@@ -73,7 +73,7 @@ class Buffer(utils.Object):
     def delete(self):
         pyvim.log.error('@@@@@@@@@@@@@delete Buffer: %s' % id(self.b))
         vim.command("bunload %s"% self.b.number)
-        vim.command("bdelete %s"% self.b.number)
+#        vim.command("bdelete %s"% self.b.number)
         self.b = None
 
     def show(self):
