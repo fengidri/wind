@@ -7,7 +7,7 @@ from pyvim import log
 from pyvim import cmd
 import logging
 
-subcmd = ['notset', 'info', 'error', 'debug', 'warning', 'critical']
+subcmd = ['debug', 'info', 'warning', 'error', 'critical', 'notset']
 
 @cmd(complete = subcmd)
 def Debug(level):

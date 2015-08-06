@@ -35,8 +35,8 @@ def excepthook(type, value, trace):
     if type == KeyboardInterrupt:
         print ""
         return
-    #echoline(">>Error(%s): %s: " % (LOGFILE, type.__name__ + str(value)))
 
+    pyvim.echoline(">>Error(%s): %s: " % (LOGFILE, type.__name__ + str(value)))
     log.error("Uncaught exception:", exc_info =(type, value, trace))
 
 sys.excepthook = excepthook

@@ -31,26 +31,24 @@ def getfiles(path):
     return lines
 
 
-class FilterFile(object):
+class Filefilter(object):
     INSTANCE = None
     def __init__(self, path):
-        FileFilter.INSTANCE = self
+        Filefilter.INSTANCE = self
 
         self.edit_win = vim.current.window
 
         self.path = path
 
         self.win = SearchWIN(getfiles(path))
+        self.win.FREventBind("quit", self.quit)
 
         self.search_win = vim.current.window
 
-        self.win.FREventBind("quit", self.quit)
 
     def quit(self, win, line):
-        FileFilter.INSTANCE = None
+        Filefilter.INSTANCE = None
 
-        path = os.path.join(self.path, line)
-        pyvim.log.info("i got : %s", path)
 
         vim.current.window = self.edit_win
 
@@ -58,22 +56,36 @@ class FilterFile(object):
             vim.command("%swincmd q" % self.search_win.number)
 
             if line:
+                path = os.path.join(self.path, line)
+
+                pyvim.log.info("i got : %s", path)
+
+                vim.command("update")
                 vim.command("edit %s" % path)
                 vim.command("doautocmd BufRead")
                 vim.command("doautocmd BufEnter")
 
 @pyvim.cmd()
 def FileFilter():
-    if FileFilter.INSTANCE:
+    if Filefilter.INSTANCE:
         return
 
     name = vim.current.buffer.name
+    root = None
     for r in pyvim.Roots:
+        if not name:
+            root = r
+            break
+
         if name.startswith(name):
-            FilterFile(r)
-            return
+            root = r
+            break
     else:
         pyvim.echo("Not Found root in pyvim.Roots for current file.", hl=True)
+        return
+
+    if root:
+        Filefilter(root)
 
 
 if __name__ == "__main__":

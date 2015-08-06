@@ -8,13 +8,19 @@ import pyvim
 import utils
 import vim
 
-def match_lines(pats, lines):
+def match_lines(pats, lines, mx = None):
     tmp = []
+    index = 0
+    if mx == None:
+        mx = len(lines)
     for line in lines:
         for pat in pats:
             if not pat in line:
                 break
         else:
+            index += 1
+            if index >= mx:
+                return
             tmp.append(line)
     return tmp
 
@@ -42,23 +48,26 @@ class SearchWIN(utils.Object):
         self.match_line = None
         self.match_id = []
 
+
+
+    def enter_change(self, enter, c):
+        if c.find(';') > -1:
+            return
+
+        pats = c.split()
+        lines = match_lines(pats, self.lines, 20)
+        del self.buf.b[1:]
+
+        self.show_list(lines)
+        self.hi_pats(pats)
+
     def show_list(self, lines, num=15):
         num = min(len(lines), num)
         for i in range(0, num):
             line = lines[i]
             self.buf.b.append(line, 1)
 
-
-    def enter_change(self, enter, c):
-
-        pats = c.split()
-        lines = match_lines(pats, self.lines)
-        del self.buf.b[1:]
-
-        self.show_list(lines)
-
-
-
+    def hi_pats(self, pats):
         fadd = vim.Function('matchadd')
         fdel = vim.Function('matchdelete')
         for i in self.match_id:
@@ -75,7 +84,17 @@ class SearchWIN(utils.Object):
 
 
     def active(self, enter):
-        self.match_line = self.buf.b[1]
+        text = enter.get_text()
+        num = 1
+        tt = text.split(';')
+        if len(tt) > 1:
+            tt = tt[-1].strip()
+            if tt.isdigit():
+                num = int(tt)
+                if num >= len(self.buf.b):
+                    num = 1
+
+        self.match_line = self.buf.b[num]
 
     def quit(self, enter):
         self.FREventEmit('quit', self.match_line)

@@ -5,3 +5,4 @@ setlocal concealcursor=nvic
 
 setlocal buftype=nofile
 setlocal noswapfile
+set nonumber

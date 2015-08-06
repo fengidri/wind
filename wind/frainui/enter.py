@@ -32,34 +32,29 @@ class EnterLineIM(im.keybase.BaseEnd):
 
 class EnterLine(utils.Object):
     def __init__(self, buf, linenu, prefix = ''):
-
-        self.buf = buf
         self.linenu = linenu
-
-
-        #prefix = "\\red;%s\\end;" % prefix
+        self.Buffer = buf
 
         self.col = len(prefix)
 
         vim.Function("matchaddpos")("TODO", [[1, 1, self.col]], 11)
 
-        self.buf.b[linenu] = "%s " % prefix
+        self.Buffer.b[linenu] = "%s " % prefix
 
         self.prefix_len = len(prefix)
 
-        self.Buffer = buf
         self.IM = EnterLineIM()
         self.IM.enter = self
 
         self.last_content = ""
 
-        self.handle1 = pyvim.addevent("CursorMovedI", self.cursor_moved, self.buf.b)
-        self.handle2 = pyvim.addevent("InsertLeave", self.quit, self.buf.b)
+        self.handle1 = pyvim.addevent("CursorMovedI", self.cursor_moved,
+                self.Buffer.b)
+        self.handle2 = pyvim.addevent("InsertLeave", self.quit, 
+                self.Buffer.b)
 
         vim.current.window.cursor = (1, 999)
         vim.command("startinsert!")
-
-        pyvim.log.error("enter init: %s", id(self.buf.b))
 
     def quit(self):
         self.FREventEmit('quit')
@@ -73,17 +68,17 @@ class EnterLine(utils.Object):
         #    c = len(self.buf.b[self.linenu])
         #    vim.current.window.cursor = (self.linenu + 1, c)
 
-        c = self.get_content()
+        c = self.get_text()
         if c != self.last_content:
             self.last_content = c
             self.FREventEmit('change', c)
 
 
-    def get_content(self):
-        c = self.buf.b[self.linenu][self.prefix_len:]
+    def get_text(self):
+        c = self.Buffer.b[self.linenu][self.prefix_len:]
         pyvim.log.error("enter content: %s", c)
 
-        return self.buf.b[self.linenu][self.col:].strip()
+        return self.Buffer.b[self.linenu][self.col:].strip()
 
 
 
