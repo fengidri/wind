@@ -6,4 +6,4 @@ setlocal concealcursor=nvic
 setlocal buftype=nofile
 setlocal noswapfile
 set nonumber
-map <CR>  :py IM('frainui', 'search_active')<cr>
+map <CR>  :py IM('frainui', 'search-active')<cr>

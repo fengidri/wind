@@ -161,7 +161,6 @@ class FrainList(Events):
         pyvim.addevent("BufNew",     self.bufnew)
 
     def bufnew(self):
-        log.error("BufNew")
         if self.buf_node:
             self.buf_node.refresh()
 

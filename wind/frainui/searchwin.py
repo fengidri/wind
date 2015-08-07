@@ -33,28 +33,6 @@ def match_lines(pats, ng_pats, lines, mx = None):
 
 
 class SearchWIN(utils.Object):
-    def enter_change(self, enter, c):
-        if c.find(';') > -1:
-            return
-
-        if c.find('$') > -1:
-            self.quit(enter)
-            return
-
-        pats = []
-        ng_pats = []
-        for pat in c.split():
-            if pat[0] == '-':
-                pat = pat[1:]
-                if pat:
-                    ng_pats.append(pat[1:])
-            else:
-                pats.append(pat)
-
-        lines = match_lines(pats, ng_pats, self.lines, 20)
-        self.show_list(lines)
-        self.hi_pats(pats)
-
     def show_list(self, lines, num=15):
         del self.buf.b[1:]
         if not lines:
@@ -79,8 +57,32 @@ class SearchWIN(utils.Object):
             i = fadd('keyword', pat)
             self.match_id.append(i)
 
+    def show(self):
+        self.buf.show()
 
-    def active(self, enter):
+class BufferEvent(object):
+    def buf_active(self, buf):
+        l, c = vim.current.window.cursor
+        l = l - 1
+        if l == 0:
+            self.match_line = ''
+        else:
+            self.match_line = self.buf.b[l].strip()
+
+        im.async('frainui', 'search-quit')
+
+
+    def buf_quit(self, buf):
+        # 退出 search 模式
+        vim.current.window = self.edit_win
+
+        self.FREventEmit("quit", self.match_line)
+
+        self.buf.delete()
+        self.enter.delete()
+
+class EnterEvent(object):
+    def enter_active(self, enter):
         text = enter.get_text()
         num = 1
         tt = text.split(';')
@@ -93,35 +95,32 @@ class SearchWIN(utils.Object):
 
         self.match_line = self.buf.b[num].strip()
         # 进入异步模式
-        im.async('frainui', 'vimquit', self.name)
+        im.async('frainui', 'search-quit')
 
-    def IM_active(self, buf):
-        l, c = vim.current.window.cursor
-        l = l - 1
-        if l == 0:
-            self.match_line = ''
-        else:
-            self.match_line = self.buf.b[l].strip()
+    def enter_change(self, enter, c):
+        if c.find(';') > -1:
+            return
 
-        self.quit(self.enter)
+        if c.find('$') > -1:
+            im.async('frainui', 'search-quit')
+            return
 
+        pats = []
+        ng_pats = []
+        for pat in c.split():
+            if pat[0] == '-':
+                pat = pat[1:]
+                if pat:
+                    ng_pats.append(pat[1:])
+            else:
+                pats.append(pat)
 
-    def quit(self, enter):
-        # 退出 search 模式
-        vim.current.window = self.edit_win
-
-        self.FREventEmit("quit", self.match_line)
-
-        self.buf.delete()
-        self.enter.delete()
-        vim.command("stopinsert")
-
-    def show(self):
-        self.buf.show()
+        lines = match_lines(pats, ng_pats, self.lines, 20)
+        self.show_list(lines)
+        self.hi_pats(pats)
 
 
-
-class Search(SearchWIN):
+class Search(SearchWIN, BufferEvent, EnterEvent):
     def __init__(self, lines, name='search'):
         import Buffer
         import enter
@@ -138,13 +137,14 @@ class Search(SearchWIN):
         self.buf = Buffer.Buffer(title = "Search", ft="frainuiSearch")
         self.buf.show()
 
-        self.buf.FREventBind("search_active", self.IM_active)
 
         self.enter = enter.EnterLine(self.buf, 0, "Search:")
-        self.enter.FREventBind("change", self.enter_change)
-        self.enter.FREventBind("active", self.active)
 
-        self.FREventBind("vimquit", self.quit)
+        self.enter.FREventBind("change", self.enter_change)
+        self.enter.FREventBind("active", self.enter_active)
+
+        self.buf.FREventBind("search-active", self.buf_active)
+        self.buf.FREventBind("search-quit",   self.buf_quit)
 
         self.enter.FRInputFocus()
 
