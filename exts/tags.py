@@ -6,6 +6,17 @@ import ctags
 import sys
 import logging
 
+def encode(cmd):
+    # 把 tags 文件的里 命令式 tag 进行转码
+    show_enco=vim.eval('&encoding')
+    file_enco=vim.eval('&fileencoding')
+    if file_enco != show_enco:
+        if file_enco:
+            cmd = cmd.decode(file_enco).encode(show_enco)
+    return cmd
+
+
+
 
 class TagList:
     tagsfile = ''
@@ -287,13 +298,8 @@ class class_tag:
         try:
             cmd = taglist[pos_for_taglist]['cmd']
 
+            cmd = encode(cmd)
             #定位光标到tag上
-            show_enco=vim.eval('&encoding')
-            file_enco=vim.eval('&fileencoding')
-            if file_enco != show_enco:
-                if file_enco:
-                    cmd = cmd.decode(file_enco)\
-                        .encode(show_enco)
             line_nu = 0
             found = [  ]
             if cmd.isdigit():

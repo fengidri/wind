@@ -12,6 +12,7 @@ log = logging.getLogger("wind")
 import plugin
 
 
+# for previous
 __previous = None
 def previous():
     return __previous
@@ -20,6 +21,33 @@ def previous():
 def _previous():
     global __previous
     __previous = vim.current.window
+
+
+# 记录窗口跳转的过程
+class WStack(dict):
+    def __init__(self):
+        pass
+
+
+    def append(self):
+        buf = vim.current.buffer
+        cursor = vim.current.window.cursor
+
+        pos = (buf, cursor)
+
+        stack = self.get(vim.current.window)
+        if not stack:
+            self[vim.current.buffer] = [pos]
+        else:
+            stack.append(pos)
+
+    def pop(self, pos):
+        stack = self.get(vim.current.buffer)
+        if not stack:
+            return
+        else:
+            return stack.pop()
+
 
 def origin_win( ):
     vim.command( "wincmd p")
