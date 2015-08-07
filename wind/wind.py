@@ -24,7 +24,8 @@ formatter = logging.Formatter(
 handlers.setFormatter(formatter)
 
 log = logging.getLogger("wind")
-log.setLevel(logging.INFO)
+#log.setLevel(logging.INFO)
+log.setLevel(logging.error)
 #log.setLevel(logging.DEBUG)
 log.addHandler(handlers)
 

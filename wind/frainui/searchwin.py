@@ -95,6 +95,16 @@ class SearchWIN(utils.Object):
         # 进入异步模式
         im.async('frainui', 'vimquit', self.name)
 
+    def IM_active(self, buf):
+        l, c = vim.current.window.cursor
+        l = l - 1
+        if l == 0:
+            self.match_line = ''
+        else:
+            self.match_line = self.buf.b[l].strip()
+
+        self.quit(self.enter)
+
 
     def quit(self, enter):
         # 退出 search 模式
@@ -127,6 +137,8 @@ class Search(SearchWIN):
 
         self.buf = Buffer.Buffer(title = "Search", ft="frainuiSearch")
         self.buf.show()
+
+        self.buf.FREventBind("search_active", self.IM_active)
 
         self.enter = enter.EnterLine(self.buf, 0, "Search:")
         self.enter.FREventBind("change", self.enter_change)

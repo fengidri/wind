@@ -73,8 +73,6 @@ class EnterLine(utils.Object):
 
     def get_text(self):
         c = self.Buffer.b[self.linenu][self.prefix_len:]
-        pyvim.log.info("enter content: %s", c)
-
         return self.Buffer.b[self.linenu][self.col:].strip()
 
 
