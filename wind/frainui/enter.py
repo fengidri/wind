@@ -33,9 +33,9 @@ class EnterLine(utils.Object):
         self.linenu = linenu
         self.Buffer = buf
 
-        self.col = len(prefix)
+        self.col = len(prefix) + 1
 
-        vim.Function("matchaddpos")("TODO", [[1, 1, self.col]], 11)
+        vim.Function("matchaddpos")("TODO", [[1, 1, self.col - 1]], 11)
 
         self.Buffer.b[linenu] = "%s " % prefix
 

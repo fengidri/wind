@@ -37,6 +37,10 @@ class SearchWIN(utils.Object):
         if c.find(';') > -1:
             return
 
+        if c.find('$') > -1:
+            self.quit(enter)
+            return
+
         pats = []
         ng_pats = []
         for pat in c.split():
@@ -93,12 +97,14 @@ class SearchWIN(utils.Object):
 
 
     def quit(self, enter):
+        # 退出 search 模式
         vim.current.window = self.edit_win
 
         self.FREventEmit("quit", self.match_line)
 
         self.buf.delete()
         self.enter.delete()
+        vim.command("stopinsert")
 
     def show(self):
         self.buf.show()
