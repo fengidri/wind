@@ -24,6 +24,9 @@ def ctag(filename):
         if not tp in 'fvm':
             continue
 
+        if tp == 'm':
+            keyword = tmp[4]
+
         tags[keyword] = linenu
 
     return tags

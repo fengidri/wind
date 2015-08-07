@@ -53,10 +53,14 @@ class file_filter(object):
             vim.command("update")
             vim.command("edit %s" % path)
 
+    def show(self):
+        self.win.show()
+
 
 @pyvim.cmd()
 def FileFilter():
     if file_filter.INSTANCE:
+        file_filter.INSTANCE.show()
         return
 
     name = vim.current.buffer.name
@@ -75,6 +79,7 @@ def FileFilter():
 
     if root:
         file_filter(root)
+
 
 
 if __name__ == "__main__":

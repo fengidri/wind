@@ -84,3 +84,11 @@ def feedkeys(k):
     _feedkeys.append(k)
 
 
+
+# 使用 feedkeys 异步触发 IM 接口
+def async(*k):
+    c = "\<esc>:py IM(%s)\<cr>"
+    l = ["'%s'" % x for x in k]
+    c = c % ', '.join(l)
+    feedkeys(c)
+

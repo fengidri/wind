@@ -58,7 +58,7 @@ class SearchWIN(utils.Object):
         num = min(len(lines), num)
         for i in range(0, num):
             line = lines[i]
-            self.buf.b.append(line, 1)
+            self.buf.b.append("  %s" % line, 1)
 
     def hi_pats(self, pats):
         fadd = vim.Function('matchadd')
@@ -87,9 +87,9 @@ class SearchWIN(utils.Object):
                 if num >= len(self.buf.b):
                     num = 1
 
-        self.match_line = self.buf.b[num]
+        self.match_line = self.buf.b[num].strip()
         # 进入异步模式
-        im.imrc.feedkeys(":py IM('frainui', 'vimquit', '%s')\<cr>" % self.name)
+        im.async('frainui', 'vimquit', self.name)
 
 
     def quit(self, enter):
@@ -100,6 +100,9 @@ class SearchWIN(utils.Object):
         self.buf.delete()
         self.enter.delete()
 
+    def show(self):
+        self.buf.show()
+
 
 
 class Search(SearchWIN):
@@ -107,9 +110,14 @@ class Search(SearchWIN):
         import Buffer
         import enter
 
-        self.FRRegister(name)
+        self.lines = lines
+        self.match_line = None
+        self.match_id = []
         self.name = name
+
         self.edit_win = vim.current.window
+
+        self.FRRegister(name)
 
         self.buf = Buffer.Buffer(title = "Search", ft="frainuiSearch")
         self.buf.show()
@@ -122,13 +130,8 @@ class Search(SearchWIN):
 
         self.enter.FRInputFocus()
 
-        self.lines = lines
-        #import tree
-        #self.tree  = tree.Tree(self.buf, 2, 15)
         self.show_list(lines)
 
-        self.match_line = None
-        self.match_id = []
 
 
 

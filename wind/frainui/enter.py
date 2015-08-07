@@ -11,7 +11,6 @@ import vim
 
 class EnterLineIM(im.keybase.BaseEnd):
     def cb_enter(self):
-        im.imrc.feedkeys('\<esc>')
         self.enter.FREventEmit('active')
         return True
 
@@ -49,15 +48,13 @@ class EnterLine(utils.Object):
 
         self.handle1 = pyvim.addevent("CursorMovedI", self.cursor_moved,
                 self.Buffer.b)
-        self.handle2 = pyvim.addevent("InsertLeave", self.quit, 
-                self.Buffer.b)
+        #self.handle2 = pyvim.addevent("InsertLeave", self.quit,
+        #        self.Buffer.b)
 
         vim.current.window.cursor = (1, 999)
         vim.command("startinsert!")
 
-    def quit(self):
-        pass
-        #self.FREventEmit('quit')
+
 
     def cursor_moved(self):
         l, c = vim.current.window.cursor
@@ -84,7 +81,6 @@ class EnterLine(utils.Object):
 
     def delete(self):
         pyvim.delevent(self.handle1)
-        pyvim.delevent(self.handle2)
 
 
 

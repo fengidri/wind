@@ -46,6 +46,45 @@ class Object(object):
         # set the focus in the is self
         self.Buffer.input_focus = self
 
+class FRObject(Object):
+    def init(self, Buffer=None, IM=None):
+        self._Buffer_ = Buffer
+        self._IM_     = IM
+        self._CB_     = {}
+
+    def FREventEmit(self, event, *k):
+        try:
+            cbs = self._CB_.get(self).get(event, [])
+        except:
+            return
+
+        for cb in cbs:
+            cb(self, *k)
+
+    def FREventBind(self, event, cb):
+        evs = self._CB_.get(self)
+
+        if not evs:
+            evs = self._CB_[self] = {}
+
+        funs = evs.get(event)
+        if funs:
+            funs.append(cb)
+        else:
+            evs[event] = [cb]
+
+
+    def FRRegister(self, name):
+        # let all
+        Objects[name] = self
+
+    def FRInputFocus(self):
+        # set the focus in the is self
+        self._Buffer_.input_focus = self
+
+
+
+
 
 
 if __name__ == "__main__":
