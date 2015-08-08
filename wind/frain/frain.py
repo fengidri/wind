@@ -81,8 +81,14 @@ def FrainListShowHook(listwin):
     def vimleave():
         Project.emit("FrainLeave")
 
+    def quitpre():
+        ws = vim.windows
+        if len(ws) == 2:
+            listwin.close()
+
     pyvim.addevent('BufWritePost', libpath.push)
     pyvim.addevent('VimLeave',  vimleave)
+    pyvim.addevent("QuitPre", quitpre)
 
 def FrainListRefreshHook(listwin):
     if listwin.nu_refresh == 0:

@@ -165,6 +165,10 @@ class LIST(utils.Object, LISTOPTIONS, LISTNODS):#  list 窗口对象
         Item.lswin = self.win
         pyvim.addevent('CursorMoved', self.update_status, self.win.b)
 
+    def close(self):
+        self.win.delete()
+
+
 
 
 
