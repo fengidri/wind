@@ -14,6 +14,7 @@ def getfiles(path):
     lenght = len(path)
     if path[-1] != '/':
         lenght += 1
+
     for root, ds, fs  in os.walk(path):
         ds[:] = [d for d in ds if d[0] != '.']
         for f in fs:
@@ -28,7 +29,18 @@ def getfiles(path):
 
             f = os.path.join(root, f)
             lines.append(f[lenght:])
+
+    for b in vim.buffers:
+        name = b.name
+        if name.startswith(path):
+            name = name[lenght:]
+            if name in lines:
+                pyvim.log.error('@@@@@@@@@%s' % name)
+                lines.remove(name)
+                lines.insert(0, name)
+
     return lines
+
 
 
 

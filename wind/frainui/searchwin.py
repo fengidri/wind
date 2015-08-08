@@ -33,14 +33,16 @@ def match_lines(pats, ng_pats, lines, mx = None):
 
 
 class SearchWIN(utils.Object):
-    def show_list(self, lines, num=15):
+    def show_list(self, lines, num=999999999999):
         del self.buf.b[1:]
         if not lines:
             return
         num = min(len(lines), num)
+        index = 1
         for i in range(0, num):
             line = lines[i]
-            self.buf.b.append("  %s" % line, 1)
+            self.buf.b.append("  %s" % line, index)
+            index += 1
 
     def hi_pats(self, pats):
         fadd = vim.Function('matchadd')
