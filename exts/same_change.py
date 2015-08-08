@@ -23,8 +23,10 @@ class CSameChange(object):
         pyvim.log.error(self.pos)
         self.length     = len(be) + len(af)
 
-        self.evhandle1 = pyvim.addevent('CursorMovedI', self.change)
-        self.evhandle2 = pyvim.addevent('InsertLeave',  self.exit)
+        self.evhandle1 = pyvim.addevent('CursorMovedI', self.change,
+                vim.current.buffer)
+        self.evhandle2 = pyvim.addevent('InsertLeave',  self.exit,
+                vim.current.buffer)
 
         self.__class__._instance = self
 
