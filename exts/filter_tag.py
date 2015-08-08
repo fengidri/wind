@@ -25,7 +25,7 @@ def ctag(filename):
             continue
 
         if tp == 'm':
-            keyword = tmp[4]
+            keyword = "%s.%s" %(tmp[4], keyword)
 
         tags[keyword] = linenu
 
