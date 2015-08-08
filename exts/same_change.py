@@ -26,10 +26,10 @@ class CSameChange(object):
         self.evhandle1 = pyvim.addevent('CursorMovedI', self.change)
         self.evhandle2 = pyvim.addevent('InsertLeave',  self.exit)
 
-        SameChange._instance = self
+        self.__class__._instance = self
 
     def exit(self):
-        SameChange._instance = None
+        self.__class__._instance = None
         buf = []
         for c in vim.current.buffer[self.sc_linenu - 1][self.sc_col:]:
             if c.isalpha() or c == '_':
