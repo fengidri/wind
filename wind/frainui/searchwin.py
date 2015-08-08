@@ -9,6 +9,29 @@ import utils
 import vim
 import im
 
+
+
+def match(pattern, source):
+    length = len(pattern)
+    index = 0
+    m = 0
+
+    if index >= length:
+        return -1
+
+    p = ord(pattern[index])
+    for o, s in enumerate(source):
+        tt = p - ord(s)
+        if tt == 0 or tt == 32:
+            m += o
+            index += 1
+            if index >= length:
+                return m
+
+            p = ord(pattern[index])
+    else:
+        return -1
+
 def match_lines(pats, ng_pats, lines, mx = None):
     tmp = []
     index = 0
@@ -33,7 +56,7 @@ def match_lines(pats, ng_pats, lines, mx = None):
 
 
 class SearchWIN(utils.Object):
-    def show_list(self, lines, num=999999999999):
+    def show_list(self, lines, num=15):
         del self.buf.b[1:]
         if not lines:
             return

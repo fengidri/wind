@@ -8,7 +8,6 @@
 """
     some config for wind.
 """
-IM_Wubi = True
 IM_KeyIndex = 0
 
 if __name__ == "__main__":

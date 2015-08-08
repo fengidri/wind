@@ -11,7 +11,7 @@ from pyvim import log
 
 import im.env as env
 import im.prompt as prompt
-import rc
+import vim
 
 cache={  }
 
@@ -52,7 +52,7 @@ def setcount(patten, num):
 
 @prompt.prompt('wubi')
 def handle():
-    if not rc.IM_Wubi:
+    if vim.vars.get("wind_im_wubi", 1):
         return
 
     for i in [-1, -2, -3, -4]:
