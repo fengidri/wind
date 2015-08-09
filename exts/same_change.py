@@ -12,6 +12,8 @@ import re
 class CSameChange(object):
     _instance = None
     def __init__(self):
+        self.__class__._instance = self
+
         be, af = self.cur_word()
 
         self.indent = self.get_indent(vim.current.line)
@@ -20,15 +22,16 @@ class CSameChange(object):
         self.sc_linenu  = cursor[0]
         self.sc_col     = cursor[1]  - len(be)
         self.pos        = self.get_pos(cursor[0], be + af)
-        pyvim.log.error(self.pos)
         self.length     = len(be) + len(af)
+
+        vim.current.window.cursor = (self.sc_linenu, self.sc_col + self.length
+                -1)
 
         self.evhandle1 = pyvim.addevent('CursorMovedI', self.change,
                 vim.current.buffer)
         self.evhandle2 = pyvim.addevent('InsertLeave',  self.exit,
                 vim.current.buffer)
 
-        self.__class__._instance = self
 
     def exit(self):
         self.__class__._instance = None
@@ -45,7 +48,6 @@ class CSameChange(object):
 
     def change(self):
         linenu, col = vim.current.window.cursor
-        pyvim.log.error('%s %s %s %s', linenu, col, self.sc_linenu, self.sc_col)
         if linenu != self.sc_linenu:
             self.exit()
             return
@@ -65,7 +67,6 @@ class CSameChange(object):
         length = len(word)
         pos_offset = length - self.length
         for linenu, cols in self.pos.items():
-            pyvim.log.error('%s %s', linenu, cols)
             line = vim.current.buffer[linenu]
 
             offset = 0

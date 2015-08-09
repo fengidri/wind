@@ -47,8 +47,8 @@ map  <2-LeftMouse> <esc>:MarkTo<cr>
 map  <C-w>o        <esc>:ClearAllWin<cr>
 vmap w=            <esc>:silent Align<cr>
 imap <F11>         <esc>:GotoInc<cr>
-map  <F11>         <esc>:GotoInc<cr>
-imap <C-s>         <esc>:SameWord<cr>a
+map  <F11>         <esc>:GotoInc<cr>i
+imap <C-s>         <esc>:SameWord<cr>
 map <C-s>          :SameWord<cr>a
 map  <tab>         :py IM("frainui", "focus", "frain")<CR>
 map *              viw""y/<C-R>0<CR>
