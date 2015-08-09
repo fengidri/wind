@@ -30,19 +30,19 @@ class WStack(dict):
 
 
     def append(self):
-        buf = vim.current.buffer
+        bn = vim.current.buffer.number
         cursor = vim.current.window.cursor
 
-        pos = (buf, cursor)
+        pos = (bn, cursor)
 
         stack = self.get(vim.current.window)
         if not stack:
-            self[vim.current.buffer] = [pos]
+            self[vim.current.window] = [pos]
         else:
             stack.append(pos)
 
     def pop(self, pos):
-        stack = self.get(vim.current.buffer)
+        stack = self.get(vim.current.window)
         if not stack:
             return
         else:
