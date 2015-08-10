@@ -49,7 +49,7 @@ class WStack(dict):
             return stack.pop()
 
 
-def settitle(self, name):#设置vim 窗口的title
+def settitle(name):#设置vim 窗口的title
     # 如果没有设置name, 则使用第一个root的name
     vim_title = name.replace( ' ', '\\ ')
     vim.command( "set title titlestring=%s" % vim_title )

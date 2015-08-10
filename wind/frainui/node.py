@@ -10,45 +10,19 @@ import pyvim
 import utils
 
 class Item(utils.Object):# Node与Leaf 的父类
-    lswin   = None # 指向list.win对象.
-    level   = 0
-    father  = None  # 指向father 对象
-
-    nodes   = {}  # 所有的节点, 除了可以保存在树形的结构中外, 全部在这里有索引
-    # 从 frainui listwin 的 line 得到 item 时, 要依赖于这个索引.
-    ID      = 0
+    ID = 0
     def __init__(self):
-        # 新的实例, 要生成ID, 并加入到nodes中去
-        self.ID = Item.ID
-        Item.nodes[self.ID] = self
-        Item.ID += 1
+        self.lswin   = None # 指向list.win对象.
+        self.level   = 0
+        self.father  = None  # 指向father 对象
 
-    @classmethod
-    def clear(cls):
-        cls.nodes = {}
+        # 从 frainui listwin 的 line 得到 item 时, 要依赖于这个索引.
+        self.ID      = 0
 
-    @classmethod
-    def getnode(cls, linenu = None):
-        if not cls.lswin:
-            return
-
-        if linenu == None: # 没有输入行号, 使用当前行
-            line = cls.lswin.b[cls.lswin.w.cursor[0] - 1]
-        else:
-            if linenu >= cls.lswin.linenu():
-                return
-            line = cls.lswin.getline(linenu)
-
-        line = line.decode('utf8')
-        try:
-            node_index = int(line.split('<|>')[1])
-            return cls.nodes.get(node_index)
-        except:
-            logging.debug('getnode by line [%s]: fail' % line)
 
     def getlinenu(self):
         num = 0
-        for linenu, line in enumerate(self.lswin.b):
+        for linenu, line in enumerate(self.lswin.BFb):
             try:
                 ID = int(line.split('<|>')[1])
                 if ID == self.ID:
@@ -120,8 +94,14 @@ class Node(Item):
         self.get_child       = get_child
 
     def append(self, node):
+        Item.ID += 1
+
         node.level = self.level + 1 # 用于方便得到层级关系
         node.father = self # 子node 要记录自己的father
+        node.lswin = self.lswin
+        node.ID = Item.ID
+
+        self.lswin.nodes[Item.ID] = node
 
         self.sub_nodes.append(node)
 
@@ -133,10 +113,10 @@ class Node(Item):
     def refresh(self):
         self.need_fresh = True
         if self.opened:
-            cursor = self.lswin.cursor
+            cursor = self.lswin.BFw.cursor
             self.node_close()
             self.node_open()
-            self.lswin.cursor = cursor
+            self.lswin.BFw.cursor = cursor
 
 
     def show(self):
@@ -153,7 +133,6 @@ class Node(Item):
         return "%s%s%s/<|>%s" % ("  " * (self.level  -1), flag, dp, self.ID)
 
     def _open(self): # 回车 TODO
-        logging.error("node _open")
 
         if self.opened:
             self.node_close()
@@ -168,6 +147,8 @@ class Node(Item):
 
     def node_open(self):
         if self.opened: return
+
+        logging.debug("node_open:%s" % self.name)
         self.opened = True
 
         linenu = self.getlinenu()
@@ -175,13 +156,13 @@ class Node(Item):
 
         self._get_child()
 
-        buf = self.lswin.b
+        buf = self.lswin.BFb
         buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)
 
         for n in self.sub_nodes:
             if hasattr(n, 'opened'):
                 n.opened = False
-            self.lswin.b.append(n.show(), linenu)
+            self.lswin.BFb.append(n.show(), linenu)
             linenu += 1
 
 
@@ -192,12 +173,12 @@ class Node(Item):
 
         linenu = self.getlinenu()
 
-        buf = self.lswin.b
+        buf = self.lswin.BFb
         buf[linenu - 1] = buf[linenu - 1].replace('-', '+', 1)
 
         start = linenu
         while True:
-            node = Item.getnode(linenu)
+            node = self.lswin.getnode(linenu)
             if not node:
                 break
             if node.level <= self.level:
@@ -207,7 +188,7 @@ class Node(Item):
         end  = linenu
 
         if end > start:
-            del self.lswin.b[start: end]
+            del self.lswin.BFb[start: end]
 
 
 class Leaf(Item):

@@ -189,7 +189,7 @@ class BF(utils.Object, BFVimEvent):
         self.vimev1= pyvim.addevent('QuitPre', self.BFVimEventQuitPre, self.BFb)
         self.vimev2= pyvim.addevent('BufWipeout', self.BFVimEventWipeout, self.BFb)
 
-        utils.Objects[self.BFw] = self
+        utils.Objects[self.BFb] = self
 
     def BFShow(self):
         """显示当前 buffer 窗口 如果已经显示, 会 focus 到那个窗口 """
