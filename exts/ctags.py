@@ -363,7 +363,7 @@ def CTagBack():
     if wst_bn != cur_bn:
         vim.command('update')
 
-    vim.command("buffer %s" wst_bn)
+    vim.command("buffer %s" % wst_bn)
 
     vim.current.window.cursor = wstack[1]
 
