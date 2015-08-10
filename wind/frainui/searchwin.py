@@ -55,7 +55,7 @@ def match_lines(pats, ng_pats, lines, mx = None):
 
 
 
-class SearchWIN(utils.Object):
+class SearchWIN(Object):
     def show_list(self, lines, num=15):
         del self.buf.b[1:]
         if not lines:

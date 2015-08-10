@@ -229,8 +229,6 @@ class Leaf(Item):
         linenu = self.getlinenu()
 
         vim.current.window = pyvim.previous()
-        if self.lswin.is_focus():
-            return
 
         if self.handle:
             self.handle(self)

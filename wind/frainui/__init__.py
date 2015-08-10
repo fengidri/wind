@@ -9,6 +9,7 @@ from searchwin import Search
 from pyvim import log
 import utils
 import vim
+from Buffer import BF
 
 def inputstream(tp, key):
     # 处理从 IM Stream 过来的输入流
