@@ -55,16 +55,16 @@ def match_lines(pats, ng_pats, lines, mx = None):
 
 
 
-class SearchWIN(utils.Object):
+class SearchWIN(object):
     def show_list(self, lines, num=15):
-        del self.buf.b[1:]
+        del self.BFb[1:]
         if not lines:
             return
         num = min(len(lines), num)
         index = 1
         for i in range(0, num):
             line = lines[i]
-            self.buf.b.append("  %s" % line, index)
+            self.BFb.append("  %s" % line, index)
             index += 1
 
     def hi_pats(self, pats):
@@ -82,8 +82,6 @@ class SearchWIN(utils.Object):
             i = fadd('keyword', pat)
             self.match_id.append(i)
 
-    def show(self):
-        self.buf.show()
 
 class BufferEvent(object):
     def buf_active(self, buf):
@@ -92,19 +90,20 @@ class BufferEvent(object):
         if l == 0:
             self.match_line = ''
         else:
-            self.match_line = self.buf.b[l].strip()
+            self.match_line = self.BFb[l].strip()
 
-        im.async('frainui', 'search-quit')
+        im.async('frainui', 'OP-Quit')
 
 
-    def buf_quit(self, buf):
+    def quit(self, buf):
         # 退出 search 模式
         vim.current.window = self.edit_win
 
-        self.FREventEmit("quit", self.match_line)
+        self.FREventEmit("Search-Quit", self.match_line)
 
-        self.buf.delete()
+
         self.enter.delete()
+        self.BFWipeout()
 
 class EnterEvent(object):
     def enter_active(self, enter):
@@ -120,7 +119,7 @@ class EnterEvent(object):
 
         self.match_line = self.buf.b[num].strip()
         # 进入异步模式
-        im.async('frainui', 'search-quit')
+        im.async('frainui', 'OP-Active')
 
     def enter_change(self, enter, c):
         if c.find(';') > -1:
@@ -145,11 +144,11 @@ class EnterEvent(object):
         self.hi_pats(pats)
 
 
-class Search(SearchWIN, BufferEvent, EnterEvent):
-    def __init__(self, lines, name='search'):
-        import Buffer
-        import enter
 
+
+import Buffer
+class Search(Buffer.BF, SearchWIN, BufferEvent, EnterEvent):
+    def __init__(self, lines, name='search'):
         self.lines = lines
         self.match_line = None
         self.match_id = []
@@ -159,25 +158,24 @@ class Search(SearchWIN, BufferEvent, EnterEvent):
 
         self.FRRegister(name)
 
-        self.buf = Buffer.Buffer(title = "Search", ft="frainuiSearch")
-        self.buf.show()
+        self.BFFt       = "frainuiSearch"
+        self.BFName     = "Search"
+        self.BFCreate()
 
 
-        self.enter = enter.EnterLine(self.buf, 0, "Search:")
+        self.enter = enter.EnterLine(self, 0, "Search:")
 
-        self.enter.FREventBind("change", self.enter_change)
-        self.enter.FREventBind("active", self.enter_active)
+        self.enter.FREventBind("Enter-Active", self.enter_active)
+        self.enter.FREventBind("Enter-Change", self.enter_change)
 
-        self.buf.FREventBind("search-active", self.buf_active)
-        self.buf.FREventBind("search-quit",   self.buf_quit)
+        self.FREventBind("OP-Active", self.option_active)
+        self.FREventBind("OP-Quit", self.quit)
 
-        self.enter.FRInputFocus()
+        pyvim.addevent("QuitPre", self.quit)
+
+        self.BFSetImFocus(self.enter)
 
         self.show_list(lines)
-
-
-
-
 
 
 

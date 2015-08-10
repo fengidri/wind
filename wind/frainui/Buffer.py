@@ -167,6 +167,8 @@ class BF(utils.Object, BFVimEvent):
         return _fun
 
 
+    def BFSetImFocus(self, obj):
+        self.BFInputFocus = obj
 
     def BFFocus(self):
         if self.BFw and self.BFw.valid:

@@ -7,6 +7,7 @@
 
 import pyvim
 import vim
+import os
 @pyvim.cmd()
 def ProjectTerminal():
     name = vim.current.buffer.name
