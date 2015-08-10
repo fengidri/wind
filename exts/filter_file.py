@@ -35,7 +35,6 @@ def getfiles(path):
         if name.startswith(path):
             name = name[lenght:]
             if name in lines:
-                pyvim.log.error('@@@@@@@@@%s' % name)
                 lines.remove(name)
                 lines.insert(0, name)
 

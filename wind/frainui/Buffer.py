@@ -193,7 +193,7 @@ class BF(utils.Object, BFVimEvent):
 
     def BFShow(self):
         """显示当前 buffer 窗口 如果已经显示, 会 focus 到那个窗口 """
-        if not (self.b and self.b.valid):
+        if not (self.BFb and self.BFb.valid):
             self.BFCreate()
             return
 
@@ -206,8 +206,15 @@ class BF(utils.Object, BFVimEvent):
 
     def BFHide(self):
         if self.BFw and self.BFw.valid:
-            vim.command("%swincmd quit" % self.BFw.number)
+            vim.command("%swincmd q" % self.BFw.number)
             self.BFw = None
+            return True
+
+    def BFToggle(self):
+        if self.BFHide():
+            return
+        else:
+            self.BFShow()
 
     def BFWipeout(self):
         if self.BFb.valid:

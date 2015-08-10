@@ -157,9 +157,9 @@ class FrainList(Events):
         self.buf_node = None
 
         self.listwin = LIST("frain", self.FrainListGetRootsHook)
-        self.listwin.FREventBind("ListReFreshPost", FrainListRefreshHook)
-        self.listwin.FREventBind("ListReFreshPre",  FrainListRefreshPreHook)
-        self.listwin.FREventBind("ListShow",        FrainListShowHook)
+        self.listwin.FREventBind("List-ReFresh-Post", FrainListRefreshHook)
+        self.listwin.FREventBind("List-ReFresh-Pre",  FrainListRefreshPreHook)
+        self.listwin.FREventBind("List-Show",        FrainListShowHook)
 
         self.listwin.show()
         pyvim.addevent("BufEnter",   self.find)
@@ -230,6 +230,8 @@ class FrainList(Events):
         for p in Project.All:
             if path.startswith(p.root):
                 return p
+
+
 
 if __name__ == "__main__":
     pass

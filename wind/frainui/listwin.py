@@ -15,7 +15,6 @@ import frainui
 
 def isshow(fun):
     def _fun(self, *k, **kw):
-        logging.error("########")
         if self.BFb and self.BFb.valid:
             if self.BFw and self.BFw.valid:
                 fun(self, *k, **kw)
@@ -51,7 +50,7 @@ class OP_OPTIONS(object):
         self.BFb[0] = "FrainUI"
         self.nodes = {}
 
-        self.FREventEmit("ListReFreshPre")
+        self.FREventEmit("List-ReFresh-Pre")
 
         self.root = node.Node("root", None, self.get_roots)
         self.root.lswin = self
@@ -61,7 +60,7 @@ class OP_OPTIONS(object):
         if self.Title:
             pyvim.settitle(self.Title)
 
-        self.FREventEmit("ListReFreshPost")
+        self.FREventEmit("List-ReFresh-Post")
         self.nu_refresh += 1
 
 class NODE(object):
@@ -99,7 +98,7 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
         self.nodes       = {}
 
         def hook(buf):
-            self.FREventEmit("ListShow")
+            self.FREventEmit("List-Show")
 
 
         self.BFFt       = "frainuilist"
