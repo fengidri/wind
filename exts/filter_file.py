@@ -65,6 +65,7 @@ class file_filter(object):
             vim.command("edit %s" % path)
 
     def show(self):
+        pyvim.log.error('call show')
         self.win.BFToggle()
 
 

@@ -43,7 +43,7 @@ class tag_filter(object):
 
         self.win = Search(self.tags.keys())
 
-        self.win.FREventBind("quit", self.quit)
+        self.win.FREventBind("Search-Quit", self.quit)
 
 
     def quit(self, win, line):
