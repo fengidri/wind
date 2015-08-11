@@ -84,7 +84,7 @@ def FrainListShowHook(listwin):
     def quitpre():
         ws = vim.windows
         if len(ws) == 2:
-            listwin.close()
+            listwin.BFWipeout()
 
     pyvim.addevent('BufWritePost', libpath.push)
     pyvim.addevent('VimLeave',  vimleave)

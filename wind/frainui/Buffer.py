@@ -152,8 +152,10 @@ class BF(utils.Object, BFVimEvent):
             size = self.BFHeight
             cmd = "new"
 
-        cmd = "{pos} {size}{cmd} {name}".format(size = size, cmd = cmd,
-                pos = self.BFPosition, name = self.BFName)
+        #cmd = "{pos} {size}{cmd} {name}".format(size = size, cmd = cmd,
+        #        pos = self.BFPosition, name = self.BFName)
+        cmd = "{pos} {size}{cmd} ".format(size = size, cmd = cmd,
+                pos = self.BFPosition)
 
         vim.command(cmd)
         self.BFw = vim.current.window

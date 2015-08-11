@@ -18,7 +18,7 @@ def inputstream(tp, key):
     if not obj:
         return
 
-    widget = obj.input_focus
+    widget = obj.BFInputFocus
     if widget and widget.IM:
         getattr(widget.IM, tp)(key)
 

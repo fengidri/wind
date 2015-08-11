@@ -84,7 +84,10 @@ class SearchWIN(object):
 
 
 class BufferEvent(object):
-    def buf_active(self, buf):
+    def option_active(self, buf): # option_active
+        #在普通模式下输入 enter
+
+        # 选择行, 通过异步退出
         l, c = vim.current.window.cursor
         l = l - 1
         if l == 0:
@@ -95,12 +98,11 @@ class BufferEvent(object):
         im.async('frainui', 'OP-Quit')
 
 
-    def quit(self, buf):
+    def quit(self, t = None):
         # 退出 search 模式
         vim.current.window = self.edit_win
 
         self.FREventEmit("Search-Quit", self.match_line)
-
 
         self.enter.delete()
         self.BFWipeout()
@@ -114,19 +116,20 @@ class EnterEvent(object):
             tt = tt[-1].strip()
             if tt.isdigit():
                 num = int(tt)
-                if num >= len(self.buf.b):
+                if num >= len(self.BFb):
                     num = 1
 
-        self.match_line = self.buf.b[num].strip()
+        self.match_line = self.BFb[num].strip()
         # 进入异步模式
-        im.async('frainui', 'OP-Active')
+        im.async('frainui', 'OP-Quit')
 
     def enter_change(self, enter, c):
         if c.find(';') > -1:
             return
 
-        if c.find('$') > -1:
-            im.async('frainui', 'search-quit')
+        if c.find('$') > -1: # 通过异步退出
+            self.match_line = ''
+            im.async('frainui', 'OP-Quit')
             return
 
         pats = []
@@ -149,6 +152,7 @@ class EnterEvent(object):
 import Buffer
 class Search(Buffer.BF, SearchWIN, BufferEvent, EnterEvent):
     def __init__(self, lines, name='search'):
+        Buffer.BF.__init__(self)
         self.lines = lines
         self.match_line = None
         self.match_id = []
@@ -162,8 +166,10 @@ class Search(Buffer.BF, SearchWIN, BufferEvent, EnterEvent):
         self.BFName     = "Search"
         self.BFCreate()
 
+        from enter import EnterLine
 
-        self.enter = enter.EnterLine(self, 0, "Search:")
+
+        self.enter = EnterLine(self, 0, "Search:")
 
         self.enter.FREventBind("Enter-Active", self.enter_active)
         self.enter.FREventBind("Enter-Change", self.enter_change)

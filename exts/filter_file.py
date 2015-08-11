@@ -51,7 +51,7 @@ class file_filter(object):
         self.path = path
 
         self.win = Search(getfiles(path))
-        self.win.FREventBind("quit", self.quit)
+        self.win.FREventBind("Search-Quit", self.quit)
 
 
     def quit(self, win, line):
@@ -65,7 +65,7 @@ class file_filter(object):
             vim.command("edit %s" % path)
 
     def show(self):
-        self.win.show()
+        self.win.BFToggle()
 
 
 @pyvim.cmd()
