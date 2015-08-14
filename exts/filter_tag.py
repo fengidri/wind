@@ -54,10 +54,15 @@ class tag_filter(object):
                 pyvim.log.info("i got : %s %s", line, linenu)
                 vim.current.window.cursor = (linenu, 0)
 
+    def show(self):
+        pyvim.log.error('call show')
+        self.win.BFToggle()
+
 
 @pyvim.cmd()
 def TagFilter():
     if tag_filter.INSTANCE:
+        tag_filter.show()
         return
 
     tag_filter()

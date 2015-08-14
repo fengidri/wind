@@ -107,7 +107,7 @@ class BufferEvent(object):
 
         self.enter.delete()
         self.BFWipeout()
-        pyvim.delevent(self.h)
+#        pyvim.delevent(self.h)
 
 class EnterEvent(object):
     def enter_active(self, enter):
@@ -179,7 +179,7 @@ class Search(Buffer.BF, SearchWIN, BufferEvent, EnterEvent):
         self.FREventBind("OP-Active", self.option_active)
         self.FREventBind("OP-Quit", self.quit)
 
-        self.h = pyvim.addevent("QuitPre", self.quit)
+#        self.h = pyvim.addevent("QuitPre", self.quit)
 
         self.BFSetImFocus(self.enter)
 
