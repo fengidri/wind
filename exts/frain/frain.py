@@ -84,7 +84,7 @@ def FrainListShowHook(listwin):
     def quitpre():
         ws = vim.windows
         if len(ws) == 2:
-            listwin.close()
+            listwin.BFWipeout()
 
     pyvim.addevent('BufWritePost', libpath.push)
     pyvim.addevent('VimLeave',  vimleave)
@@ -157,9 +157,9 @@ class FrainList(Events):
         self.buf_node = None
 
         self.listwin = LIST("frain", self.FrainListGetRootsHook)
-        self.listwin.FREventBind("ListReFreshPost", FrainListRefreshHook)
-        self.listwin.FREventBind("ListReFreshPre",  FrainListRefreshPreHook)
-        self.listwin.FREventBind("ListShow",        FrainListShowHook)
+        self.listwin.FREventBind("List-ReFresh-Post", FrainListRefreshHook)
+        self.listwin.FREventBind("List-ReFresh-Pre",  FrainListRefreshPreHook)
+        self.listwin.FREventBind("List-Show",        FrainListShowHook)
 
         self.listwin.show()
         pyvim.addevent("BufEnter",   self.find)
@@ -190,9 +190,7 @@ class FrainList(Events):
             return -1
 
         """显示当前的 buffer 对应的文件在 win list 中的位置
-
         如果, buffer 不属于任何一个 project, 返回 `NROOT'
-
         之后生成当前 buffer 在 win list 中的 url, 由 win list 进行查询.
         """
         path = utils.bufferpath()
@@ -215,21 +213,24 @@ class FrainList(Events):
             return
         if not name:
             name = libpath.basename(path)
+
         if path:
             Project(path, name)
 
         self.listwin.refresh()
 
-    def add_cur_path(self):
-        path = utils.bufferpath()
-        self.add(path, '')
+    #def add_cur_path(self):
+    #    path = utils.bufferpath()
+    #    self.add(path, '')
 
-    def cur_project(self):
-        "返回当前 bufferf 所有在 project 对象"
-        path = utils.bufferpath()
-        for p in Project.All:
-            if path.startswith(p.root):
-                return p
+    #def cur_project(self):
+    #    "返回当前 bufferf 所有在 project 对象"
+    #    path = utils.bufferpath()
+    #    for p in Project.All:
+    #        if path.startswith(p.root):
+    #            return p
+
+
 
 if __name__ == "__main__":
     pass

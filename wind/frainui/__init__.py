@@ -9,6 +9,7 @@ from searchwin import Search
 from pyvim import log
 import utils
 import vim
+from Buffer import BF
 
 def inputstream(tp, key):
     # 处理从 IM Stream 过来的输入流
@@ -17,7 +18,7 @@ def inputstream(tp, key):
     if not obj:
         return
 
-    widget = obj.input_focus
+    widget = obj.BFInputFocus
     if widget and widget.IM:
         getattr(widget.IM, tp)(key)
 

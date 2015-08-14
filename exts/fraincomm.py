@@ -4,47 +4,20 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-import os
+
 import pyvim
-
 import vim
-from frain import FrainList
-from kvcache import KvCache
-from project import Project
-
-@pyvim.cmd(pyvim.complete.file)
-def Frain(path='.', name=''):
-    FrainList().add(path, name)
-
-
+import os
 @pyvim.cmd()
 def ProjectTerminal():
-    if not FrainList.get_instance():
-        os.system('setsid xterm&')
-        return
-    p = FrainList().cur_project()
-    if p:
-        os.system('cd %s;setsid xterm&' % p.root)
+    name = vim.current.buffer.name
+    for p in pyvim.Roots:
+        if name.startswith(p):
+            os.system('cd %s;setsid xterm&' % p)
+            break
+
     else:
         os.system('setsid xterm&')
-
-@pyvim.cmd(pyvim.complete.file)
-def FrainAddInclude(path):
-    if not FrainList.get_instance():
-        return
-
-    project = FrainList().cur_project()
-    if not project:
-        return
-
-    if not os.path.isdir(path):
-        pyvim.echoline('%s is not dir' % path)
-        return
-
-    path = os.path.realpath(path)
-
-    project.add_c_include(path)
-    Project.update_c_include()
 
 
 

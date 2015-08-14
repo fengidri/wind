@@ -7,6 +7,7 @@
 #    对于 object 进行记录. 一般的 object 要用 name 进行注册
 #    Buffer object 使用 vim.buffer 对象进行注册
 Objects = {}
+import pyvim
 
 class Object(object):
     Buffer = None
@@ -14,6 +15,9 @@ class Object(object):
     def FREventEmit(self, event, *k):
         if not hasattr(self, '_CB_'):
             return
+
+        pyvim.log.debug("Frainui call event: %s" % event)
+
         try:
             cbs = self._CB_.get(self).get(event, [])
         except:

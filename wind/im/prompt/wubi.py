@@ -52,7 +52,7 @@ def setcount(patten, num):
 
 @prompt.prompt('wubi')
 def handle():
-    if vim.vars.get("wind_im_wubi", 1):
+    if not vim.vars.get("wind_im_wubi", 1):
         return
 
     for i in [-1, -2, -3, -4]:

@@ -35,7 +35,6 @@ def getfiles(path):
         if name.startswith(path):
             name = name[lenght:]
             if name in lines:
-                pyvim.log.error('@@@@@@@@@%s' % name)
                 lines.remove(name)
                 lines.insert(0, name)
 
@@ -52,7 +51,7 @@ class file_filter(object):
         self.path = path
 
         self.win = Search(getfiles(path))
-        self.win.FREventBind("quit", self.quit)
+        self.win.FREventBind("Search-Quit", self.quit)
 
 
     def quit(self, win, line):
@@ -66,7 +65,8 @@ class file_filter(object):
             vim.command("edit %s" % path)
 
     def show(self):
-        self.win.show()
+        pyvim.log.error('call show')
+        self.win.BFToggle()
 
 
 @pyvim.cmd()

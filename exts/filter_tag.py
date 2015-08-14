@@ -43,7 +43,7 @@ class tag_filter(object):
 
         self.win = Search(self.tags.keys())
 
-        self.win.FREventBind("quit", self.quit)
+        self.win.FREventBind("Search-Quit", self.quit)
 
 
     def quit(self, win, line):
@@ -54,10 +54,15 @@ class tag_filter(object):
                 pyvim.log.info("i got : %s %s", line, linenu)
                 vim.current.window.cursor = (linenu, 0)
 
+    def show(self):
+        pyvim.log.error('call show')
+        self.win.BFToggle()
+
 
 @pyvim.cmd()
 def TagFilter():
     if tag_filter.INSTANCE:
+        tag_filter.show()
         return
 
     tag_filter()

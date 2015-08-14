@@ -11,7 +11,7 @@ import vim
 
 class EnterLineIM(im.keybase.BaseEnd):
     def cb_enter(self):
-        self.enter.FREventEmit('active')
+        self.enter.FREventEmit('Enter-Active')
         return True
 
     def cb_backspace(self):
@@ -37,7 +37,7 @@ class EnterLine(utils.Object):
 
         vim.Function("matchaddpos")("TODO", [[1, 1, self.col - 1]], 11)
 
-        self.Buffer.b[linenu] = "%s " % prefix
+        self.Buffer.BFb[linenu] = "%s " % prefix
 
         self.prefix_len = len(prefix)
 
@@ -47,7 +47,7 @@ class EnterLine(utils.Object):
         self.last_content = ""
 
         self.handle1 = pyvim.addevent("CursorMovedI", self.cursor_moved,
-                self.Buffer.b)
+                self.Buffer.BFb)
         #self.handle2 = pyvim.addevent("InsertLeave", self.quit,
         #        self.Buffer.b)
 
@@ -68,12 +68,12 @@ class EnterLine(utils.Object):
         c = self.get_text()
         if c != self.last_content:
             self.last_content = c
-            self.FREventEmit('change', c)
+            self.FREventEmit('Enter-Change', c)
 
 
     def get_text(self):
-        c = self.Buffer.b[self.linenu][self.prefix_len:]
-        return self.Buffer.b[self.linenu][self.col:].strip()
+        c = self.Buffer.BFb[self.linenu][self.prefix_len:]
+        return self.Buffer.BFb[self.linenu][self.col:].strip()
 
 
 
