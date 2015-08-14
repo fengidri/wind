@@ -14,6 +14,15 @@ class EnterLineIM(im.keybase.BaseEnd):
         self.enter.FREventEmit('Enter-Active')
         return True
 
+    def cb_esc(self):
+        im.async('frainui', 'OP-Quit')
+        return True
+
+    def cb_tab(self):
+        im.imrc.feedkeys('\<esc>2G')
+        return True
+
+
     def cb_backspace(self):
         l, c = vim.current.window.cursor
 

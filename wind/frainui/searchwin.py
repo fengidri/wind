@@ -129,10 +129,10 @@ class EnterEvent(object):
         if c.find(';') > -1:
             return
 
-        if c.find('$') > -1: # 通过异步退出
-            self.match_line = ''
-            im.async('frainui', 'OP-Quit')
-            return
+#        if c.find('$') > -1: # 通过异步退出
+#            self.match_line = ''
+#            im.async('frainui', 'OP-Quit')
+#            return
 
         pats = []
         ng_pats = []
