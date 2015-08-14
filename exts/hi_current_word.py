@@ -4,14 +4,16 @@
 """
 import pyvim
 import vim
+
+vim.command("hi CurrentWord guibg=#3f3853 gui=None")
+vim.command("syn keyword CurrentWord CurrentWord")
+
 class _input_post( ):
     def __init__( self ):
         self.lastword = ''
         self.match_id = ''
         self.ids = {}
 
-        vim.command("hi CurrentWord guibg=#3f3853 gui=None")
-        vim.command("syn keyword CurrentWord CurrentWord")
 
     def input_post( self ):
         self.hi_current_word( )
