@@ -115,7 +115,10 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
         self.FREventBind("OP-Delete",         self.delete)
         self.FREventBind("OP-Refresh",        self.refresh)
 
-        self.FREventBind("OP-Focus",          self.BFFocus)
+        def focus(s):
+            self.BFFocus()
+
+        self.FREventBind("OP-Focus",          focus)
 
     def show(self):
         self.BFCreate()
