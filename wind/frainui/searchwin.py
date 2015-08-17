@@ -64,7 +64,7 @@ class SearchWIN(object):
         index = 1
         for i in range(0, num):
             line = lines[i]
-            self.BFb.append("  %s" % line, index)
+            self.BFb.append("%2d. %s" % (i + 1, line), index)
             index += 1
 
     def hi_pats(self, pats):
