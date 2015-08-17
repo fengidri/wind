@@ -19,6 +19,7 @@ class EnterLineIM(im.keybase.BaseEnd):
         return True
 
     def cb_tab(self):
+        vim.command("set cursorline")
         im.imrc.feedkeys('\<esc>2G')
         return True
 
