@@ -103,7 +103,12 @@ class BufferEvent(object):
         if t:#OP-Quit
             vim.current.window = self.edit_win
 
-        self.FREventEmit("Search-Quit", self.match_line)
+        if len(self.match_line) > 5:
+            line = self.match_line[3:]
+        else:
+            line = ''
+
+        self.FREventEmit("Search-Quit", line)
 
         self.enter.delete()
         self.BFWipeout()

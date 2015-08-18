@@ -41,7 +41,9 @@ class tag_filter(object):
         vim.command('update')
         self.tags = ctag(vim.current.buffer.name)
 
-        self.win = Search(self.tags.keys())
+        tags = self.tags.keys()
+        tags.sort()
+        self.win = Search(tags)
 
         self.win.FREventBind("Search-Quit", self.quit)
 
