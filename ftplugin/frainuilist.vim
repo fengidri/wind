@@ -25,5 +25,6 @@ setlocal foldmethod=expr
 setlocal foldexpr=0
 
 
+setlocal nonumber
 
 

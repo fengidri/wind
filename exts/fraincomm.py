@@ -13,11 +13,11 @@ def ProjectTerminal():
     name = vim.current.buffer.name
     for p in pyvim.Roots:
         if name.startswith(p):
-            os.system('cd %s;setsid xterm&' % p)
+            os.system('cd %s;setsid xterm 2>/dev/null &' % p)
             break
 
     else:
-        os.system('setsid xterm&')
+        os.system('setsid xterm 2>/dev/null &')
 
 
 
