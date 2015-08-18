@@ -196,6 +196,7 @@ class FrainList(Events):
         path = utils.bufferpath()
         if not path:
             return
+        log.error('path: %s', path)
 
         for p in Project.All:
             if path.startswith(p.root):

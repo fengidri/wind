@@ -65,10 +65,7 @@ def win_max( ):
 
 "get last select text"
 def select():
-    line1 = int(vim.eval("line(\"'<\")")) - 1
-    line2 = int(vim.eval("line(\"'>\")")) - 1
-    col1  = int(vim.eval("col(\"'<\")"))  - 1
-    col2  = int(vim.eval("col(\"'>\")"))  - 1
+    ((line1, col1), (line2, col2)) = selectpos()
 
     tmp = []
     for i in range(line1, line2  + 1):
@@ -84,6 +81,13 @@ def select():
 
         tmp.append(line[s: e + 1])
     return '\n'.join(tmp)
+
+def selectpos():
+    line1 = int(vim.eval("line(\"'<\")")) - 1
+    line2 = int(vim.eval("line(\"'>\")")) - 1
+    col1  = int(vim.eval("col(\"'<\")"))  - 1
+    col2  = int(vim.eval("col(\"'>\")"))  - 1
+    return ((line1, col1), (line2, col2))
 
 
 
