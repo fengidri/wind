@@ -53,5 +53,20 @@ map <C-s>          :SameWord<cr>a
 map  <tab>         :py IM("frainui", "OP-Focus", "frain")<CR>
 map *              viw""y/<C-R>0<CR>
 vnoremap /         ""y/<C-R>0<CR>
-map gf             :FileFilter<cr>
-map gt             :TagFilter<cr>
+
+map gf             :GoAny file<cr>
+map gt             :GoAny tag<cr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

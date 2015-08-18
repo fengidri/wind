@@ -103,7 +103,7 @@ class BufferEvent(object):
         if t:#OP-Quit
             vim.current.window = self.edit_win
 
-        if len(self.match_line) > 5:
+        if self.match_line and len(self.match_line) > 5:
             line = self.match_line[3:]
         else:
             line = ''

@@ -61,7 +61,6 @@ class tag_filter(object):
         self.win.BFToggle()
 
 
-@pyvim.cmd()
 def TagFilter():
     if tag_filter.INSTANCE:
         tag_filter.show()

@@ -9,6 +9,7 @@ import pyvim
 from frainui import Search
 import vim
 
+
 def getfiles(path):
     lines = []
     lenght = len(path)
@@ -69,7 +70,6 @@ class file_filter(object):
         self.win.BFToggle()
 
 
-@pyvim.cmd()
 def FileFilter():
     if file_filter.INSTANCE:
         file_filter.INSTANCE.show()
