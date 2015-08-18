@@ -9,6 +9,8 @@ __pycache__/
 doc/*.html
 doc/tex2html
 
+tags
+
 # Distribution / packaging
 .Python
 env/

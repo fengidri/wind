@@ -308,9 +308,20 @@ def getchar( ):
 
 def openfiles(files):
     win = vim.current.window
-    vim.command('edit %s' % files[0])
+    if not files:
+        return
+
+    f = files[0]
+    if os.path.isfile(f):
+        vim.command('edit %s' % f)
+
+    if len(files) == 1:
+        return
+
     for f in files[1:]:
-        vim.command('vs %s' % files[0])
+        if os.path.isfile(f):
+            vim.command('vs %s' % f)
+
 
 
 if __name__ == "__main__":
