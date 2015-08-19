@@ -62,6 +62,9 @@ class tag_filter(object):
 
 
 def TagFilter():
+    if not vim.current.buffer.name:
+        return
+
     if tag_filter.INSTANCE:
         tag_filter.show()
         return

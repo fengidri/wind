@@ -71,6 +71,9 @@ class file_filter(object):
 
 
 def FileFilter():
+    if not vim.current.buffer.name:
+        return
+
     if file_filter.INSTANCE:
         file_filter.INSTANCE.show()
         return

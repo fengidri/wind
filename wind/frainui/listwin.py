@@ -4,12 +4,12 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
+from pyvim import log as logging
+import pyvim
 import node
 from node import Item
 import vim
-from pyvim import log as logging
 import copy
-import pyvim
 import utils
 import frainui
 
@@ -153,7 +153,6 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
             node = subnode
         else:
             if subnode:
-
                 self.BFw.cursor = (subnode.getlinenu(), 0)
                 self.update_status()
 
@@ -162,18 +161,12 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
                     w = vim.current.window
                     vim.current.window = self.BFw
 
-                #vim.command('normal zz')
                 vim.command('call winline()')
                 if w:
                     vim.current.window = w
                 return
 
         self.BFw.cursor = (1, 0)
-
-
-
-
-
 
     @isshow
     def update_status(self):
