@@ -162,7 +162,8 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
                     w = vim.current.window
                     vim.current.window = self.BFw
 
-                vim.command('normal zz')
+                #vim.command('normal zz')
+                vim.command('call winline()')
                 if w:
                     vim.current.window = w
                 return
