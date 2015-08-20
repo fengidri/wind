@@ -6,4 +6,4 @@ setlocal concealcursor=nvic
 setlocal buftype=nofile
 setlocal noswapfile
 set nonumber
-map <CR>  :py IM('frainui', 'OP-Active')<cr>
+map <buffer> <CR>  :py IM('frainui', 'OP-Active')<cr>
