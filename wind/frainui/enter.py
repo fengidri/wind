@@ -83,7 +83,7 @@ class EnterLine(utils.Object):
 
     def get_text(self):
         c = self.Buffer.BFb[self.linenu][self.prefix_len:]
-        return self.Buffer.BFb[self.linenu][self.col:].strip()
+        return self.Buffer.BFb[self.linenu][self.col:]
 
 
 
