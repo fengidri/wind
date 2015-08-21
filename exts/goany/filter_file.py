@@ -8,6 +8,7 @@ import os
 import pyvim
 from frainui import Search
 import vim
+import time
 
 
 def getfiles(path):
@@ -51,7 +52,11 @@ class file_filter(object):
 
         self.path = path
 
-        self.win = Search(getfiles(path))
+        s = time.time()
+        fs = getfiles(path)
+        pyvim.log.debug("getfiles use time: %s" % time.time() - s)
+
+        self.win = Search(fs)
         self.win.FREventBind("Search-Quit", self.quit)
 
 

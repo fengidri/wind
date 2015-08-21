@@ -250,7 +250,12 @@ class class_tag:
         pre_buffer_name=vim.current.buffer.name
 
         vim.command('update')
-        vim.command('silent edit %s'  %  taginfo["start_file"])
+
+        f = taginfo["start_file"]
+        if not os.path.isfile(f):
+            return
+
+        vim.command('silent edit %s'  % f)
 
         line_nu= taginfo["start_file_pos"][0]
         col_nu= taginfo["start_file_pos"][1]
@@ -292,8 +297,12 @@ class class_tag:
         taginfo_path = taglist[pos_for_taglist]['filename']
         if taginfo_path != vim.current.buffer.name:
                 #保存文件
+                f = taginfo["start_file"]
+                if not os.path.isfile(f):
+                    return
                 vim.command('silent update')
                 vim.command("silent edit %s"  %  taginfo_path)
+
         #cmd  #go to the tag
         try:
             cmd = taglist[pos_for_taglist]['cmd']
