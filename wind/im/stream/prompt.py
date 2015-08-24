@@ -30,7 +30,6 @@ class IM_Prompt(BasePass):
         return True
 
     def cb_space(self):
-        log.error("status.name %s", Status.name)
         if Status.name == 'wubi':
             feedkeys('\<C-N>')
             feedkeys('\<C-Y>')

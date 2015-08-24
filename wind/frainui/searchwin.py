@@ -137,7 +137,9 @@ class EnterEvent(object):
             if pat[0] == '-':
                 pat = pat[1:]
                 if pat:
-                    ng_pats.append(pat[1:])
+                    ng_pats.append(pat)
+                else:
+                    return
             else:
                 pats.append(pat)
 

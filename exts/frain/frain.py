@@ -82,8 +82,9 @@ def FrainListShowHook(listwin):
         Project.emit("FrainLeave")
 
     def quitpre():
+        return
         ws = vim.windows
-        if len(ws) == 2:
+        if len(ws) == 2 and listwin.BFw.valid:
             listwin.BFWipeout()
 
     pyvim.addevent('BufWritePost', libpath.push)
@@ -196,7 +197,7 @@ class FrainList(Events):
         path = utils.bufferpath()
         if not path:
             return
-        log.error('path: %s', path)
+        log.info('path: %s', path)
 
         for p in Project.All:
             if path.startswith(p.root):
