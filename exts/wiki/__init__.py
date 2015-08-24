@@ -151,6 +151,9 @@ def WikiPost():
 
     ID_i = remote.post_tex('\n'.join(vim.current.buffer), curfile)
 
+    if ID_i == None:
+        return
+
     if ID_i < 0:
         pyvim.echo("POST error: %s" % ID_i, hl=True)
         return
