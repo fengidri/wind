@@ -56,6 +56,7 @@ vnoremap /         ""y/<C-R>0<CR>
 
 map gf             :GoAny file<cr>
 map gt             :GoAny tag<cr>
+map tt             :GoAny Tag<cr>
 
 
 

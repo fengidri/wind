@@ -76,7 +76,6 @@ class NODE(object):
         try:
             node_index = int(line.split('<|>')[1])
             logging.debug("getnode ID: %s" % node_index)
-            logging.debug("%s" % self.nodes)
 
             return self.nodes.get(node_index)
         except:
