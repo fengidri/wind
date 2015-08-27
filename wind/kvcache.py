@@ -3,12 +3,22 @@
 #    time      :   2015-06-18 19:29:08
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
+
 import os
 import json
 
+#    def __new__(cls, *args, **kw):
+#        if not cls.Singleton:
+#            return super(KvCache, cls).__new__(cls, *args, **kw)
+#        if not hasattr(cls, '_instance'):
+#            orig = super(KvCache, cls)
+#            cls._instance = orig.__new__(cls, *args, **kw)
+#        return cls._instance
+
 class KvCache(object):
-    Singleton = False
+    #Singleton = False
     DBFile = os.path.join(os.environ.get("HOME"), '.vim/config/kv.db')
+
     def __init__(self, dbfile = None):
         if dbfile:
             self.DBFile = dbfile
@@ -16,16 +26,10 @@ class KvCache(object):
         dbdir = os.path.dirname(self.DBFile)
         if not os.path.exists(dbdir):
             os.makedirs(dbdir)
+
         self.data = self._load()
 
 
-    def __new__(cls, *args, **kw):
-        if not cls.Singleton:
-            return super(KvCache, cls).__new__(cls, *args, **kw)
-        if not hasattr(cls, '_instance'):
-            orig = super(KvCache, cls)
-            cls._instance = orig.__new__(cls, *args, **kw)
-        return cls._instance
 
     def _load(self):
         try:

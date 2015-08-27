@@ -5,14 +5,15 @@
 #    version   :   1.0.1
 
 
-from kvcache import KvCache
-import json
-import vim
 import os
-import gitinfo
+import json
 import logging
 
 import pyvim
+import vim
+import gitinfo
+
+from kvcache import KvCache
 
 class Project(object):
     All = []
@@ -60,7 +61,9 @@ class Project(object):
     def __init__(self, root, name = ''):
         self.root = root
         self.name = name
+
         self.kvdb = KvCache(os.path.join(self.root, '.wind'))
+
         self.gitinfo = gitinfo.gitinfo(root)
         Project.All.append(self)
 
@@ -93,6 +96,7 @@ class Project(object):
                 return False
             else:
                 inc.append(path)
+
         self.kvdb.set("cinclude", inc)
         self.kvdb.save()
         return True
