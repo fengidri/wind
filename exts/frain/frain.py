@@ -216,7 +216,7 @@ class FrainList(Events):
         if not name:
             name = libpath.basename(path)
 
-        if path:
+        if path:#TODO maybe scp
             Project(path, name)
 
         self.listwin.refresh()
