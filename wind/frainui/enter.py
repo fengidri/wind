@@ -78,7 +78,7 @@ class EnterLine(utils.Object):
         c = self.get_text()
         if c != self.last_content:
             self.last_content = c
-            self.FREventEmit('Enter-Change', c)
+            self.FREventEmit('Enter-Change')
 
 
     def get_text(self):

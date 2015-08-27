@@ -9,8 +9,6 @@ import utils
 import vim
 import im
 
-
-
 def match(pattern, source):
     length = len(pattern)
     index = 0
@@ -70,6 +68,7 @@ class SearchWIN(object):
     def hi_pats(self, pats):
         fadd = vim.Function('matchadd')
         fdel = vim.Function('matchdelete')
+
         for i in self.match_id:
             try:
                 fdel(i)
@@ -79,8 +78,7 @@ class SearchWIN(object):
         del self.match_id[:]
 
         for pat in pats:
-            i = fadd('keyword', pat)
-            self.match_id.append(i)
+            self.match_id.append(fadd('keyword', pat))
 
 
 class BufferEvent(object):
@@ -116,24 +114,18 @@ class BufferEvent(object):
 
 class EnterEvent(object):
     def enter_active(self, enter):
-        text = enter.get_text()
-        num = 1
-        tt = text.split(';')
-        if len(tt) > 1:
-            tt = tt[-1].strip()
-            if tt.isdigit():
-                num = int(tt)
-                if num >= len(self.BFb):
-                    num = 1
-
-        self.match_line = self.BFb[num].strip()
+        self.match_line = self.BFb[1].strip()
         # 进入异步模式
         im.async('frainui', 'OP-Quit')
 
-    def enter_change(self, enter, c):
+    def enter_change(self, enter):
         pats = []
         ng_pats = []
-        for pat in c.split():
+
+        for pat in enter.get_text().split():
+            if not pat:
+                continue
+
             if pat[0] == '-':
                 pat = pat[1:]
                 if pat:
@@ -168,17 +160,12 @@ class Search(Buffer.BF, SearchWIN, BufferEvent, EnterEvent):
         self.BFCreate()
 
         from enter import EnterLine
-
-
         self.enter = EnterLine(self, 0, "Search:")
-
         self.enter.FREventBind("Enter-Active", self.enter_active)
         self.enter.FREventBind("Enter-Change", self.enter_change)
 
         self.FREventBind("OP-Active", self.option_active)
         self.FREventBind("OP-Quit", self.quit)
-
-#        self.h = pyvim.addevent("QuitPre", self.quit)
 
         self.BFSetImFocus(self.enter)
 
