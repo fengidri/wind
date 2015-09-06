@@ -6,7 +6,7 @@
 
 import pyvim
 from pyvim import log
-from im.imrc import feedkeys
+from .imrc import feedkeys
 
 keyname = {
      "parenthess"  : "("       ,
