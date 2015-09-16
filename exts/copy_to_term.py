@@ -8,6 +8,9 @@ import vim
 import pyvim
 import sys
 import os
+import requests
+
+
 
 @pyvim.cmd()
 def CopyToIterm2():
@@ -18,6 +21,24 @@ def CopyToIterm2():
     os.system('echo -e "%s" '%(cmd))
 
     vim.command("redraw!")
+
+
+@pyvim.cmd()
+def CopyToHost():
+    try:
+        requests.post('http://10.0.2.2:8080/clipboard/content',
+                {'clipboard': vim.eval('@0')})
+        pyvim.echo('Copy TO Host')
+    except:
+        pass
+
+@pyvim.cmd()
+def PasteFromHost():
+    c = requests.get('http://10.0.2.2:8080/clipboard/content').text
+    setreg = vim.Function('setreg')
+    setreg('0', c)
+
+
 
 
 

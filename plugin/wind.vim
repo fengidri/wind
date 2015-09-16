@@ -60,6 +60,11 @@ map tt             :GoAny Tag<cr>
 
 
 
+if has("gui_running")
+else
+    vmap "+y     y:CopyToHost<cr>
+    map "+p      :PasteFromHost<cr>p
+endif
 
 
 
