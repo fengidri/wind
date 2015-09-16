@@ -5,6 +5,7 @@
 #    version   :   1.0.1
 
 from IM import IM
+from imrc import async
 A=1
 
 if __name__ == "__main__":
