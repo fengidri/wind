@@ -25,12 +25,14 @@ def CopyToIterm2():
 
 @pyvim.cmd()
 def CopyToHost():
+    getreg = vim.Function("getreg")
+    copy = getreg("0")
     try:
         requests.post('http://10.0.2.2:8080/clipboard/content',
-                {'clipboard': vim.eval('@0')})
+                {'clipboard': copy})
         pyvim.echo('Copy TO Host')
     except:
-        pass
+        pyvim.echo('Copy TO Host: Fail!!!', hl=True)
 
 @pyvim.cmd()
 def PasteFromHost():

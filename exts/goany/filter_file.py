@@ -76,30 +76,22 @@ class file_filter(object):
 
 
 def FileFilter():
-    if not vim.current.buffer.name:
-        return
-
     if file_filter.INSTANCE:
         file_filter.INSTANCE.show()
         return
 
+
     name = vim.current.buffer.name
     root = None
     for r in pyvim.Roots:
-        if not name:
+        if not name or name.startswith(r):
             root = r
             break
-
-        if name.startswith(name):
-            root = r
-            break
-    else:
-        pyvim.echo("Not Found root in pyvim.Roots for current file.", hl=True)
-        return
 
     if root:
         file_filter(root)
-
+    else:
+        pyvim.echo("Not Found root in pyvim.Roots for current file.", hl=True)
 
 
 if __name__ == "__main__":
