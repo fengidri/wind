@@ -6,7 +6,7 @@
 
 import filter_tag
 import filter_file
-#import filter_Tag
+import all_tag
 
 
 import pyvim
@@ -19,7 +19,7 @@ def GoAny(f):
         filter_tag.TagFilter()
 
     elif f == 'Tag':
-        filter_Tag.TagFilter()
+        all_tag.TagFilter()
 
 if __name__ == "__main__":
     pass
