@@ -4,7 +4,7 @@ import os
 import pyvim
 import ctags
 import sys
-import logging
+from pyvim import log as logging
 
 def encode(cmd):
     # 把 tags 文件的里 命令式 tag 进行转码
@@ -19,33 +19,33 @@ def encode(cmd):
 
 
 from frainui import Search
-class winlist(object):
-    INSTANCE = None
-    def __init__(self):
-        self.__class__.INSTANCE = self
 
-        vim.command('update')
-        self.tags = ctag(vim.current.buffer.name)
+def local_by_cmd(tagname, path, cmd):
+    if path != vim.current.buffer.name:
+        vim.command('silent update')
+        vim.command("silent edit %s"  %  path)
 
-        tags = self.tags.keys()
-        tags.sort()
+    found = []
+    if cmd.isdigit():
+        found.append(int(cmd) - 1)
+    else:
+        patten = cmd[2: -2].replace(r'\/','/')
+        patten = patten.replace(r'\r','')
+        for i, line in enumerate(vim.current.buffer):
+            if line.startswith(patten):
+                found.append(i)
 
-        self.win = Search(tags)
-        self.win.FREventBind("Search-Quit", self.quit)
+    if found:
+        line_nu = found.pop( )
+        line = vim.current.buffer[line_nu]
+        col_nu = line.find(tagname)
+        if col_nu < 0:
+            col_nu = 0
 
-
-    def quit(self, win, line):
-        self.__class__.INSTANCE = None
-        if line:
-            linenu = self.tags.get(line)
-            if linenu:
-                pyvim.log.info("i got : %s %s", line, linenu)
-                vim.current.window.cursor = (linenu, 0)
-
-    def show(self):
-        pyvim.log.error('call show')
-        self.win.BFToggle()
-
+        vim.current.window.cursor = (line_nu  + 1, 0)
+        vim.command("normal %sl"  % col_nu)
+    else:
+        logging.info('patten'+patten)
 
 
 
@@ -292,53 +292,43 @@ class class_tag:
             pos_for_taglist  + 1,
             num_total))
 
-        taginfo_path = taglist[pos_for_taglist]['filename']
-        if taginfo_path != vim.current.buffer.name:
-                #保存文件
-                f = taginfo["start_file"]
-                if not os.path.isfile(f):
-                    return
-                vim.command('silent update')
-                vim.command("silent edit %s"  %  taginfo_path)
-
         #cmd  #go to the tag
-        pos_for_taglist = self._open_tag(tagname, taglist, pos_for_taglist)
+        self.current_taglist = taglist
+        self.current_tagname = tagname
+        pos_for_taglist = self._open_tag(pos_for_taglist)
 
         if pos_for_taglist>= num_total:
             pos_for_taglist  = 0
         taginfo["pos_for_taglist"]  = pos_for_taglist
 
-    def _open_tag(self, tagname, taglist, pos):
-        cmd = taglist[pos]['cmd']
-        cmd = encode(cmd)
-        #定位光标到tag上
-        self.local_by_cmd(tagname, cmd)
-        return pos + 1
+    def _open_tag(self, pos):
+        if len(self.current_taglist) < 4:
+            cmd = self.current_taglist[pos]['cmd']
+            cmd = encode(cmd)
 
-    def local_by_cmd(self, tagname, cmd):
-        found = []
-        if cmd.isdigit():
-            found.append(int(cmd) - 1)
+            #定位光标到tag上
+            local_by_cmd(self.current_tagname, cmd)
+            return pos + 1
         else:
-            patten = cmd[2: -2].replace(r'\/','/')
-            patten = patten.replace(r'\r','')
-            for i, line in enumerate(vim.current.buffer):
-                if line.startswith(patten):
-                    found.append(i)
+            cmds = []
+            for t in self.current_taglist:
+                cmd = encode(t['cmd'])
+                cmds.append(cmd[2:-2])
 
-        if found:
-            line_nu = found.pop( )
-            line = vim.current.buffer[line_nu]
-            col_nu = line.find(tagname)
-            if col_nu < 0:
-                col_nu = 0
+            win = Search(cmds)
+            win.FREventBind('Search-Quit', self.quit_search)
+            return pos + 1
 
-            vim.current.window.cursor = (line_nu  + 1, 0)
-            vim.command("normal %sl"  % col_nu)
-        else:
-            logging.info('patten'+patten)
+    def quit_search(self, win, cmd):
+        logging.error("get: %s", cmd)
+        if cmd:
+            for t in self.current_taglist:
+                _cmd = encode(t['cmd'])
 
-        #pyvim.highlight()
+                if cmd == _cmd[2:-2]:
+                    path = t['filename']
+                    local_by_cmd(self.current_tagname, path, _cmd)
+                    break
 
 
 @pyvim.cmd()
