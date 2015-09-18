@@ -140,10 +140,6 @@ class class_tag:
         for path in pyvim.Roots:
             self.tagsfile_list.append( TagList(path) )
 
-    def refresh( self ):
-        for tagfile in self.tagsfile_list:
-            tagfile.refresh( )
-
     def wstack(self):
         "每一个窗口都有一个对应的stack,以及一些传回信息"
         w = vim.current.window
@@ -198,22 +194,7 @@ class class_tag:
             return self.taginfo()
         return None
 
-    def jump(self, tag):
-        "跳转入口"
-        if tag == self.lasttag():
-            #相同的tag  平行跳转
-            self.open_tag()
-        else:
-            #新的tag     纵向跳转
-            if not self.add_tag(tag):
-                return  -1
-            self.open_tag()
-
-        try:
-            vim.command('normal zz')
-            #vim.command('%foldopen!')
-        except vim.error, e:
-            logging.error(e)
+    ############################################################################
 
     def add_tag(self, tag):
         if not self.tagsfile_list:
@@ -240,46 +221,8 @@ class class_tag:
                 break
 
         #加入到stack中去
-        self.append(taglist,
-                tag,
-                num,
-                pos,
-                start_file,
-                start_file_pos)
+        self.append(taglist, tag, num, pos, start_file, start_file_pos)
         return True
-
-    def back(self):
-        taginfo  = self.taginfo()
-        self.pop()
-        if not taginfo:
-            vim.command(" echo 'there is no tag in stack'")
-            return 0
-
-        pre_buffer_name=vim.current.buffer.name
-
-        vim.command('update')
-
-        f = taginfo["start_file"]
-        if not os.path.isfile(f):
-            return
-
-        vim.command('silent edit %s'  % f)
-
-        line_nu= taginfo["start_file_pos"][0]
-        col_nu= taginfo["start_file_pos"][1]
-        vim.current.window.cursor = (line_nu, 0)
-        vim.command("normal %sl"  % col_nu)
-
-        try:
-            vim.command('%foldopen!')
-        except vim.error, e:
-            pass
-
-        try:
-            vim.command('normal zz')
-        except vim.error, e:
-            logging.error(e)
-
 
     def open_tag(self):
         taginfo         = self.taginfo()
@@ -311,10 +254,11 @@ class class_tag:
     def _open_tag(self, pos):
         if len(self.current_taglist) < 4:
             line = self.current_taglist[pos]['line']
+            path = self.current_taglist[pos]['filename']
             line = encode(line)
 
             #定位光标到tag上
-            localtion_tag(self.current_tagname, line)
+            localtion_tag(self.current_tagname, path, line)
             return pos + 1
         else:
             lines = []
@@ -347,21 +291,67 @@ def TagJump(tag = None):
     if not tag:
         tag = pyvim.current_word()
 
-    Tag.jump(tag)
+    "跳转入口"
+    if tag == Tag.lasttag():
+        #相同的tag  平行跳转
+        Tag.open_tag()
+    else:
+        #新的tag     纵向跳转
+        if not Tag.add_tag(tag):
+            return  -1
+        Tag.open_tag()
+
+    try:
+        vim.command('normal zz')
+        #vim.command('%foldopen!')
+    except vim.error, e:
+        logging.error(e)
 
 @pyvim.cmd()
 def TagBack():
     global Tag
     if Tag == None:
         return
-    Tag.back( )
+
+    taginfo  = Tag.taginfo()
+    Tag.pop()
+    if not taginfo:
+        vim.command(" echo 'there is no tag in stack'")
+        return 0
+
+    pre_buffer_name = vim.current.buffer.name
+
+    vim.command('update')
+
+    f = taginfo["start_file"]
+    if not os.path.isfile(f):
+        return
+
+    vim.command('silent edit %s'  % f)
+
+    line_nu= taginfo["start_file_pos"][0]
+    col_nu= taginfo["start_file_pos"][1]
+    vim.current.window.cursor = (line_nu, 0)
+    vim.command("normal %sl"  % col_nu)
+
+    try:
+        vim.command('%foldopen!')
+    except vim.error, e:
+        pass
+
+    try:
+        vim.command('normal zz')
+    except vim.error, e:
+        logging.error(e)
 
 @pyvim.cmd()
 def TagRefresh():
     global Tag
     if Tag == None:
         return
-    Tag.refresh( )
+
+    for tagfile in Tag.tagsfile_list:
+        tagfile.refresh( )
 
 
 if not __name__== "__main__":
