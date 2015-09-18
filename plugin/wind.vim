@@ -55,8 +55,8 @@ vnoremap /         ""y/<C-R>0<CR>
 map gf             :GoAny file<cr>
 map gt             :GoAny tag file<cr>
 map tt             :GoAny tag all<cr>
-map  <F9>          <esc>:GoAny tag jump<cr>
-map  <F8>          <esc>:GoAny tag back<cr>
+map  <F9>          :GoAny tag jump<cr>
+map  <F8>          :GoAny tag back<cr>
 
 
 
