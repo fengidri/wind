@@ -5,6 +5,7 @@ import pyvim
 import ctags
 import sys
 from pyvim import log as logging
+from frainui import Search
 
 def encode(cmd):
     # 把 tags 文件的里 命令式 tag 进行转码
@@ -18,18 +19,17 @@ def encode(cmd):
 
 
 
-from frainui import Search
 
-def local_by_cmd(tagname, path, cmd):
+def localtion_tag(tagname, path, line):
     if path != vim.current.buffer.name:
         vim.command('silent update')
         vim.command("silent edit %s"  %  path)
 
     found = []
-    if cmd.isdigit():
-        found.append(int(cmd) - 1)
+    if line.isdigit():
+        found.append(int(line) - 1)
     else:
-        patten = cmd[2: -2].replace(r'\/','/')
+        patten = line.replace(r'\/','/')
         patten = patten.replace(r'\r','')
         for i, line in enumerate(vim.current.buffer):
             if line.startswith(patten):
@@ -58,6 +58,7 @@ class TagList:
         self.tag_root_dir = root_dir
         self.tags = "%s/tags" % root_dir
         self.open(  )
+
     def open(self):
         self.items = None
         self.funs= None
@@ -70,6 +71,7 @@ class TagList:
         else:
             logging.error( '%s is no tags.' % tagsfile)
             return False
+
     def get_items( self ):
         if self.items == None:
 
@@ -80,6 +82,7 @@ class TagList:
                 status = self.tagfile.findNext(self.entry)
             self.items = items
         return self.items
+
     def get_funs( self ):
         if self.funs == None:
 
@@ -108,11 +111,12 @@ class TagList:
             list_tags.append(self.entry_to_dict(self.entry))
             status = self.tagfile.findNext(self.entry)
         return list_tags
+
     def entry_to_dict(self, entry):
         edict = { }
         edict["tag"] = entry["name"]
         edict["filename"] = os.path.join( self.tag_root_dir, entry["file"] )
-        edict["cmd"] = entry["pattern"]
+        edict["line"] = entry["pattern"][2:-2]
         edict["lineNumber"]  = entry["lineNumber"]
         edict["kind"] = entry["kind"]
         return edict
@@ -151,15 +155,18 @@ class class_tag:
                     }
             self.wstacks[w] = stack
         return stack
+
     def istack(self):
         "返回的是当前窗口对应的stack"
         return self.wstack()['tagstack']
+
     def taginfo(self):
         "返回是的当前的tag相关的信息"
         index = self.wstack()["pos_for_stack"]
         if index < 0:
             return None
         return self.wstack()["tagstack"][index]
+
     def lasttag(self):
         "返回是的当前的tag相关的信息"
         index = self.wstack()["pos_for_stack"]
@@ -303,31 +310,31 @@ class class_tag:
 
     def _open_tag(self, pos):
         if len(self.current_taglist) < 4:
-            cmd = self.current_taglist[pos]['cmd']
-            cmd = encode(cmd)
+            line = self.current_taglist[pos]['line']
+            line = encode(line)
 
             #定位光标到tag上
-            local_by_cmd(self.current_tagname, cmd)
+            localtion_tag(self.current_tagname, line)
             return pos + 1
         else:
-            cmds = []
+            lines = []
             for t in self.current_taglist:
-                cmd = encode(t['cmd'])
-                cmds.append(cmd[2:-2])
+                line = encode(t['line'])
+                lines.append(line)
 
-            win = Search(cmds)
+            win = Search(lines)
             win.FREventBind('Search-Quit', self.quit_search)
             return pos + 1
 
-    def quit_search(self, win, cmd):
-        logging.error("get: %s", cmd)
-        if cmd:
+    def quit_search(self, win, line):
+        logging.error("get: %s", line)
+        if line:
             for t in self.current_taglist:
-                _cmd = encode(t['cmd'])
+                _line = encode(t['line'])
 
-                if cmd == _cmd[2:-2]:
+                if line == _line:
                     path = t['filename']
-                    local_by_cmd(self.current_tagname, path, _cmd)
+                    localtion_tag(self.current_tagname, path, _line)
                     break
 
 
