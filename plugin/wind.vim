@@ -37,8 +37,6 @@ map  <F2>          :update<cr>
 imap <F2>          <esc>:update<cr>
 map  <F7>          <esc>:MarkTo<cr>
 imap <F7>          <esc>:MarkTo<cr>
-map  <F9>          <esc>:TagJump<cr>
-map  <F8>          <esc>:TagBack<cr>
 map  <F10>         <esc>:FSearch<cr>
 vmap <F10>         <esc>:FSearch Sel<cr>
 imap <F12>         <esc>:ProjectTerminal<cr><cr>
@@ -55,8 +53,10 @@ map *              viw""y/<C-R>0<CR>
 vnoremap /         ""y/<C-R>0<CR>
 
 map gf             :GoAny file<cr>
-map gt             :GoAny tag<cr>
-map tt             :GoAny Tag<cr>
+map gt             :GoAny tag file<cr>
+map tt             :GoAny tag all<cr>
+map  <F9>          <esc>:GoAny tag jump<cr>
+map  <F8>          <esc>:GoAny tag back<cr>
 
 
 
