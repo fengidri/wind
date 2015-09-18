@@ -18,6 +18,38 @@ def encode(cmd):
 
 
 
+from frainui import Search
+class winlist(object):
+    INSTANCE = None
+    def __init__(self):
+        self.__class__.INSTANCE = self
+
+        vim.command('update')
+        self.tags = ctag(vim.current.buffer.name)
+
+        tags = self.tags.keys()
+        tags.sort()
+
+        self.win = Search(tags)
+        self.win.FREventBind("Search-Quit", self.quit)
+
+
+    def quit(self, win, line):
+        self.__class__.INSTANCE = None
+        if line:
+            linenu = self.tags.get(line)
+            if linenu:
+                pyvim.log.info("i got : %s %s", line, linenu)
+                vim.current.window.cursor = (linenu, 0)
+
+    def show(self):
+        pyvim.log.error('call show')
+        self.win.BFToggle()
+
+
+
+
+
 class TagList:
     tagsfile = ''
     list_tags = []
@@ -134,6 +166,7 @@ class class_tag:
         if index < 0:
             return None
         return self.wstack()["tagstack"][index]['tagname']
+
     def append(self, taglist, tagname, num, pos_for_taglist, start_file, start_file_pos):
         "在当前窗口的stack后加上新tag的信息"
         stack = self.wstack()
@@ -151,11 +184,13 @@ class class_tag:
             self.istack().append(tmp)
         else:
             self.istack()[pos]  = tmp
+
     def pop(self):
         if self.wstack()['pos_for_stack'] >  -1 :
             self.wstack()['pos_for_stack'] -= 1
             return self.taginfo()
         return None
+
     def jump(self, tag):
         "跳转入口"
         if tag == self.lasttag():
@@ -172,40 +207,6 @@ class class_tag:
             #vim.command('%foldopen!')
         except vim.error, e:
             logging.error(e)
-
-    def jumpui(self):
-        return
-        tags = self.tagsfile_list[0].get_funs( )
-        request = gui_options.request( "/gui/tag_jump" )
-        request.add( "tags", tags)
-
-        con = gui_options.connect( )
-        con.request( request )
-        tag = con.response( )
-        con.close( )
-
-
-        if tag.status() == 200:
-            tag = tag.get( "tag")[ -1 ]
-        else:
-            return
-
-        "跳转入口"
-        if tag == self.lasttag():
-            #相同的tag  平行跳转
-            self.open_tag()
-        else:
-            #新的tag     纵向跳转
-            if not self.add_tag(tag):
-                return  -1
-            self.open_tag()
-
-        try:
-            vim.command('normal zz')
-            #vim.command('%foldopen!')
-        except vim.error, e:
-            logging.error(e)
-
 
     def add_tag(self, tag):
         if not self.tagsfile_list:
@@ -262,9 +263,6 @@ class class_tag:
         vim.current.window.cursor = (line_nu, 0)
         vim.command("normal %sl"  % col_nu)
 
-
-
-
         try:
             vim.command('%foldopen!')
         except vim.error, e:
@@ -304,45 +302,41 @@ class class_tag:
                 vim.command("silent edit %s"  %  taginfo_path)
 
         #cmd  #go to the tag
-        try:
-            cmd = taglist[pos_for_taglist]['cmd']
+        pos_for_taglist = self._open_tag(tagname, taglist, pos_for_taglist)
 
-            cmd = encode(cmd)
-            #定位光标到tag上
-            line_nu = 0
-            found = [  ]
-            if cmd.isdigit():
-                line_nu = int(cmd)   - 1
-                found.append( line_nu )
-            else:
-                patten = cmd[2: -2].replace(r'\/','/')
-                patten = patten.replace(r'\r','')
-                for line in vim.current.buffer:
-                    if line.startswith(patten):
-                        found.append( line_nu  )
-                    line_nu+=1
-
-            if found:
-                line_nu = found.pop( )
-                line = vim.current.buffer[line_nu]
-                col_nu = line.find(tagname)
-                if col_nu < 0:
-                    col_nu = 0
-
-                vim.current.window.cursor = (line_nu  + 1, 0)
-                vim.command("normal %sl"  % col_nu)
-            else:
-                logging.info('patten'+patten)
-
-        except vim.error, e:
-            logging.error(e)
-            return  -1
-
-
-        pos_for_taglist+= 1
         if pos_for_taglist>= num_total:
             pos_for_taglist  = 0
         taginfo["pos_for_taglist"]  = pos_for_taglist
+
+    def _open_tag(self, tagname, taglist, pos):
+        cmd = taglist[pos]['cmd']
+        cmd = encode(cmd)
+        #定位光标到tag上
+        self.local_by_cmd(tagname, cmd)
+        return pos + 1
+
+    def local_by_cmd(self, tagname, cmd):
+        found = []
+        if cmd.isdigit():
+            found.append(int(cmd) - 1)
+        else:
+            patten = cmd[2: -2].replace(r'\/','/')
+            patten = patten.replace(r'\r','')
+            for i, line in enumerate(vim.current.buffer):
+                if line.startswith(patten):
+                    found.append(i)
+
+        if found:
+            line_nu = found.pop( )
+            line = vim.current.buffer[line_nu]
+            col_nu = line.find(tagname)
+            if col_nu < 0:
+                col_nu = 0
+
+            vim.current.window.cursor = (line_nu  + 1, 0)
+            vim.command("normal %sl"  % col_nu)
+        else:
+            logging.info('patten'+patten)
 
         #pyvim.highlight()
 

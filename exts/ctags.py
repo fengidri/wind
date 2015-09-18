@@ -6,6 +6,8 @@ import ctags
 import sys
 import logging
 
+# new tags
+
 def encode(cmd):
     # 把 tags 文件的里 命令式 tag 进行转码
     show_enco=vim.eval('&encoding')
