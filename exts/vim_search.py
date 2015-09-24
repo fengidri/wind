@@ -5,6 +5,21 @@ import os
 import re
 
 @pyvim.cmd()
+def FSearchW(word):
+    filter = ''
+
+    command, path = context(word, filter)
+
+    if not command:
+        return
+
+    pyvim.log.error("search cmd: %s", command)
+    f_popen = os.popen(command)
+    lines = f_popen.readlines()
+    if lines:
+        filter_quick( lines, path, command )
+
+@pyvim.cmd()
 def FSearch(sel = False):
     if not sel:
         word = "\<%s\>" % pyvim.current_word()

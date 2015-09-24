@@ -25,15 +25,14 @@ def localtion_tag(tagname, path, line):
         vim.command('silent update')
         vim.command("silent edit %s"  %  path)
 
-    found = []
-    if line.isdigit():
-        found.append(int(line) - 1)
-    else:
-        patten = line.replace(r'\/','/')
-        patten = patten.replace(r'\r','')
-        for i, line in enumerate(vim.current.buffer):
-            if line.startswith(patten):
+    logging.error("###1 %s", line)
+    if isinstance(line, basestring):
+        found = []
+        for i, l in enumerate(vim.current.buffer):
+            if l.startswith(line):
                 found.append(i)
+    else:
+        found = [line]
 
     if found:
         line_nu = found.pop( )
@@ -45,7 +44,7 @@ def localtion_tag(tagname, path, line):
         vim.current.window.cursor = (line_nu  + 1, 0)
         vim.command("normal %sl"  % col_nu)
     else:
-        logging.info('patten'+patten)
+        logging.info('patten: '+line)
 
 
 
@@ -116,7 +115,15 @@ class TagList:
         edict = { }
         edict["tag"] = entry["name"]
         edict["filename"] = os.path.join( self.tag_root_dir, entry["file"] )
-        edict["line"] = entry["pattern"][2:-2]
+
+        line = entry["pattern"]
+        if line.isdigit():
+            edict["line"] = int(line) - 1
+        else:
+            patten = line.replace(r'\/','/')
+            patten = patten.replace(r'\r','')
+            edict["line"] = patten[2:-2]
+
         edict["lineNumber"]  = entry["lineNumber"]
         edict["kind"] = entry["kind"]
         return edict

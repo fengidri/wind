@@ -21,7 +21,7 @@ def SendBuf():
     try:
         urllib2.urlopen(req).read()
     except Exception, e:
-        logging.error(e)
+        pyvim.log.error(e)
 
 if __name__ == "__main__":
     pass
