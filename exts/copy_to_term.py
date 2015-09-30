@@ -26,7 +26,7 @@ def CopyToIterm2():
 @pyvim.cmd()
 def CopyToHost():
     getreg = vim.Function("getreg")
-    copy = getreg("0")
+    copy = getreg('"')
     try:
         requests.post('http://10.0.2.2:8080/clipboard/content',
                 {'clipboard': copy})
@@ -38,7 +38,7 @@ def CopyToHost():
 def PasteFromHost():
     c = requests.get('http://10.0.2.2:8080/clipboard/content').text
     setreg = vim.Function('setreg')
-    setreg('0', c)
+    setreg('"', c)
 
 
 
