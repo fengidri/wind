@@ -1,0 +1,11 @@
+/**
+ *   author       :   {author}
+ *   time         :   {time}
+ *   email        :   {email}
+ *   version      :   1.0.1
+ *   description  :
+ */
+#include <stdio.h>
+#include <stddef.h>
+#include <unistd.h>
+#include <string.h>

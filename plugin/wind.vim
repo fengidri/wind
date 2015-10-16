@@ -37,8 +37,8 @@ map  <F2>          :update<cr>
 imap <F2>          <esc>:update<cr>
 map  <F7>          <esc>:MarkTo<cr>
 imap <F7>          <esc>:MarkTo<cr>
-map  <F10>         <esc>:FSearch<cr>
-vmap <F10>         <esc>:FSearch Sel<cr>
+map  <F10>         <esc>:FSearchX<cr>
+vmap <F10>         <esc>:FSearchX Sel<cr>
 imap <F12>         <esc>:ProjectTerminal<cr><cr>
 map  <F12>         <esc>:ProjectTerminal<cr><cr>
 map  <2-LeftMouse> <esc>:MarkTo<cr>
@@ -68,14 +68,4 @@ else
     vmap "+y     y:CopyToHost<cr>
     map "+p      :PasteFromHost<cr>p
 endif
-
-
-
-
-
-
-
-
-
-
 

@@ -7,7 +7,7 @@ import re
 SUFFIX = ['*.[ch]', '*.cpp', '*.cc', '*.py']
 
 @pyvim.cmd()
-def FSearchW(word):
+def FSearch(word):
     command, path = context(word)
 
     if not command:
@@ -29,7 +29,7 @@ def FSearchW(word):
         filter_quick( lines, path, command )
 
 @pyvim.cmd()
-def FSearch(sel = False):
+def FSearchX(sel = False):
     if not sel:
         word = "\<%s\>" % pyvim.current_word()
     else:
