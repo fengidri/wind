@@ -4,14 +4,23 @@ import vim
 import os
 import re
 
+SUFFIX = ['*.[ch]', '*.cpp', '*.cc', '*.py']
+
 @pyvim.cmd()
 def FSearchW(word):
-    filter = ''
-
-    command, path = context(word, filter)
+    command, path = context(word)
 
     if not command:
         return
+
+    f = vim.current.buffer.name
+    if f:
+        f = os.path.basename(f)
+        f = f.split('.')
+        if len(f) > 1:
+            suffix = '*.%s' % f[-1]
+            if suffix not in SUFFIX:
+                SUFFIX.append(suffix)
 
     pyvim.log.error("search cmd: %s", command)
     f_popen = os.popen(command)
@@ -28,18 +37,7 @@ def FSearch(sel = False):
         word = word.replace("'", "\\'")
     pyvim.log.error(": %s", word)
 
-    filter = ''
-
-    command, path = context(word, filter)
-
-    if not command:
-        return
-
-    pyvim.log.error("search cmd: %s", command)
-    f_popen = os.popen(command)
-    lines = f_popen.readlines()
-    if lines:
-        filter_quick( lines, path, command )
+    FSearchW(word)
 
 
 """
@@ -63,7 +61,6 @@ def byte_to_unicode( byte ):
 def context(word, filter=""):
     target = ""
     dirname = ""
-    suffix = ['*.[ch]', '*.cpp', '*.cc', '*.py']
 
     cur_path = vim.current.buffer.name
     if not cur_path:
@@ -71,7 +68,7 @@ def context(word, filter=""):
 
     for path in pyvim.Roots:
         if cur_path.startswith( path ):
-            include = [" --include='%s' " % s for s in suffix ]
+            include = [" --include='%s' " % s for s in SUFFIX ]
             include = ' '.join(include)
 
             dirname = path
