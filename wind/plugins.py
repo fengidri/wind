@@ -38,6 +38,8 @@ class Plugins(object):
         if not path.endswith(".py"):
             return
 
+        logging.error('load plugin: %s' % path)
+
         sys_name = path.replace('.', '_')
 
         try:

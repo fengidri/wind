@@ -15,11 +15,13 @@ import vim
 
 cache={  }
 
+def webget(path):
+    r = urllib2.urlopen("http://127.0.0.1:9480%s" % path)
+    return json.loads(r.read())
+
 def search_from_db(patten):
     try:
-        r = urllib2.urlopen("http://localhost/wubi/search?patten=%s" %
-            patten)
-        w = json.loads(r.read())
+        w = webget("/wubi/search?patten=%s" % patten)
         cache[patten] = w
         return w
     except Exception, e:
