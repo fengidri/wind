@@ -37,7 +37,7 @@ def FSearchX(sel = False):
         word = word.replace("'", "\\'")
     pyvim.log.error(": %s", word)
 
-    FSearchW(word)
+    FSearch(word)
 
 
 """
