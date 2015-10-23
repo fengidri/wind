@@ -12,6 +12,7 @@ import logging
 import pyvim
 import vim
 import gitinfo
+import utils
 
 from kvcache import KvCache
 
@@ -101,6 +102,16 @@ class Project(object):
         self.kvdb.save()
         return True
 
+
+def CInc(inc):
+    path = utils.bufferpath()
+    for p in Project.All:
+        if path.startswith(p.root):
+            break
+    else:
+        return
+
+    p.add_c_include(inc)
 
 
 

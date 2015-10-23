@@ -7,6 +7,8 @@
 
 from frain import FrainList
 import pyvim
+import os
+import project
 
 @pyvim.cmd(pyvim.complete.file)
 def Frain(path='.', name=''):
@@ -19,21 +21,21 @@ def FrainToggle(path='.', name=''):
 
 @pyvim.cmd(pyvim.complete.file)
 def FrainAddInclude(path):
-    if not FrainList.get_instance():
-        return
+    #if not FrainList.get_instance():
+    #    return
 
-    project = FrainList().cur_project()
-    if not project:
-        return
+    #project = FrainList().cur_project()
+    #if not project:
+    #    return
 
-    if not os.path.isdir(path):
-        pyvim.echoline('%s is not dir' % path)
-        return
+    #if not os.path.isdir(path):
+    #    pyvim.echoline('%s is not dir' % path)
+    #    return
 
     path = os.path.realpath(path)
+    project.CInc(path)
 
-    project.add_c_include(path)
-    Project.update_c_include()
+    project.Project.update_c_include()
 
 
 if __name__ == "__main__":
