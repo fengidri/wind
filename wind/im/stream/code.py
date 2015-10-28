@@ -32,10 +32,10 @@ class handle(object):
 
     def out_marks(self, p):
         c = env.before.count(p) + env.after.count(p)
-        if p % 2 == 0:
-            feedkeys([d , b , '\\<left>'])
+        if c % 2 == 0:
+            feedkeys([p , p , '\\<left>'])
         else:
-            feedkeys(d)
+            feedkeys(p)
 
     def cb_mark( self ):
         self.out_marks("'")

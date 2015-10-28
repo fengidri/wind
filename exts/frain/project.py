@@ -56,7 +56,7 @@ class Project(object):
         if cins:
             vim.vars['frain_include_dirs'] = json.dumps(cins)
             # try cache Ycm's flag cache
-            vim.command('silent YcmCompleter ClearCompilationFlagCache')
+            #vim.command('silent YcmCompleter ClearCompilationFlagCache')
 
 
     def __init__(self, root, name = ''):
