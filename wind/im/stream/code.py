@@ -30,12 +30,19 @@ class handle(object):
         self.double_out('(', ')')
         return True
 
+    def out_marks(self, p):
+        c = env.before.count(p) + env.after.count(p)
+        if p % 2 == 0:
+            feedkeys([d , b , '\\<left>'])
+        else:
+            feedkeys(d)
+
     def cb_mark( self ):
-        self.double_out("'", "'")
+        self.out_marks("'")
         return True
 
     def cb_double_mark( self ):
-        self.double_out('"', '"')
+        self.out_marks('"')
         return True
 
     def cb_tab( self ):
