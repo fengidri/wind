@@ -30,6 +30,8 @@ class Project(object):
     def Hook_FrainEntry(cls):
         cls.update_c_include()
 
+        update_vim_vars(cls.All[0].kvdb.get("vim_vars"))
+
         #switch edit space
         pyvim.origin_win()
 
@@ -44,6 +46,7 @@ class Project(object):
     def Hook_FrainLeave(cls):
         for p in cls.All:
             p.save_curfile()
+
 
     @classmethod
     def update_c_include(cls):
@@ -85,6 +88,11 @@ class Project(object):
                 fs.append(name)
 
         self.kvdb.set("lastopen", fs)
+
+        v = vim.vars.get("wind_im_wubi")
+        if None != v:
+            self.kvdb.set("vim_vars", {"wind_im_wubi": v})
+
         self.kvdb.save()
 
     def add_c_include(self, path):
@@ -112,6 +120,14 @@ def CInc(inc):
         return
 
     p.add_c_include(inc)
+
+def update_vim_vars(vs):
+    if not isinstance(vs, dict):
+        return
+
+    for k, v in vs.items():
+        vim.vars[k] = v
+
 
 
 

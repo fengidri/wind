@@ -39,7 +39,9 @@ class KvCache(object):
             return {}
 
     def _save(self, se):
-        open(self.DBFile, 'w').write(json.dumps(se))
+        o = json.dumps(se, indent = 4)
+        if o:
+            open(self.DBFile, 'w').write(o)
 
     def get(self, k, ns = 'null'):
         space = self.data.get(ns)
