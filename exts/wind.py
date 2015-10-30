@@ -6,6 +6,7 @@
 
 from pyvim import log
 from pyvim import cmd
+import vim
 import logging
 
 subcmd = {'im' : {}}
