@@ -115,7 +115,7 @@ def cmd(complete = None):
             list 的item 做为命令的子命令
     """
     opts = []
-    if isinstance(complete, list):
+    if isinstance(complete, list) or isinstance(complete, dict):
         opts = complete
         complete = "-complete=customlist,wind#CommandsComplete"
 
@@ -134,9 +134,26 @@ def cmd(complete = None):
     return _cmd
 
 def command_complete(arglead, cmdline, cursorpos):
-    cmd = cmdline.split()[0]
-    opts = [ o for o in CMD_OPTS.get(cmd, []) if o.startswith(arglead)]
+    t = cmdline.split()
+    if arglead:
+        del t[-1]
 
+    cmd = t[0]
+    if len(t) > 1:
+        args = cmdline.split()[1:]
+    else:
+        args = []
+
+    opts = CMD_OPTS.get(cmd, [])
+    for a in args:
+        if not isinstance(opts, dict):
+            return
+        opts = opts.get(a, [])
+
+    if isinstance(opts, dict):
+        opts = opts.keys()
+
+    opts = [o for o in opts if o.startswith(arglead)]
     vim.vars['wind_commands_complete'] = opts
 
 
