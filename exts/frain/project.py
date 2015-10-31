@@ -15,6 +15,7 @@ import gitinfo
 import utils
 
 from kvcache import KvCache
+VARS = ["wind_im_wubi"]
 
 class Project(object):
     All = []
@@ -46,6 +47,8 @@ class Project(object):
     def Hook_FrainLeave(cls):
         for p in cls.All:
             p.save_curfile()
+            p.save_vars()
+            p.kvdb.save()
 
 
     @classmethod
@@ -75,6 +78,14 @@ class Project(object):
         self.save_curfile()
         Project.All.remove(self)
 
+    def save_vars(self):
+        vs = {}
+        for vn in VARS:
+            v = vim.vars.get(vn)
+            if None != v:
+                vs[vn] = v
+        self.kvdb.set("vim_vars", vs)
+
 
 
     def save_curfile(self):
@@ -89,11 +100,6 @@ class Project(object):
 
         self.kvdb.set("lastopen", fs)
 
-        v = vim.vars.get("wind_im_wubi")
-        if None != v:
-            self.kvdb.set("vim_vars", {"wind_im_wubi": v})
-
-        self.kvdb.save()
 
     def add_c_include(self, path):
         "为工程增加 C 头文件路径"

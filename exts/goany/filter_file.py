@@ -26,7 +26,7 @@ def getfiles(path):
             suffix = f.split('.')
             if len(suffix) > 1:
                 suffix = suffix[-1]
-                if suffix in ['o', 'so', 'pyc', 'lo']:
+                if suffix in ['o', 'so', 'pyc', 'lo', 'd']:
                     continue
 
             f = os.path.join(root, f)
