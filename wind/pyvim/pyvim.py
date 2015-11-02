@@ -11,6 +11,8 @@ log = logging.getLogger("wind")
 
 import plugin
 
+Roots = [] # 当前在编辑中的文件的根目录
+
 
 # for previous
 __previous = None
@@ -47,6 +49,12 @@ class WStack(dict):
             return
         else:
             return stack.pop()
+
+def get_cur_root(): # 返回当前文件所在的 root
+    cur_paths = vim.current.buffer.name
+    for path in pyvim.Roots:
+        if cur_paths.startswith( path ):
+            return path
 
 
 def settitle(name):#设置vim 窗口的title

@@ -10,7 +10,6 @@ Pyvim is a lib for ext and other modules.
 from plugin import *
 from pyvim import *
 
-Roots = [] # 当前在编辑中的文件的根目录
 
 
 if __name__ == "__main__":
