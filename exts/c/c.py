@@ -9,7 +9,7 @@ import vim
 
 @pyvim.cmd()
 def CFunComment():
-        Comment().fun_comment()
+    Comment().fun_comment()
 
 class Comment(object):
     def __init__(self):
@@ -78,18 +78,4 @@ class Comment(object):
 
         vim.current.buffer.append(lines, self.funline)
         vim.current.window.cursor = (self.funline + 2, len(lines[1]))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

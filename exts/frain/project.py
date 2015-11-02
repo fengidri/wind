@@ -4,7 +4,6 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-
 import os
 import json
 import logging
