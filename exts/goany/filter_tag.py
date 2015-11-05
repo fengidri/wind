@@ -13,25 +13,23 @@ def ctag(filename):
     cmd = "ctags --sort=no -f - -n --fields=-lzf %s" % filename
     f = os.popen(cmd)
 
-    tags = {}
-
-    for line in f.readlines():
-        tmp = line.split()
-
-        keyword        = tmp[0] #tag name
-        tp             = tmp[3] # 类型如 f
-        linenu         = int(tmp[2][0: -2])# 行号, ctag 输出如: 114;"
-        if not tp in 'fvm':
+    lines = f.readlines()
+    f.close()
+    tags = pyvim.parse_tags(lines)
+    _tags = {}
+    for k, v in tags.items():
+        ext = v[2]
+        if not ext:
+            continue
+        t = ext[0]
+        if t not in 'vmf':
             continue
 
-        if tp == 'm':
-            keyword = "%s.%s" %(tmp[4], keyword)
+        if t == 'm':
+            k = "%s.%s" % (k, ext[2])
 
-        tags[keyword] = linenu
-
-    return tags
-
-
+        _tags[k] = v[1]
+    return _tags
 
 class tag_filter(object):
     INSTANCE = None

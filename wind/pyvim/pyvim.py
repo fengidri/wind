@@ -50,6 +50,35 @@ class WStack(dict):
         else:
             return stack.pop()
 
+def parse_tags(lines):
+    tags = {}
+    for line in lines:
+        if line[0] == '!':
+            continue
+        tt = line.split('\t', 2)
+        if not tt:
+            continue
+
+        o = tt[-1]
+
+        tagname = tt[0]
+        tagfile = tt[1]
+        pos = o.find(';"')
+        if pos == -1:
+            cmd = o
+            ext = None
+        else:
+            cmd = o[0: pos]
+            ext = o[pos + 2:].split('\t')
+
+        if cmd.isdigit():
+            cmd = int(cmd)
+        else:
+            cmd = o[2: -2]
+
+        tags[tagname] = (tagfile, cmd, ext)
+    return tags
+
 def get_cur_root(): # 返回当前文件所在的 root
     cur_paths = vim.current.buffer.name
     for path in pyvim.Roots:
