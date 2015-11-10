@@ -8,6 +8,7 @@ from pyvim import log
 from pyvim import cmd
 import vim
 import logging
+from pyvim import statusline
 
 subcmd = {'im' : {}}
 subcmd['im']['wubi'] = ['on', 'off']
