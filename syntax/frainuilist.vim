@@ -126,6 +126,8 @@ hi FrainUIRed   guifg=red
 hi FrainUIBlue  guifg=blue
 hi FrainUIGreen guifg=green
 
+hi CursorLine  ctermbg=40
+
 
 "hi Cursor ctermfg=fg ctermbg=bg guifg=None guibg=None
 
