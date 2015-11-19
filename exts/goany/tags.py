@@ -21,11 +21,12 @@ def encode(cmd):
 
 
 def localtion_tag(tagname, path, line):
+    logging.error("localtion tag:%s@%s", line, path)
+
     if path != vim.current.buffer.name:
         vim.command('silent update')
         vim.command("silent edit %s"  %  path)
 
-    logging.error("###1 %s", line)
     if isinstance(line, basestring):
         found = []
         for i, l in enumerate(vim.current.buffer):

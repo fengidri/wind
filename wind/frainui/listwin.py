@@ -152,7 +152,8 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
             node = subnode
         else:
             if subnode:
-                self.BFw.cursor = (subnode.getlinenu(), subnode.level * 2 - 1)
+                #self.BFw.cursor = (subnode.getlinenu(), subnode.level * 2 - 1)
+                self.BFw.cursor = (subnode.getlinenu(), 0)
                 self.update_status()
 
                 w = None
@@ -162,7 +163,7 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
 
                 #在 list 窗口中显示当前行
                 vim.command('call winline()')
-                vim.command('normal zs')
+                #vim.command('normal zs')
                 if w:
                     vim.current.window = w
                 return
