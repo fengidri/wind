@@ -65,7 +65,7 @@ map  gb            :GoAny tag back<cr>
 
 if has("gui_running")
 else
-    vmap "+y     y:CopyToHost<cr>
-    map "+p      :PasteFromHost<cr>p
+    vnoremap y     y:CopyToHost<cr>
+    noremap p      :PasteFromHost<cr>p
 endif
 
