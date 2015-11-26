@@ -10,6 +10,6 @@ import os
 
 
 @pyvim.cmd()
-def TTYecho(*k):
-    os.popen2("ttyecho %s" % ' '.join(k))
+def TTYrun(*k):
+    os.popen2("ttyrun %s" % ' '.join(k))
 
