@@ -65,6 +65,25 @@ class node_typing(object):
         tp = tp.replace(  '>', '&gt;' )
         return "\n```\n%s\n```\n" %  tp
 
+class node_css(object):
+    def __init__(self, ws):
+        s = len('\startcss')
+        e = len('\stoptcss')
+        self.word = ws.getword()
+        ws.update()
+        self.context = ws.getcontext(self.word)[s: -1 * e]
+
+    def html( self ):
+        tp = self.context
+
+        #tp = tp.replace('&', "&amp;" )
+        #tp = tp.replace(  '<', '&lt;' )
+        #tp = tp.replace(  '>', '&gt;' )
+        return "<style>%s</style>\n" %  tp
+
+    def md( self ):
+        return ''
+
 class node_punc(object):
     def __init__(self, ws):
         self.word = ws.getword()
@@ -400,7 +419,8 @@ class node_tree(list):
                     w.showname(), ws.pos, ws.end, w.pos)
 
             cb = self.handlemap.get(w.type)
-            if cb: self.append(cb(ws))
+            if cb:
+                self.append(cb(ws))
 
             elif w.type == Word.TYPE_CONTROL:
                 callback = NODE_MAP.get(w.name())
