@@ -69,7 +69,7 @@ def parse_tags(lines):
             ext = None
         else:
             cmd = o[0: pos]
-            ext = o[pos + 2:].split('\t')
+            ext = o[pos + 2:].strip().split('\t')
 
         if cmd.isdigit():
             cmd = int(cmd)

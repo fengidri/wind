@@ -25,8 +25,8 @@ def ctag(filename):
         if t not in 'vmf':
             continue
 
-        if t == 'm':
-            k = "%s.%s" % (k, ext[2])
+        if len(ext) > 1:
+            k = "%s.%s" % (ext[1], k)
 
         _tags[k] = v[1]
     return _tags
