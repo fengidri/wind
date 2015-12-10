@@ -89,7 +89,13 @@ def get_cur_root(): # 返回当前文件所在的 root
 def settitle(name):#设置vim 窗口的title
     # 如果没有设置name, 则使用第一个root的name
     vim_title = name.replace( ' ', '\\ ')
-    vim.command( "set title titlestring=%s" % vim_title )
+    if os.environ.get('TMUX'):
+        cmd = "tmux rename-window '%s'" % vim_title
+        os.system(cmd)
+    else:
+        cmd =  "set title titlestring=%s" % vim_title
+        vim.command(cmd)
+    log.error('Set Title: %s' % cmd)
 
 
 def origin_win( ):
