@@ -28,15 +28,18 @@ def CopyToHost():
     getreg = vim.Function("getreg")
     copy = getreg('"')
     try:
-        requests.post('http://10.0.2.2:8080/clipboard/content',
-                {'clipboard': copy})
+        os.popen("echo '%s' | mac c" % copy)
+        #requests.post('http://10.0.2.2:8080/clipboard/content',
+        #        {'clipboard': copy})
         pyvim.echo('Copy TO Host')
+
     except:
         pyvim.echo('Copy TO Host: Fail!!!', hl=True)
 
 @pyvim.cmd()
 def PasteFromHost():
-    c = requests.get('http://10.0.2.2:8080/clipboard/content').text
+    #c = requests.get('http://10.0.2.2:8080/clipboard/content').text
+    c = os.popen("mac p").read().decode('gbk').encode('utf8')
     setreg = vim.Function('setreg')
     setreg('"', c)
 
