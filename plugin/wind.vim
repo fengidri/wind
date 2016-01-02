@@ -50,6 +50,7 @@ imap <C-s>         <esc>:SameWord<cr>
 map <C-s>          :SameWord<cr>a
 map  <tab>         :py IM("frainui", "OP-Focus", "frain")<CR>
 map *              viw""y/<C-R>0<CR>
+
 vnoremap /         ""y/<C-R>0<CR>
 
 map gf             :GoAny file<cr>
@@ -60,6 +61,8 @@ map  <F9>          :GoAny tag jump<cr>
 map  <F8>          :GoAny tag back<cr>
 map  gh            :GoAny tag jump<cr>
 map  gb            :GoAny tag back<cr>
+map  O             :Zoom<cr>
+
 
 
 

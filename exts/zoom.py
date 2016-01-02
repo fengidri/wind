@@ -9,35 +9,26 @@ from pyvim import cmd
 import vim
 import logging
 
-restcmd = None
-win_to_buffer = {}
 
-winrestcmd = vim.Function('winrestcmd')
+class Z:
+    bnr = None
+
 
 @cmd()
 def Zoom():
-    global restcmd
-    global win_to_buffer
-    if not restcmd:
-        cur = vim.current.window
-        for w in vim.windows:
-            win_to_buffer[w.number] = w.buffer.number
-        restcmd = winrestcmd()
-        vim.command('only')
+    if Z.bnr == None:
+        vim.vars['wind_zoom'] = 'Z'
+        Z.bnr = vim.current.buffer.number
+        vim.command("tab split")
+
     else:
-        cur = vim.current.window
-        vim.command('only')
-        l = len(win_to_buffer)
-        for i in range(l - 1):
-            vim.command('vs')
-
-        vim.command("%s" % restcmd)
-        for w, b in win_to_buffer.items():
-            vim.command("%swindo b %s" % (w, b))
-
-        vim.current.window = cur
-        restcmd = None
-        win_to_buffer = {}
+        vim.vars['wind_zoom'] = 'z'
+        cursor = vim.current.window.cursor
+        bnr = vim.current.buffer.number
+        vim.command("tabclose")
+        if bnr == vim.current.buffer.number:
+            vim.current.window.cursor = cursor
+            Z.bnr = None
 
 
 
