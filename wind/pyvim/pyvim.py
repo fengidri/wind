@@ -97,6 +97,15 @@ def settitle(name):#设置vim 窗口的title
         vim.command(cmd)
     log.error('Set Title: %s' % cmd)
 
+def gettitle():
+    if os.environ.get('TMUX'):
+        cmd = "tmux display-message -p '#W'"
+        return os.popen(cmd).read().strip()
+    else:
+        cmd =  "set title titlestring=%s" % vim_title
+        vim.command(cmd)
+
+
 
 def origin_win( ):
     vim.command( "wincmd p")

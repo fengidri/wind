@@ -57,9 +57,6 @@ class OP_OPTIONS(object):
 
         self.root.node_open()
 
-        if self.Title:
-            pyvim.settitle(self.Title)
-
         self.FREventEmit("List-ReFresh-Post")
         self.nu_refresh += 1
 
@@ -92,7 +89,6 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
         self.names_for_find = None
         self.nu_refresh     = 0         # count the refresh
         self.get_roots      = get_roots
-        self.Title          = None
         self.root           = None
         self.nodes       = {}
 

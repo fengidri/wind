@@ -18,6 +18,9 @@ from white_black import black_filter_files, sorted_by_expand_name
 
 BufNewFile = {}
 
+class RC(object):
+    origin_window_title = None
+
 def leaf_handle(leaf):
     log.debug('leaf_handle: %s', leaf.ctx)
     vim.command( "update")
@@ -80,6 +83,8 @@ def get_buffers(Node):
 def FrainListShowHook(listwin):
     def vimleave():
         Project.emit("FrainLeave")
+        if RC.origin_window_title:
+            pyvim.settitle(RC.origin_window_title)
 
     def quitpre():
         return
@@ -98,16 +103,18 @@ def FrainListRefreshHook(listwin):
         return
 
 def FrainListRefreshPreHook(listwin):
-    if not Project.All:
-        listwin.Title = 'Frain'
-        return
-
-    p = Project.All[0]
-    gitinfo = p.gitinfo
-    if not gitinfo:
-        listwin.Title = p.name
+    if Project.All:
+        p = Project.All[0]
+        gitinfo = p.gitinfo
+        if not gitinfo:
+            title = p.name
+        else:
+            title = "%s(%s)" % (p.name, gitinfo["branch"])
     else:
-        listwin.Title = "%s(%s)" % (p.name, gitinfo["branch"])
+        title = 'Frain'
+
+    pyvim.settitle(title)
+
 
 
 
@@ -156,6 +163,8 @@ class FrainList(Events):
             return
 
         self.buf_node = None
+
+        RC.origin_window_title = pyvim.gettitle()
 
         self.listwin = LIST("frain", self.FrainListGetRootsHook)
         self.listwin.FREventBind("List-ReFresh-Post", FrainListRefreshHook)

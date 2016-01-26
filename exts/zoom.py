@@ -8,10 +8,12 @@ from pyvim import log
 from pyvim import cmd
 import vim
 import logging
+import pyvim
 
 
 class Z:
     bnr = None
+    title = ''
 
 
 @cmd()
@@ -21,7 +23,12 @@ def Zoom():
         Z.bnr = vim.current.buffer.number
         vim.command("tab split")
 
+        Z.title = pyvim.Title
+        pyvim.settitle('%s*Z' % Z.title)
+
     else:
+        pyvim.settitle(Z.title)
+
         vim.vars['wind_zoom'] = 'z'
         cursor = vim.current.window.cursor
         bnr = vim.current.buffer.number
