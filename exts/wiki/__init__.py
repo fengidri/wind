@@ -18,12 +18,6 @@ import units
 
 TEXLIST = None
 
-
-
-
-
-
-
 ################################################################################
 # 处理 frainui
 ################################################################################
@@ -41,14 +35,14 @@ def add_new(node):
     find()
     return
 
-def leaf_handle(leaf):
+def leaf_handle(leaf, listwin):
     remote = Remote()
     tmp = remote.load_tex(leaf.ctx)
     if not tmp:
         return
     vim.command("edit %s" % tmp)
 
-def leaf_delete(leaf):
+def leaf_delete(leaf, listwin):
     if not vim.vars.get('wiki_del_enable'):
         pyvim.echo('Please let g:wiki_del_enable=1', hl=True)
         return
@@ -57,7 +51,7 @@ def leaf_delete(leaf):
     leaf.father.refresh()
 
 
-def list_tex(node):
+def list_tex(node, listwin):
     remote = Remote()
     remote.load_list()
     for ID_s, info in remote.iter():
@@ -73,7 +67,7 @@ def list_tex(node):
         node.append(leaf)
 
 
-def List1(node):
+def List1(node, listwin):
     Remote().load_list() # 重新更新一下数据
 
     leaf = frainui.Leaf("NewWiki", -1, add_new, display = "\\red;NewWiki\\end;")
@@ -125,7 +119,8 @@ def ReFreshPre(listwin):
 ################################################################################
 @pyvim.cmd()
 def TexList():
-    if not (units.SERVER and units.URL_INDEX and units.URL_CHAPTER and units.URL_PUT and units.URL_POST):
+    if not (units.SERVER and units.URL_INDEX and units.URL_CHAPTER
+            and units.URL_PUT and units.URL_POST):
         pyvim.echo("Please set config for wiki.", hl=True)
         return
 

@@ -41,7 +41,7 @@ class OP_OPTIONS(object):
     def delete(self, w):
         node = self.getnode()
         if node:
-            node.FREventEmit("delete")
+            node.FREventEmit("delete", self)
 
 
     def refresh(self, win=None):
