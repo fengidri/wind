@@ -9,6 +9,8 @@ import vim
 import pyvim
 import utils
 
+LIST = None
+
 class Item(utils.Object):# Node与Leaf 的父类
     ID = 0
     def __init__(self):
@@ -143,7 +145,7 @@ class Node(Item):
         if self.need_fresh and self.get_child:
             del self.sub_nodes[:]
             self.need_fresh = False
-            self.get_child(self)
+            self.get_child(self, LIST)
 
     def node_open(self):
         if self.opened: return
@@ -212,13 +214,7 @@ class Leaf(Item):
         vim.current.window = pyvim.previous()
 
         if self.handle:
-            self.handle(self)
+            self.handle(self, LIST)
 
 
-
-
-
-
-if __name__ == "__main__":
-    pass
 

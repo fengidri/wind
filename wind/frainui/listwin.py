@@ -7,7 +7,6 @@
 from pyvim import log as logging
 import pyvim
 import node
-from node import Item
 import vim
 import copy
 import utils
@@ -84,6 +83,8 @@ import Buffer
 class LIST(Buffer.BF, OP_OPTIONS, NODE):
     def __init__(self, name, get_roots, **kw):
         frainui.BF.__init__(self)
+        node.LIST = self
+
         self.FRRegister(name)
 
         self.names_for_find = None
@@ -183,10 +184,4 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
             path = route[1].name
         self.BFb.vars['frain_status_path'] = path
 
-
-
-
-
-if __name__ == "__main__":
-    pass
 

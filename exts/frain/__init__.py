@@ -10,6 +10,7 @@ import os
 
 import project
 import frain
+import libpath
 
 FrainList = None
 
@@ -26,7 +27,7 @@ def Frain(path='.', name=''):
         name = libpath.basename(path)
 
     if path:#TODO maybe scp
-        Project(path, name)
+        project.Project(path, name)
 
     FrainList.listwin.refresh()
 

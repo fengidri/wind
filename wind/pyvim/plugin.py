@@ -168,11 +168,12 @@ def event_callback( cbid ):#事件回调函数  @event: 当前的事件
     if not cb:
         logging.error("Not Found cb for: %s" % cbid)
         return
-    cb()
+
+    cb[0](*cb[1])
 
 
 
-def addevent(event, cb, pat='*'):
+def addevent(event, cb, pat='*', arg  = ()):
     global __Event_Index
     __Event_Index += 1
 
@@ -180,7 +181,7 @@ def addevent(event, cb, pat='*'):
 
     cbid = "%s_%s" % (cb.func_code.co_name, __Event_Index)
     cmd = "py IM('event', '%s')" % cbid
-    __Event_Map[cbid] = cb
+    __Event_Map[cbid] = (cb, arg)
 
     if not isinstance(pat, basestring):
         pat = "<buffer=%s>" % pat.number
