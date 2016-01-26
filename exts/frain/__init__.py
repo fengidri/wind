@@ -19,7 +19,16 @@ def Frain(path='.', name=''):
     if not FrainList:
         FrainList = frain.FrainList()
 
-    FrainList.add(path, name)
+    path = libpath.realpath(path)
+    if not path:
+        return
+    if not name:
+        name = libpath.basename(path)
+
+    if path:#TODO maybe scp
+        Project(path, name)
+
+    FrainList.listwin.refresh()
 
     # add cmd
     pyvim.cmd(pyvim.complete.file)(FrainToggle)
