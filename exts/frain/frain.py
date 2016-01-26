@@ -18,8 +18,6 @@ from white_black import black_filter_files, sorted_by_expand_name
 
 BufNewFile = {}
 
-class RC(object):
-    origin_window_title = None
 
 def leaf_handle(leaf):
     log.debug('leaf_handle: %s', leaf.ctx)
@@ -83,8 +81,8 @@ def get_buffers(Node):
 def FrainListShowHook(listwin):
     def vimleave():
         Project.emit("FrainLeave")
-        if RC.origin_window_title:
-            pyvim.settitle(RC.origin_window_title)
+        if frain.origin_window_title:
+            pyvim.settitle(frain.origin_window_title)
 
     def quitpre():
         return
@@ -133,7 +131,7 @@ class Events(object):
         pyvim.Roots = []  # 整个vim 可用的变量
 
         if vim.vars.get("frain_buffer", 0) == 1:
-            dp = "\\green;Buffers\\end;"
+            dp = r"\green;Buffers\end;"
             root = frainui.Node("Buffers", None, get_buffers, dp)
             self.buf_node = root
             node.append(root)
@@ -146,25 +144,10 @@ class Events(object):
             node.append(root)
 
 class FrainList(Events):
-    @classmethod
-    def get_instance(cls):
-        if hasattr(cls, '_instance'):
-            return cls._instance
-
-
-    def __new__(cls, *args, **kw):
-        if not hasattr(FrainList, '_instance'):
-            orig = super(FrainList, cls)
-            FrainList._instance = orig.__new__(cls, *args, **kw)
-        return FrainList._instance
-
     def __init__(self):
-        if hasattr(self, 'listwin'):
-            return
-
         self.buf_node = None
 
-        RC.origin_window_title = pyvim.gettitle()
+        frain.origin_window_title = pyvim.gettitle()
 
         self.listwin = LIST("frain", self.FrainListGetRootsHook)
         self.listwin.FREventBind("List-ReFresh-Post", FrainListRefreshHook)
@@ -242,6 +225,8 @@ class FrainList(Events):
     #            return p
 
 
+class frain(object):
+    origin_window_title = None
 
 if __name__ == "__main__":
     pass

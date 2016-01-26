@@ -5,33 +5,31 @@
 #    version   :   1.0.1
 
 
-from frain import FrainList
 import pyvim
 import os
+
 import project
+import frain
+
+FrainList = None
 
 @pyvim.cmd(pyvim.complete.file)
 def Frain(path='.', name=''):
-    FrainList().add(path, name)
+    global FrainList
+    if not FrainList:
+        FrainList = frain.FrainList()
 
-@pyvim.cmd(pyvim.complete.file)
+    FrainList.add(path, name)
+
+    # add cmd
+    pyvim.cmd(pyvim.complete.file)(FrainToggle)
+    pyvim.cmd(pyvim.complete.file)(FrainAddInclude)
+
 def FrainToggle(path='.', name=''):
-    FrainList().listwin.BFToggle()
+    FrainList.listwin.BFToggle()
 
 
-@pyvim.cmd(pyvim.complete.file)
 def FrainAddInclude(path):
-    #if not FrainList.get_instance():
-    #    return
-
-    #project = FrainList().cur_project()
-    #if not project:
-    #    return
-
-    #if not os.path.isdir(path):
-    #    pyvim.echoline('%s is not dir' % path)
-    #    return
-
     path = os.path.realpath(path)
     project.CInc(path)
 
