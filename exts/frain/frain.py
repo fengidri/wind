@@ -26,14 +26,15 @@ class FrainList(object):
         listwin.FREventBind("List-ReFresh-Pre",
                 helper_listwin.FrainListRefreshPreHook)
 
-        listwin.frain = self
-
-        listwin.show()
-
-        self.listwin = listwin
 
         pyvim.addevent("BufEnter",   helper_vim.BufEnter,   arg = (self,))
         pyvim.addevent("BufNewFile", helper_vim.BufNewFile, arg = (self,))
         pyvim.addevent("BufNew",     helper_vim.BufNew,     arg = (self,))
         pyvim.addevent('VimLeave',   helper_vim.VimLeave,   arg = (self,))
+
+        listwin.frain = self
+
+        listwin.show()
+
+        self.listwin = listwin
 

@@ -52,7 +52,6 @@ def get_child(Node, listwin):
 
     dirs  = sorted(black_filter_files(dirs))
 
-
     for n in names:
         p = libpath.join(path, n)
         l = frainui.Leaf(n, p, leaf_handle)
@@ -91,7 +90,7 @@ def get_buffers(Node):
 def FrainListGetRootsHook(node, listwin):
     pyvim.Roots = []  # 整个vim 可用的变量
 
-    if vim.vars.get("frain_buffer", 0) == 1:
+    if vim.vars.get("frain_buffer", 0) == 1: # show buffers in listwin
         dp = r"\green;Buffers\end;"
         root = frainui.Node("Buffers", None, get_buffers, dp)
         listwin.frain.buf_node = root
@@ -99,6 +98,7 @@ def FrainListGetRootsHook(node, listwin):
 
     for p in Project.All:
         pyvim.Roots.append(p.root)
+
         root = frainui.Node(p.name, p.root, get_child)
         root.FREventBind("delete", del_root_handle)
 
