@@ -86,11 +86,3 @@ class FRObject(Object):
         # set the focus in the is self
         self._Buffer_.input_focus = self
 
-
-
-
-
-
-if __name__ == "__main__":
-    pass
-
