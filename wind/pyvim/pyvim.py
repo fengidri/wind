@@ -9,7 +9,7 @@ import os
 import logging
 log = logging.getLogger("wind")
 
-import plugin
+import event
 
 Roots = [] # 当前在编辑中的文件的根目录
 
@@ -19,36 +19,36 @@ __previous = None
 def previous():
     return __previous
 
-@plugin.event("WinLeave")
+@event.event("WinLeave")
 def _previous():
     global __previous
     __previous = vim.current.window
 
 
 # 记录窗口跳转的过程
-class WStack(dict):
-    def __init__(self):
-        pass
-
-
-    def append(self):
-        bn = vim.current.buffer.number
-        cursor = vim.current.window.cursor
-
-        pos = (bn, cursor)
-
-        stack = self.get(vim.current.window)
-        if not stack:
-            self[vim.current.window] = [pos]
-        else:
-            stack.append(pos)
-
-    def pop(self, pos):
-        stack = self.get(vim.current.window)
-        if not stack:
-            return
-        else:
-            return stack.pop()
+#class WStack(dict):
+#    def __init__(self):
+#        pass
+#
+#
+#    def append(self):
+#        bn = vim.current.buffer.number
+#        cursor = vim.current.window.cursor
+#
+#        pos = (bn, cursor)
+#
+#        stack = self.get(vim.current.window)
+#        if not stack:
+#            self[vim.current.window] = [pos]
+#        else:
+#            stack.append(pos)
+#
+#    def pop(self, pos):
+#        stack = self.get(vim.current.window)
+#        if not stack:
+#            return
+#        else:
+#            return stack.pop()
 
 def parse_tags(lines):
     tags = {}
@@ -195,50 +195,6 @@ echo = echoline
 
 
 
-class _get_input:
-    def __init__(self):
-        self.str_before_cursor=''
-        self.str_after_cursor=''
-        self.line_nu_cursor=0
-        self.col_nu_cursor=0
-        self.len_before_cursor=0
-
-    def update(self):
-        self.line_nu_cursor, self.col_nu_cursor=vim.current.window.cursor
-        cur_line=vim.current.line
-        self.str_before_cursor= cur_line[0:self.col_nu_cursor]
-        self.str_after_cursor=cur_line[self.col_nu_cursor:]
-        self.len_before_cursor=len(self.str_before_cursor)
-
-
-    def key(self):
-        str_after_cursor=self.str_after_cursor
-        str_before_cursor=self.str_before_cursor
-        line_nu_cursor=self.line_nu_cursor
-        col_nu_cursor=self.col_nu_cursor
-        len_before_cursor=self.len_before_cursor
-        update(self)
-
-        if line_nu_cursor != self.line_nu_cursor:
-            'move up or down'
-            return None
-
-        elif str_after_cursor != self.str_after_cursor:
-            'move left or right'
-            return None
-
-        elif len_before_cursor > self.len_before_cursor:
-            return '<backspace>'
-
-        else:
-            str_tmp=self.str_before_cursor[len_before_cursor:]
-            return self.key_check(str_tmp)
-
-    def key_check(self):
-        if len(str_tmp) == 1:
-            return str_tmp
-        else:
-            return None
 
 def str_before_cursor():
     "返回光标前的字符串"
@@ -373,9 +329,4 @@ def openfiles(files):
     for f in files[1:]:
         if os.path.isfile(f):
             vim.command('vs %s' % f)
-
-
-
-if __name__ == "__main__":
-    pass
 
