@@ -22,7 +22,7 @@ TEXLIST = None
 # 处理 frainui
 ################################################################################
 
-def add_new(node):
+def add_new(node, nouse):
     tmp = units.tmpfile()
     vim.command('e %s' % tmp)
     vim.current.buffer.append('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', 0)

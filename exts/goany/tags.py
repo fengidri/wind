@@ -270,8 +270,16 @@ class class_tag:
             return pos + 1
         else:
             lines = []
+            maxlen = 0
             for t in self.current_taglist:
-                line = encode(t['line'])
+                l = len(os.path.basename(t["filename"]))
+                if l > maxlen:
+                    maxlen = l
+
+            for t in self.current_taglist:
+                f = os.path.basename(t["filename"])
+                tt = r"%s  %s" % (f.ljust(maxlen), t['line'].strip())
+                line = encode(tt)
                 lines.append(line)
 
             win = Search(lines)
