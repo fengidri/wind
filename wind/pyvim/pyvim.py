@@ -76,7 +76,11 @@ def parse_tags(lines):
         else:
             cmd = o[2: -2]
 
-        tags[tagname] = (tagfile, cmd, ext)
+        if tags.get(tagname):
+            tags[tagname].append((tagfile, cmd, ext))
+        else:
+            tags[tagname] = [(tagfile, cmd, ext)]
+
     return tags
 
 def get_cur_root(): # 返回当前文件所在的 root

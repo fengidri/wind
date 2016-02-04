@@ -16,20 +16,27 @@ def ctag(filename):
     lines = f.readlines()
     f.close()
     tags = pyvim.parse_tags(lines)
-    _tags = {}
-    for k, v in tags.items():
-        ext = v[2]
-        if not ext:
-            continue
-        t = ext[0]
-        if t not in 'vmf':
-            continue
 
-        if len(ext) > 1:
-            k = "%s.%s" % (ext[1], k)
+    tags_name = []
+    tags_lineno = []
 
-        _tags[k] = v[1]
-    return _tags
+    for tag, v in tags.items():
+        for f, cmd, ext in v:
+            if not ext:
+                continue
+
+            t = ext[0]
+            if t not in 'vmf':
+                continue
+
+            if len(ext) > 1:
+                _tag = "%s.%s" % (ext[1], tag)
+                tags_name.append(_tag)
+            else:
+                tags_name.append(tag)
+            tags_lineno.append(cmd)
+
+    return tags_name, tags_lineno
 
 class tag_filter(object):
     INSTANCE = None
@@ -37,12 +44,10 @@ class tag_filter(object):
         tag_filter.INSTANCE = self
 
         vim.command('update')
-        self.tags = ctag(vim.current.buffer.name)
-
-        tags = self.tags.keys()
-        self.tags_keys = tags
+        tags_name, tags_lineno = ctag(vim.current.buffer.name)
         #tags.sort()
-        self.win = Search(tags)
+        self.win = Search(tags_name)
+        self.tags_lineno = tags_lineno
 
         self.win.FREventBind("Search-Quit", self.quit)
 
@@ -50,8 +55,7 @@ class tag_filter(object):
     def quit(self, win, index):
         tag_filter.INSTANCE = None
         if index > -1:
-            tag = self.tags_keys[index]
-            linenu = self.tags.get(tag)
+            linenu = self.tags_lineno[index]
             if linenu:
                 vim.current.window.cursor = (linenu, 0)
 
