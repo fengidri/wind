@@ -32,11 +32,12 @@ def match(pattern, source):
 
 def match_lines(pats, ng_pats, lines, mx = None):
     tmp = []
+    tmp_no = []
     index = 0
     if mx == None:
         mx = len(lines)
 
-    for line in lines:
+    for no, line in enumerate(lines):
         for pat in ng_pats:
             if pat in line:
                 break
@@ -47,9 +48,10 @@ def match_lines(pats, ng_pats, lines, mx = None):
             else:
                 index += 1
                 if index >= mx:
-                    return tmp
+                    return tmp, tmp_no
                 tmp.append(line)
-    return tmp
+                tmp_no.append(no)
+    return tmp, tmp_no
 
 
 
@@ -83,15 +85,17 @@ class SearchWIN(object):
 
 class BufferEvent(object):
     def option_active(self, buf): # option_active
-        #在普通模式下输入 enter
-
-        # 选择行, 通过异步退出
         l, c = vim.current.window.cursor
-        l = l - 1
-        if l == 0:
-            self.match_line = ''
-        else:
-            self.match_line = self.BFb[l].strip()
+        l = l - 2
+
+        self.match_line = -1
+        if l >= 0:
+            if self.nos:
+                if l < len(self.nos):
+                    self.match_line = self.nos[l]
+            else:
+                if l < len(self.lines):
+                    self.match_line = l
 
         im.async('frainui', 'OP-Quit')
 
@@ -101,12 +105,12 @@ class BufferEvent(object):
         if t:#OP-Quit
             vim.current.window = self.edit_win
 
-        if self.match_line and len(self.match_line) > 5:
-            line = self.match_line[3:]
-        else:
-            line = ''
+        #if self.match_line and len(self.match_line) > 5:
+        #    line = self.match_line[3:]
+        #else:
+        #    line = ''
 
-        self.FREventEmit("Search-Quit", line)
+        self.FREventEmit("Search-Quit", self.match_line)
 
         self.enter.delete()
         self.BFWipeout()
@@ -114,7 +118,10 @@ class BufferEvent(object):
 
 class EnterEvent(object):
     def enter_active(self, enter):
-        self.match_line = self.BFb[1].strip()
+        self.match_line = 0
+        if self.nos:
+            self.match_line = self.nos[0]# self.BFb[1].strip()
+
         # 进入异步模式
         im.async('frainui', 'OP-Quit')
 
@@ -135,7 +142,8 @@ class EnterEvent(object):
             else:
                 pats.append(pat)
 
-        lines = match_lines(pats, ng_pats, self.lines, 20)
+        lines, nos = match_lines(pats, ng_pats, self.lines, 20)
+        self.nos = nos
         self.show_list(lines)
         self.hi_pats(pats)
 
@@ -149,6 +157,7 @@ class Search(Buffer.BF, SearchWIN, BufferEvent, EnterEvent):
         self.lines = lines
         self.match_line = None
         self.match_id = []
+        self.nos = [] # the show lines index in the origin list
         self.name = name
 
         self.edit_win = vim.current.window

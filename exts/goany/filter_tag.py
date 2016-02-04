@@ -40,18 +40,19 @@ class tag_filter(object):
         self.tags = ctag(vim.current.buffer.name)
 
         tags = self.tags.keys()
-        tags.sort()
+        self.tags_keys = tags
+        #tags.sort()
         self.win = Search(tags)
 
         self.win.FREventBind("Search-Quit", self.quit)
 
 
-    def quit(self, win, line):
+    def quit(self, win, index):
         tag_filter.INSTANCE = None
-        if line:
-            linenu = self.tags.get(line)
+        if index > -1:
+            tag = self.tags_keys[index]
+            linenu = self.tags.get(tag)
             if linenu:
-                pyvim.log.info("i got : %s %s", line, linenu)
                 vim.current.window.cursor = (linenu, 0)
 
     def show(self):

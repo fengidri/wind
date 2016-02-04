@@ -286,16 +286,14 @@ class class_tag:
             win.FREventBind('Search-Quit', self.quit_search)
             return pos + 1
 
-    def quit_search(self, win, line):
-        logging.error("get: %s", line)
-        if line:
-            for t in self.current_taglist:
-                _line = encode(t['line'])
+    def quit_search(self, win, index):
+        logging.error("get: %s", index)
 
-                if line == _line:
-                    path = t['filename']
-                    localtion_tag(self.current_tagname, path, _line)
-                    break
+        if index > -1:
+            t = self.current_taglist[index]
+            path = t['filename']
+            line = t['line']
+            localtion_tag(self.current_tagname, path, line)
 
 
 @pyvim.cmd()

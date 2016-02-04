@@ -51,20 +51,20 @@ class file_filter(object):
         file_filter.INSTANCE = self
 
         self.path = path
+        self.fs = getfiles(path)
 
         s = time.time()
-        fs = getfiles(path)
         pyvim.log.debug("getfiles use time: %s" % (time.time() - s))
 
-        self.win = Search(fs)
+        self.win = Search(self.fs)
         self.win.FREventBind("Search-Quit", self.quit)
 
 
-    def quit(self, win, line):
+    def quit(self, win, index):
         file_filter.INSTANCE = None
 
-        if line:
-            path = os.path.join(self.path, line.strip())
+        if index > -1:
+            path = os.path.join(self.path, self.fs[index])
             pyvim.log.info("i got : %s", path)
 
             vim.command("update")
