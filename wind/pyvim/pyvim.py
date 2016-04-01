@@ -106,8 +106,7 @@ def gettitle():
         cmd = "tmux display-message -p '#W'"
         return os.popen(cmd).read().strip()
     else:
-        cmd =  "set title titlestring=%s" % vim_title
-        vim.command(cmd)
+        return ''
 
 
 

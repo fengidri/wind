@@ -61,7 +61,7 @@ map  <F9>          :GoAny tag jump<cr>
 map  <F8>          :GoAny tag back<cr>
 map  gh            :GoAny tag jump<cr>
 map  gb            :GoAny tag back<cr>
-map  O             :Zoom<cr>
+"map  O             :Zoom<cr>
 
 
 

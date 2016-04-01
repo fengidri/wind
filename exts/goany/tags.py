@@ -278,7 +278,10 @@ class class_tag:
 
             for t in self.current_taglist:
                 f = os.path.basename(t["filename"])
-                tt = r"%s  %s" % (f.ljust(maxlen), t['line'].strip())
+                l = t['line']
+                if isinstance(l, basestring):
+                    l = l.strip()
+                tt = r"%s  %s" % (f.ljust(maxlen), l)
                 line = encode(tt)
                 lines.append(line)
 
