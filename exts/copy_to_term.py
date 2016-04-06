@@ -10,6 +10,7 @@ import sys
 import os
 import requests
 
+COPY_BOARD_FILE = "/dev/shm/vim_copy_board"
 
 
 @pyvim.cmd()
@@ -28,7 +29,8 @@ def CopyToHost():
     getreg = vim.Function("getreg")
     copy = getreg('"')
     try:
-        os.popen("echo '%s' | mac c" % copy)
+        open(COPY_BOARD_FILE, 'w').write(copy)
+        os.popen("cat %s | mac c" % COPY_BOARD_FILE)
         #requests.post('http://10.0.2.2:8080/clipboard/content',
         #        {'clipboard': copy})
         pyvim.echo('Copy TO Host')
