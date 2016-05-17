@@ -10,7 +10,11 @@ blacklist_file=[
     ".+\.ac$", ".+\.pyc$" , ".+\.so$", ".+\.o$",
     ".+\.a$",
     ".+\.d$",
-    ".+\.lo$"
+    ".+\.lo$",
+    ".+\.mod\.c$",
+    ".+\.ko$",
+    ".+\.symvers$",
+    ".+\.order$",
     ]
 
 blacklist_switch = True
