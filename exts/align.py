@@ -27,43 +27,31 @@ def align(lines):
 
     return lines
 
+def ignore_word(line):
+    iws = ['const', 'unsigned', 'struct']
 
+    prefix = []
 
-def align_split(line):
-    start = 1
-    split_list = []
-    buf = []
-    for i in line:
-        if start ==  1:
-            buf.append(i)
-            if not(i in '\t '):
-                start = 0
-        else:
-            if i in '\t ':
-                if len(buf) >0:
-                    split_list.append(''.join(buf))
-                    del buf[:]
-            else:
-                buf.append(i)
-    if len(buf) >0:
-        split_list.append(''.join(buf))
-        del buf[:]
-    return split_list
+    i = 0
+    while i < len(line):
+        w = line[i]
+        prefix.append(w)
+        if w not in iws:
+            break
+        i += 1
 
-def align_fun_with_tag(lines, tag):
-    lines = [line.split(tag) for line in lines]
+    if not i:
+        return line
 
-    lines = align(lines)
+    if i + 1 < len(line):
+        line = line[i+1:]
+    else:
+        line = []
+    line.insert(0, ' '.join(prefix))
+    pyvim.log.error(line)
+    pyvim.log.error(prefix)
+    return line
 
-    join_tag = " " + tag + ' '
-    return [join_tag.join(line).rstrip() for line in lines]
-
-def align_fun(lines, tag = ' '):
-    lines = [align_split(line) for line in lines]
-
-    lines = align(lines)
-
-    return [' '.join(line).rstrip() for line in lines]
 
 @pyvim.cmd()
 def Align(tag = ' '):
@@ -72,12 +60,33 @@ def Align(tag = ' '):
         line2 = pos2[0] + 1
         lines = vim.current.buffer[line1: line2]
 
-        if tag == ' ':
-            lines = align_fun(lines)
-        else:
-            lines = align_fun_with_tag(lines, tag)
+        space_before = 0
+        for i in lines[0]:
+            if i == ' ':
+                space_before += 1
+            elif i == '\t':
+                space_before += 4
+            else:
+                break
+        space_before = ' ' * space_before
 
-        vim.current.buffer[line1: line2] = lines
+        lines = [line.split(tag) for line in lines]
+        for i, line in enumerate(lines):
+            line = [t.strip() for t in line]
+            line = [t for t in line if t]
+            lines[i] = ignore_word(line)
+
+        lines = align(lines)
+
+        if ' ' == tag:
+            join_tag = tag
+        else:
+            join_tag = " " + tag + ' '
+
+
+
+        vim.current.buffer[line1: line2] = \
+                [space_before + join_tag.join(line).rstrip() for line in lines]
 
 
 
