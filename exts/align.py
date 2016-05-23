@@ -7,16 +7,23 @@
 import pyvim
 import vim
 
-def align(lines):
+def align(lines, tag):
     max_len = 0
 
     for line in lines:
         max_len = max(max_len, len(line))
 
     max_len_list = [0] * max_len
+    space_len = [0] * max_len
+
     for line in lines:
         for i, w in enumerate(line):
             max_len_list[i] = max(max_len_list[i], len(w))
+            if i > 0:
+                if w[0] == '*':
+                    space_len[i-1] -= 1
+                else:
+                    space_len[i-1] += 1
 
     for line in lines:
         for i, w in enumerate(line):
@@ -25,7 +32,27 @@ def align(lines):
             else:
                 line[i] = w.strip().ljust(max_len_list[i])
 
-    return lines
+    tt = []
+    for line in lines:
+        t = []
+        for i, w in enumerate(line):
+            if i > 0:
+                if ' ' == tag:
+                    t.append(' ')
+                else:
+                    t.append(' ')
+                    t.append(tag)
+                    t.append(' ')
+
+                if abs(space_len[i-1]) < len(lines) and w[0] != '*':
+                    t.append(' ')
+
+            t.append(w)
+        tt.append(t)
+
+    pyvim.log.error(tt)
+
+    return tt
 
 def ignore_word(line):
     iws = ['const', 'unsigned', 'struct']
@@ -48,8 +75,6 @@ def ignore_word(line):
     else:
         line = []
     line.insert(0, ' '.join(prefix))
-    pyvim.log.error(line)
-    pyvim.log.error(prefix)
     return line
 
 
@@ -76,17 +101,10 @@ def Align(tag = ' '):
             line = [t for t in line if t]
             lines[i] = ignore_word(line)
 
-        lines = align(lines)
-
-        if ' ' == tag:
-            join_tag = tag
-        else:
-            join_tag = " " + tag + ' '
-
-
+        lines = align(lines, tag)
 
         vim.current.buffer[line1: line2] = \
-                [space_before + join_tag.join(line).rstrip() for line in lines]
+                [space_before + ''.join(line).rstrip() for line in lines]
 
 
 
