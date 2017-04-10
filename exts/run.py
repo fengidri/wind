@@ -11,15 +11,18 @@ import os
 
 @pyvim.cmd()
 def Run():
-    cmd = None
-    for line in vim.current.buffer:
-        c = line.find('$')
-        if c > -1:
-            cmd = line[c + 1:]
-            break
-    if not cmd:
+    line = vim.current.line
+    line = line.split('$', 1)
+
+    if len(line) != 2:
         pyvim.echo('Not Found Cmd')
-    else:
-        os.popen2(cmd)
-        pyvim.echo('Run: %s' % (cmd,))
+        return
+
+    cmd = line[1]
+
+    f = os.popen(cmd)
+    pyvim.echo('Run: %s' % (cmd,))
+
+    #for line in f.readlines():
+    #    pyvim.echo(line.strip())
 

@@ -25,11 +25,8 @@ def GotoInc( ):
             target_files.append( model_name + '.' + t )
 
 
-    root = pyvim.get_cur_root()
-    if not root:
-        return
 
-    for root, dirs, files in os.walk( root ):
+    for root, dirs, files in os.walk( os.curdir ):
         for target_file in target_files:
             if target_file in files:
                 target_path = os.path.join( root, target_file )

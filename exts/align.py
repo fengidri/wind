@@ -7,104 +7,170 @@
 import pyvim
 import vim
 
-def align(lines, tag):
-    max_len = 0
 
-    for line in lines:
-        max_len = max(max_len, len(line))
 
-    max_len_list = [0] * max_len
-    space_len = [0] * max_len
 
-    for line in lines:
-        for i, w in enumerate(line):
-            max_len_list[i] = max(max_len_list[i], len(w))
-            if i > 0:
-                if w[0] == '*':
-                    space_len[i-1] -= 1
-                else:
-                    space_len[i-1] += 1
+def is_ignore_word(s):
+    iws = set(['const', 'unsigned', 'struct', 'enum'])
+    t = set(s.split())
 
-    for line in lines:
-        for i, w in enumerate(line):
-            if i == 0:
-                line[i] = w.rstrip().ljust(max_len_list[i])
+    if len(t - iws) == 0:
+        return 1
+
+    return 0
+
+
+class Line(list):
+    def __init__(self, s):
+        list.__init__(self)
+
+        self.index = 0
+        self.cols = 0
+
+        for c in s:
+            if c == ' ' or c == '\t':
+                self.index += 1
             else:
-                line[i] = w.strip().ljust(max_len_list[i])
+                break
 
-    tt = []
-    for line in lines:
-        t = []
-        for i, w in enumerate(line):
-            if i > 0:
-                if ' ' == tag:
-                    t.append(' ')
+        self.string = s.strip()
+        self.split()
+
+    def split(self):
+        start = 0
+
+        skip_white = 0
+        cp = None
+
+        for i,s in enumerate(self.string):
+            if cp:
+                if cp == s:
+                    cp = None
+                continue
+
+            if skip_white:
+                if s in ' \t':
+                    continue
                 else:
-                    t.append(' ')
-                    t.append(tag)
-                    t.append(' ')
+                    skip_white = 0
+                    start = i
 
-                if abs(space_len[i-1]) < len(lines) and w[0] != '*':
-                    t.append(' ')
+            if s == '=':
+                w = self.string[start: i]
+                if w:
+                    self.append(item(w, start))
+                self.append(item(s, i))
+                skip_white = 1
+                continue
 
-            t.append(w)
-        tt.append(t)
+            if s in ' =\t':
+                w = self.string[start: i]
+                if is_ignore_word(w):
+                    continue
 
-    pyvim.log.error(tt)
+                self.append(item(w, start))
+                skip_white = 1
+                continue
 
-    return tt
+            if s == '"' or s == "'":
+                cp = s
+        w = self.string[start:]
+        self.append(item(w, start))
 
-def ignore_word(line):
-    iws = ['const', 'unsigned', 'struct']
+    def s(self):
+        l = [' ' * self.index ]
+        for ii, i in enumerate(self):
+            i.index = ii
+            i.cols = self.cols
+            i.line = self.string
+            l.append(i.s())
 
-    prefix = []
+        return ''.join(l)
 
-    i = 0
-    while i < len(line):
-        w = line[i]
-        prefix.append(w)
-        if w not in iws:
-            break
-        i += 1
 
-    if not i:
-        return line
 
-    if i + 1 < len(line):
-        line = line[i+1:]
-    else:
-        line = []
-    line.insert(0, ' '.join(prefix))
-    return line
+class item(object):
+    def __init__(self, s, pos):
+        self.padding = 0
+        self.index = 0
+        self.cols = 0
+        self.pos = pos
+
+        for c in s:
+            if c == '*':
+                self.padding += 1
+            else:
+                break
+
+        self.width = len(s) - self.padding
+        self.string = s
+        self.line = None
+
+    def s(self):
+        if self.index > 0:
+            self.padding += 1
+
+        if self.index > self.cols - 1:
+            return ""
+        elif self.index == self.cols - 1:
+            return "%s%s" % (' ' * self.padding, self.line[self.pos:])
+        else:
+            return "%s%s" % (' ' * self.padding, self.string.ljust(self.width))
+
+
+
+
+
+
+def _align_col(col):
+    padding = 0
+    width = 0
+
+    for i in col:
+        padding = max(padding, i.padding)
+        width   = max(width,   i.width)
+
+    for i in col:
+        i.padding = padding - i.padding
+        i.width   = width
+
+
+
+
+
+def _align(lines):
+    cols = 99999
+
+    for l in lines:
+        cols = min(cols, len(l))
+
+    for l in lines:
+        l.cols = cols;
+
+    if cols < 2:
+        pyvim.echo("cols %d", cols)
+        return
+
+    for i in range(cols):
+        _align_col([l[i] for l in lines])
+
+
+
+
+
 
 
 @pyvim.cmd()
 def Align(tag = ' '):
-        pos1, pos2 = pyvim.selectpos()
-        line1 = pos1[0]
-        line2 = pos2[0] + 1
-        lines = vim.current.buffer[line1: line2]
+    pos1, pos2 = pyvim.selectpos()
+    line1 = pos1[0]
+    line2 = pos2[0] + 1
+    lines = vim.current.buffer[line1: line2]
 
-        space_before = 0
-        for i in lines[0]:
-            if i == ' ':
-                space_before += 1
-            elif i == '\t':
-                space_before += 4
-            else:
-                break
-        space_before = ' ' * space_before
+    lines = [Line(line) for line in lines]
 
-        lines = [line.split(tag) for line in lines]
-        for i, line in enumerate(lines):
-            line = [t.strip() for t in line]
-            line = [t for t in line if t]
-            lines[i] = ignore_word(line)
+    _align(lines)
 
-        lines = align(lines, tag)
-
-        vim.current.buffer[line1: line2] = \
-                [space_before + ''.join(line).rstrip() for line in lines]
-
+    vim.current.buffer[line1: line2] = [line.s() for line in lines]
 
 

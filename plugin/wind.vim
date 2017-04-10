@@ -51,6 +51,8 @@ map <C-s>          :SameWord<cr>a
 map  <tab>         :py IM("frainui", "OP-Focus", "frain")<CR>
 map *              viw""y/<C-R>0<CR>
 map <F5>           <esc>:Run<CR>
+inoremap <C-f>     <esc>:CFunComment<cr>
+inoremap <C-h>     /*  */<esc>hhi
 
 vnoremap /         ""y/<C-R>0<CR>
 

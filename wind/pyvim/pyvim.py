@@ -85,7 +85,7 @@ def parse_tags(lines):
 
 def get_cur_root(): # 返回当前文件所在的 root
     cur_paths = vim.current.buffer.name
-    for path in pyvim.Roots:
+    for path in Roots:
         if cur_paths.startswith( path ):
             return path
 
