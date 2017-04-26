@@ -83,6 +83,7 @@ class Line(list):
             i.index = ii
             i.cols = self.cols
             i.line = self.string
+            pyvim.log.error("|%s|", i.s())
             l.append(i.s())
 
         return ''.join(l)
@@ -102,9 +103,9 @@ class item(object):
             else:
                 break
 
-        self.width = len(s) - self.padding
+        self.width  = len(s) - self.padding
         self.string = s
-        self.line = None
+        self.line   = None
 
     def s(self):
         if self.index > 0:
@@ -112,8 +113,10 @@ class item(object):
 
         if self.index > self.cols - 1:
             return ""
+
         elif self.index == self.cols - 1:
             return "%s%s" % (' ' * self.padding, self.line[self.pos:])
+
         else:
             return "%s%s" % (' ' * self.padding, self.string.ljust(self.width))
 
@@ -130,12 +133,16 @@ def _align_col(col):
         padding = max(padding, i.padding)
         width   = max(width,   i.width)
 
+    pyvim.log.error("%d %d", padding, width)
+
     for i in col:
         i.padding = padding - i.padding
         i.width   = width
+        pyvim.log.error("%d %d", i.padding, i.width)
 
 
 
+    pyvim.log.error("========")
 
 
 def _align(lines):
@@ -152,7 +159,7 @@ def _align(lines):
         return
 
     for i in range(cols):
-        _align_col([l[i] for l in lines])
+        _align_col([l[i] for l in lines if l.cols])
 
 
 
@@ -167,10 +174,21 @@ def Align(tag = ' '):
     line2 = pos2[0] + 1
     lines = vim.current.buffer[line1: line2]
 
-    lines = [Line(line) for line in lines]
+    L = []
+    for line in lines:
+        l = Line(line)
+        l.linenu = line1
+        line1 += 1
 
-    _align(lines)
+        if len(l) < 2:
+            continue
 
-    vim.current.buffer[line1: line2] = [line.s() for line in lines]
+        L.append(l)
+
+
+    _align(L)
+
+    for l in L:
+        vim.current.buffer[l.linenu] = l.s()
 
 
