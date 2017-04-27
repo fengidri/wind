@@ -83,9 +83,9 @@ class Line(list):
             i.index = ii
             i.cols = self.cols
             i.line = self.string
-            pyvim.log.error("|%s|", i.s())
             l.append(i.s())
 
+        pyvim.log.error(l)
         return ''.join(l)
 
 
@@ -103,7 +103,7 @@ class item(object):
             else:
                 break
 
-        self.width  = len(s) - self.padding
+        self.width  = len(s)
         self.string = s
         self.line   = None
 
@@ -126,24 +126,16 @@ class item(object):
 
 
 def _align_col(col):
-    padding = 0
     width = 0
+    padding = 0
 
     for i in col:
         padding = max(padding, i.padding)
-        width   = max(width,   i.width)
-
-    pyvim.log.error("%d %d", padding, width)
+        width   = max(width,   i.width + i.padding)
 
     for i in col:
         i.padding = padding - i.padding
-        i.width   = width
-        pyvim.log.error("%d %d", i.padding, i.width)
-
-
-
-    pyvim.log.error("========")
-
+        i.width   = width - i.padding
 
 def _align(lines):
     cols = 99999
