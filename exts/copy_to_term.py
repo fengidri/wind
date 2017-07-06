@@ -28,20 +28,17 @@ def CopyToIterm2():
 def CopyToHost():
     getreg = vim.Function("getreg")
     copy = getreg('"')
-    try:
-        open(COPY_BOARD_FILE, 'w').write(copy)
-        os.popen("cat %s | mac c" % COPY_BOARD_FILE)
-        #requests.post('http://10.0.2.2:8080/clipboard/content',
-        #        {'clipboard': copy})
-        pyvim.echo('Copy TO Host')
 
-    except:
-        pyvim.echo('Copy TO Host: Fail!!!', hl=True)
+    open(COPY_BOARD_FILE, 'w').write(copy)
 
 @pyvim.cmd()
 def PasteFromHost():
-    #c = requests.get('http://10.0.2.2:8080/clipboard/content').text
-    c = os.popen("mac p").read().decode('gbk').encode('utf8')
+
+    c = ""
+    if os.path.isfile(COPY_BOARD_FILE):
+        c = open(COPY_BOARD_FILE).read()
+
+
     setreg = vim.Function('setreg')
     setreg('"', c)
 

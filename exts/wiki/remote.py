@@ -10,6 +10,7 @@ import json
 import pyvim
 import requests
 import vim
+import os
 ################################################################################
 # 连接服务器
 ################################################################################
@@ -17,6 +18,8 @@ from textohtml import html
 
 
 import units
+
+INDEX = os.path.join(os.getcwd(), "store/index.json")
 
 class Remote(object):
     def __new__(cls, *args, **kw):
@@ -50,13 +53,8 @@ class Remote(object):
 
 
     def load_list(self):
-        try:
-            response = urllib2.urlopen(units.URL_INDEX % units.SERVER)
-            info = response.read()
-            info = json.loads(info)
-        except:
-            pyvim.echo("load index.json fail!", hl=True)
-            info = {}
+        info = open(INDEX).read()
+        info = json.loads(info)
 
         for v in info.values():
             if not v.get('title'):

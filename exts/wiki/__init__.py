@@ -118,7 +118,7 @@ def ReFreshPre(listwin):
 # command && event
 ################################################################################
 @pyvim.cmd()
-def TexList():
+def Blog():
     if not (units.SERVER and units.URL_INDEX and units.URL_CHAPTER
             and units.URL_PUT and units.URL_POST):
         pyvim.echo("Please set config for wiki.", hl=True)

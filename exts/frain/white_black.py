@@ -8,7 +8,7 @@ import re
 blacklist_file=[
     "^\.",
     "^tags$",
-    "^core\.",
+    "^core\.\d",
     ".+\.ac$",
     ".+\.pyc$",
     ".+\.so$",
