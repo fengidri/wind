@@ -1,4 +1,7 @@
 #encoding:utf8
+
+
+
 import vim
 import os
 import pyvim
@@ -6,6 +9,7 @@ import ctags
 import sys
 from pyvim import log as logging
 from frainui import Search
+
 
 def encode(cmd):
     # 把 tags 文件的里 命令式 tag 进行转码
@@ -15,8 +19,6 @@ def encode(cmd):
         if file_enco:
             cmd = cmd.decode(file_enco).encode(show_enco)
     return cmd
-
-
 
 
 
@@ -344,7 +346,14 @@ def TagBack():
     if not os.path.isfile(f):
         return
 
-    vim.command('silent edit %s'  % f)
+    if f != vim.current.buffer.name:
+        for b in vim.buffers:
+            path = b.name
+            if f == path:
+                vim.current.buffer = b
+                break
+        else:
+            vim.command('silent edit %s'  % f)
 
     line_nu= taginfo["start_file_pos"][0]
     col_nu= taginfo["start_file_pos"][1]
