@@ -236,15 +236,20 @@ def feedkeys(key, mode='n'):
     if isinstance(key, list):
         for s in key:
             feedkeys(s, mode)
-    else:
-        if key == r'"':
-            key = r'\"'
+        return
 
-        elif key == '\\':
-            key = '\\\\'
+    if isinstance(key, tuple):
+        mode = key[1]
+        key = key[0]
 
-        command='call feedkeys("%s", "%s")' %(key, mode)
-        vim.command(command)
+    if key == r'"':
+        key = r'\"'
+
+    elif key == '\\':
+        key = '\\\\'
+
+    command='call feedkeys("%s", "%s")' %(key, mode)
+    vim.command(command)
 
 def pumvisible( ):
     "返回当前的pmenu是否弹出"

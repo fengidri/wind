@@ -14,6 +14,14 @@ import im.env  as env
 import im.keybase
 import im.stream as stream
 
+def call_ycm():
+    feedkeys(('\<C-c>', 'm'))
+
+#def call_ycm_when_hold():
+#    call_ycm()
+#
+#pyvim.addevent('CursorHoldI', call_ycm_when_hold)
+
 class handle(object):
     def double_out(self, d, b):
         if env.after == '':
@@ -48,9 +56,9 @@ class handle(object):
     def cb_tab( self ):
         if re.search(r'^\s*$', env.before):
             o = '    '
+            feedkeys(o)
         else:
-            o = '\<C-X>\<C-O>'
-        feedkeys(o)
+            call_ycm()
         return True
 
 
@@ -66,6 +74,8 @@ class handle(object):
             feedkeys('\<bs>->')
         else:
             feedkeys('.')
+
+        call_ycm()
         return True
 
     def cb_underline(self):

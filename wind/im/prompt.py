@@ -112,7 +112,9 @@ def active():
     vim.command("let &omnifunc='%s'" % func)
     vim.command("let &l:omnifunc='%s'" % func)
     #imrc.feedkeys('\<C-X>\<C-O>\<C-P>')
-    imrc.feedkeys('\<C-X>\<C-O>')
+    #imrc.feedkeys('\<C-X>\<C-O>')
+    #imrc.feedkeys(('\<C-c>', 'm'))
+
     return True
 
 def findstart():

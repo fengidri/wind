@@ -14,23 +14,11 @@ let g:wind_with_ycm = -4
 function! wind#Prompt(findstart, base)
     if a:findstart
         py IM('prompt', 'findstart')
-        if g:wind_with_ycm  == g:omnicol
-            let s:invoke_other_fun = 1
-            let g:omnicol =  youcompleteme#OmniComplete(a:findstart, '')
-        endif
-        if g:omnicol > -1
-            call feedkeys( "\<C-P>", 'n' )
-        endif
 
         return g:omnicol
     else
-        if s:invoke_other_fun
-            let s:invoke_other_fun = 0
-            return youcompleteme#OmniComplete(a:findstart, a:base)
-        else
-            py IM('prompt', 'base', vim.eval('a:base'))
-            return g:omniresult
-        endif
+        py IM('prompt', 'base', vim.eval('a:base'))
+        return g:omniresult
     endif
 endfunction
 
