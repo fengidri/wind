@@ -17,10 +17,6 @@ import im.stream as stream
 def call_ycm():
     feedkeys(('\<C-c>', 'm'))
 
-#def call_ycm_when_hold():
-#    call_ycm()
-#
-#pyvim.addevent('CursorHoldI', call_ycm_when_hold)
 
 class handle(object):
     def double_out(self, d, b):

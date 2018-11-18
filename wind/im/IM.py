@@ -7,6 +7,7 @@ import vim
 
 import stream
 import prompt
+import timer
 import setting
 import frainui
 from imrc import emit_event
@@ -14,6 +15,7 @@ from imrc import emit_event
 
 RouteMap = {
         "prompt":       prompt.handle,
+        "timer":        timer.handle,
         "key":          stream.handle,
         "setting":      setting.handle,
         "command":      pyvim.cmd_cb,
@@ -28,6 +30,7 @@ def IM_Init():
     stream.Init()
     prompt.Init()
 
+
 def IM(*args):
     """
        处理事件.
@@ -36,10 +39,11 @@ def IM(*args):
 
        tp 可以是 digit, upper, lower, punc, mult 也可以是 event
     """
-    cls = args[0]
     log.debug('IM >>>> %s <<<<', args)
+
     emit_event('start')
 
+    cls = args[0]
     handle = RouteMap.get(cls)
     if handle:
         handle(*args[1:])

@@ -26,3 +26,7 @@ function! wind#CommandsComplete(A, L, P)
     py IM("cmd_complete", vim.eval("a:A"), vim.eval("a:L"), vim.eval("a:P"))
     return g:wind_commands_complete
 endfunction
+
+function! wind#IMCompleteTimerHold(id)
+    py IM("timer", "complete")
+endfunction

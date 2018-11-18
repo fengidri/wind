@@ -26,8 +26,9 @@ function! Input_Monitor(tp, key)
 endfunction
 
 set omnifunc="wind#Prompt"
+"CursorHold default timer out is 4000ms and this value also used for swap
 "auto CursorHold   * py IM('event', "CursorHold")
-auto CursorHoldI  * py IM('event', "CursorHoldI")
+"auto CursorHoldI  * py IM('event', "CursorHoldI")
 auto CompleteDone * py IM("prompt", "done")
 
 "map  <F4>          :ProjectSync<cr>

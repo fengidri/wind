@@ -19,6 +19,8 @@ import frainui
 
 __Handles = {}
 
+
+
 def stream(name): # use for stream plugin
     def _fun(cls):
         register(name, cls())
@@ -29,6 +31,7 @@ def register(name, obj): # api
     __Handles[name.lower()] = obj
 
 def Init():
+
     ftpath = os.path.realpath(__file__)
     ftpath = os.path.dirname(ftpath)
     ftpath = os.path.join(ftpath, 'stream')
@@ -37,6 +40,7 @@ def Init():
     plugins.loads()
 
     Redirect()#.log()
+
 
     keys = {
             'digit': string.digits,
@@ -78,7 +82,14 @@ def handle(tp, key):
         if getattr(__Handles.get("prompt"), tp)(key):
             return
 
+    imrc.complete_timer.stop()
+
     name_list = Redirect().getcur('stream')
+
+    # TODO
+    if 'code' in name_list:
+        imrc.complete_timer.start()
+
     handle_list = []
     for n in name_list:
         h = __Handles.get(n)
