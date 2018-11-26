@@ -4,6 +4,10 @@ let s:script_folder_path = escape(expand('<sfile>:p:h' ), '\')
 " 如果是 C 项目的情况下, 用于保存头文件所在的目录
 " 使用 vim 接口是为了方便与其它的项目进行数据交换
 let g:frain_include_dirs = ''
+" code  mode call ycm timer
+" let let key key ss ssss  s   s
+let g:wind_im_timer_complete = 600
+let g:wind_im_wubi = 0
 
 "------------------------------ python -----------------------------------------
 python <<EOF

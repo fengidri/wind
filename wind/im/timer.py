@@ -14,5 +14,10 @@ def handle(*args):
     # 同时这个时间还用于 swap, 并不方便修改
 
     s = pyvim.pyvim.str_before_cursor()
-    if len(s) >= 2 and ' ' != s[-1]  and ' ' != s[-2]:
-        pyvim.feedkeys(('\<C-c>', 'm'))
+    if len(s) < 2:
+        return
+
+    if not s[-1].isalpha():
+        return
+
+    pyvim.feedkeys(('\<C-c>', 'm'))

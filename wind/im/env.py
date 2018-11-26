@@ -5,6 +5,7 @@
 #    version   :   1.0.1
 import vim
 from imrc  import hook
+import pyvim
 
 before   = ''
 after    = ''
@@ -14,6 +15,9 @@ col      = 0
 num      = 0
 ft       = ''
 syntax   = ''
+ycm      = False
+pumvisible = False
+pumvisible_handler = None
 
 @hook('start')
 def init():
@@ -25,6 +29,11 @@ def init():
     global num
     global ft
     global syntax
+    global ycm
+    global pumvisible
+
+    pumvisible = pyvim.pumvisible()
+    ycm = False
 
     ft       = vim.eval('&ft')
     encoding = vim.eval('&encoding')

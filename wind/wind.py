@@ -51,7 +51,6 @@ sys.excepthook = excepthook
 import im
 IM = im.IM
 im.stream.Init()
-im.prompt.Init()
 
 ftpath = os.path.realpath(__file__)
 ftpath = os.path.dirname(ftpath)

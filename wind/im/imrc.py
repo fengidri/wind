@@ -79,6 +79,7 @@ class Feedkeys(object):
         Feedkeys._feed_.append(k)
 
     def feed(self):
+        log.debug("feeds: %s", Feedkeys._feed_)
         pyvim.feedkeys(Feedkeys._feed_)
 
 def feedkeys(k):
@@ -108,6 +109,27 @@ class TimerComplete(object):
             self.timerid = 0
 
     def start(self):
-        self.timerid = vim.eval('timer_start(750, "wind#IMCompleteTimerHold")')
+        t = vim.vars.get('wind_im_timer_complete', 750)
+        self.timerid = vim.eval('timer_start(%s, "wind#IMCompleteTimerHold")' %
+                t)
 
 complete_timer = TimerComplete()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

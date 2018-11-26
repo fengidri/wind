@@ -4,14 +4,11 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-from im.keybase import BasePass
+from im.keybase import BaseEnd
 from im.imrc import feedkeys
-from im.prompt import Status
 from pyvim import log
-import im.stream as stream
 
-@stream.stream("prompt")
-class IM_Prompt(BasePass):
+class HD_Prompt(BaseEnd):
     def cb_tab(self):
         feedkeys('\<C-n>')
         return True
@@ -24,17 +21,9 @@ class IM_Prompt(BasePass):
     def cb_enter(self):
         feedkeys('\<C-e>')
 
-        if Status.name != 'wubi':
-            feedkeys('\<cr>')
-
         return True
 
     def cb_space(self):
-        if Status.name == 'wubi':
-            feedkeys('\<C-N>')
-            feedkeys('\<C-Y>')
-            return True
-        else:
             #feedkeys('\<C-Y>')
             feedkeys(' ')
             return True
@@ -43,8 +32,4 @@ class IM_Prompt(BasePass):
         feedkeys('\<bs>')
         #feedkeys('\<C-X>\<C-O>\<C-P>')  # TODO   should auto
         return True
-
-
-if __name__ == "__main__":
-    pass
 

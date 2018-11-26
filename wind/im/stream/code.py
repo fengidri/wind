@@ -12,11 +12,6 @@ from pyvim import log as logging
 
 import im.env  as env
 import im.keybase
-import im.stream as stream
-
-def call_ycm():
-    feedkeys(('\<C-c>', 'm'))
-
 
 class handle(object):
     def double_out(self, d, b):
@@ -54,7 +49,7 @@ class handle(object):
             o = '    '
             feedkeys(o)
         else:
-            call_ycm()
+            env.ycm = True
         return True
 
 
@@ -71,7 +66,7 @@ class handle(object):
         else:
             feedkeys('.')
 
-        call_ycm()
+        env.ycm = True
         return True
 
     def cb_underline(self):
@@ -109,11 +104,32 @@ class handle(object):
         feedkeys('\<bs>')
         return True
 
-@stream.stream('code')
-class IM_Code(im.keybase.BaseEnd, handle):
-    pass
+import im.handler as handler
+import im.imrc as imrc
 
-@stream.stream('lua')
+class IM_Code(im.keybase.BaseEnd, handle):
+    wubi_syntax = ['Constant', 'CCommentDesc', 'CCommentArg', 'Comment', 'String']
+    fts = ['c', 'cpp', 'python', 'javascript', 'ch', 'vim', 'html', 'sh']
+
+    def handler(self, tp, key):
+        if pyvim.pumvisible():
+            getattr(handler.HD_Prompt, tp)(key)
+            return
+
+        imrc.complete_timer.stop()
+
+        if env.syntax in self.wubi_syntax:
+            handler.HD_WubiStream.handler(tp, key)
+            return
+
+        getattr(self, tp)(key)
+
+        if env.ycm:
+            imrc.feedkeys(('\<C-c>', 'm'))
+        else:
+            if (key.isalpha() or key == '_'):
+                imrc.complete_timer.start()
+
 class IM_Lua(IM_Code):
     def cb_dot(self):
         feedkeys('.')

@@ -14,10 +14,11 @@ let g:wind_with_ycm = -4
 function! wind#Prompt(findstart, base)
     if a:findstart
         py IM('prompt', 'findstart')
-
         return g:omnicol
     else
         py IM('prompt', 'base', vim.eval('a:base'))
+        " sjust call this when prompt out
+        call feedkeys( "\<C-P>", 'n' )
         return g:omniresult
     endif
 endfunction

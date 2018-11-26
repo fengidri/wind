@@ -28,7 +28,6 @@ RouteMap = {
 
 def IM_Init():
     stream.Init()
-    prompt.Init()
 
 
 def IM(*args):

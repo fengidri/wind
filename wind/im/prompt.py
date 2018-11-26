@@ -14,54 +14,6 @@ import imrc
 import env
 
 _prompt = []
-__Handles = {}
-
-class Status(object):
-    name = ''
-
-def prompt(name):
-    "Decorator set the first handle."
-    """
-        prompt need two call back handle: findstart, base;
-
-        @name: the prompt handle name
-
-        @findstart:
-             return the len of the word before cursor to be replace.
-             if the return val < 0 has special. see it by
-             `help complete-functions`
-
-             the other val < 0 be used by wind. Such as -4 is used by ycm.
-             If the return val == -4, wind will call ycmcompleteme to complete;
-
-        @base:
-             return the list of the match item.
-             But, you shuld use the prompt.abuild to build the complete item.
-    """
-
-    def _fun(findstart):
-        def set_base(base):
-            __Handles[name] = (findstart, base)
-            return base
-        findstart.base = set_base
-        return findstart
-    return _fun
-
-def Init():
-    ftpath = os.path.realpath(__file__)
-    ftpath = os.path.dirname(ftpath)
-    ftpath = os.path.join(ftpath, 'prompt')
-
-    plugins = Plugins(ftpath)
-    plugins.loads()
-    log.debug(__Handles)
-
-
-class NotPrompt(Exception):
-    pass
-
-
-
 
 ################################################################################
 def append_string(ppt):
@@ -105,68 +57,37 @@ def popmenu():
     vim.vars["omniresult"] = _prompt
     vim.vars["omnicol"] = vim.current.window.cursor[1] - length + 1
 
+findstart = None
+base = None
 
-
-def active():
-    func = "wind#Prompt"
-    vim.command("let &omnifunc='%s'" % func)
-    vim.command("let &l:omnifunc='%s'" % func)
-    #imrc.feedkeys('\<C-X>\<C-O>\<C-P>')
-    #imrc.feedkeys('\<C-X>\<C-O>')
-    #imrc.feedkeys(('\<C-c>', 'm'))
-
-    return True
-
-def findstart():
+def Findstart():
     tt = None
     col = -3
 
-    handle_list = Redirect().getcur('prompt')
-    log.debug('findstart hande list: %s', handle_list )
-    for hd in handle_list:
-        tt = __Handles.get(hd)
-        if not tt:
-            continue
+    col = findstart()
+    if not isinstance(col, int):
+        col = -3
 
-        try:
-            col = tt[0]()
-            if not isinstance(col, int):
-                col = -3
-        except NotPrompt:
-            col = -3
-
-        if col > -1:
-            log.debug('@findstart redirect: %s' % hd)
-            Status.name = hd
-            _col = env.col - col
-            return _col
+    if col > -1:
+        _col = env.col - col
+        return _col
     return col
 
-def Base(base):
-    hd = __Handles.get(Status.name)[1]
-    if not hd:
-        return []
-
+def Base(b):
     del _prompt[:]
-    hd(base)
+    base(b)
     return _prompt
 
 
-def handle(event, base=None):
 
+def handle(event, base=None):
     if event == 'done':
-        Status.findstart = None
-        Status.base = None
-        Status.name = ''
+        env.pumvisible_handler = None
         return
 
-    #if __handle[0] == None or __handle[1] == None:
-    #    vim.vars["omnicol"] = -3
-    #    vim.vars["omniresult"] = []
-    #    return
-
     if event == "findstart":
-        vim.vars["omnicol"] = findstart()
+        start = Findstart()
+        vim.vars["omnicol"] =  start
 
     elif event == "base":
         vim.vars["omniresult"] = {'words':Base(base), 'refresh': 'always'}
