@@ -47,9 +47,13 @@ def Init():
             vim.command(command)
 
 
-import code
 import im.handler as handler
+
+import code
+import tex
+
 genmap(code.IM_Code())
+genmap(tex.IM_Tex())
 
 
 def handle(tp, key):

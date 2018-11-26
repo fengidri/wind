@@ -9,4 +9,4 @@ import prompt
 import wubi
 
 HD_Prompt = prompt.HD_Prompt()
-HD_WubiStream = wubi.IM_Base()
+HD_WubiStream = wubi.IM_Wubi()

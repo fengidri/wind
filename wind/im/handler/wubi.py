@@ -105,9 +105,6 @@ def setcount(patten, num):
 
 
 def findstart():
-    if not vim.vars.get("wind_im_wubi", 1):
-        return
-
     log.error("#########: %s", env.before)
     for i in [-1, -2, -3, -4]:
         try:
@@ -141,9 +138,16 @@ def base(patten):
 
 
 
-class IM_Base(im.keybase.BaseEnd):
+class IM_Wubi(im.keybase.BaseEnd):
+    def isenable(self):
+        if not vim.vars.get("wind_im_wubi", 1):
+            return
+
     def im_lower(self, k):
-        # call wubi
+        if not self.isenable():
+            imrc.feedkeys(k)
+            return
+
 
         func = "wind#Prompt"
 
