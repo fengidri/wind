@@ -24,12 +24,6 @@ RouteMap = {
         "frainui":      frainui.handle,
         }
 
-
-
-def IM_Init():
-    stream.Init()
-
-
 def IM(*args):
     """
        处理事件.
@@ -53,6 +47,3 @@ def IM(*args):
 
     emit_event('stop')
 
-
-if __name__ == "__main__":
-    IM_Init()

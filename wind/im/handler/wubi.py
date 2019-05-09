@@ -4,6 +4,8 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
+# set g:wind_im_wubi inside ftplugin to open/close wubi
+
 
 import urllib2
 import json
@@ -37,6 +39,9 @@ class IM_Wubi_Pum(im.keybase.BaseEnd):
         return True
 
     def cb_space(self):
+        #uchar = env.before[-1]
+        #if (uchar >= u'u0041' and uchar<=u'u005a') or \
+        #        (uchar >= u'u0061' and uchar<=u'u007a'):
         feedkeys('\<C-N>')
         feedkeys('\<C-Y>')
         return True
@@ -58,9 +63,6 @@ class IM_Wubi_Pum(im.keybase.BaseEnd):
         imrc.feedkeys(k)
         imrc.feedkeys('\<C-X>\<C-O>')
         return True
-
-    def handler(self, tp, key):
-        getattr(self, tp)(key)
 
 
 im_wub_pumvisible_handler =  IM_Wubi_Pum()
@@ -105,7 +107,6 @@ def setcount(patten, num):
 
 
 def findstart():
-    log.error("#########: %s", env.before)
     for i in [-1, -2, -3, -4]:
         try:
             c = env.before[i]
@@ -140,14 +141,12 @@ def base(patten):
 
 class IM_Wubi(im.keybase.BaseEnd):
     def isenable(self):
-        if not vim.vars.get("wind_im_wubi", 1):
-            return
+        return vim.vars.get("wind_im_wubi", 1)
 
     def im_lower(self, k):
         if not self.isenable():
             imrc.feedkeys(k)
             return
-
 
         func = "wind#Prompt"
 
@@ -160,9 +159,6 @@ class IM_Wubi(im.keybase.BaseEnd):
         imrc.feedkeys(k)
         imrc.feedkeys('\<C-X>\<C-O>')
         return True
-
-    def handler(self, tp, key):
-        getattr(self, tp)(key)
 
 
 

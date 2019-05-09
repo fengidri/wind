@@ -20,6 +20,7 @@ blacklist_file=[
     ".+\.ko$",
     ".+\.symvers$",
     ".+\.order$",
+    ".+\.pdf$",
     ]
 
 blacklist_switch = True

@@ -112,9 +112,6 @@ class IM_Code(im.keybase.BaseEnd, handle):
     fts = ['c', 'cpp', 'python', 'javascript', 'ch', 'vim', 'html', 'sh']
 
     def handler(self, tp, key):
-        if pyvim.pumvisible():
-            getattr(handler.HD_Prompt, tp)(key)
-            return
 
         imrc.complete_timer.stop()
 

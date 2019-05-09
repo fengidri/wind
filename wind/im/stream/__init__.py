@@ -64,8 +64,11 @@ def handle(tp, key):
         frainui.inputstream(tp, key)
         return
 
-    if env.pumvisible and env.pumvisible_handler:
-        env.pumvisible_handler(tp, key)
+    if env.pumvisible:
+        if env.pumvisible_handler:
+            env.pumvisible_handler(tp, key)
+        else:
+            handler.HD_Prompt.handler(tp, key)
         return
 
     __map.get(env.ft, handler.HD_WubiStream).handler(tp, key)

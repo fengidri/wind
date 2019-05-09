@@ -87,6 +87,9 @@ class BaseEnd(BasePass):
             feedkeys('\%s' % k)
         return True
 
+    def handler(self, tp, key):
+        getattr(self, tp)(key)
+
 if __name__ == "__main__":
     pass
 

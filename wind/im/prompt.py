@@ -6,8 +6,6 @@
 
 import os
 
-from plugins import Plugins
-from imutils import Redirect
 import vim
 from pyvim import log
 import imrc
@@ -78,8 +76,6 @@ def Base(b):
     base(b)
     return _prompt
 
-
-
 def handle(event, base=None):
     if event == 'done':
         env.pumvisible_handler = None
@@ -91,7 +87,4 @@ def handle(event, base=None):
 
     elif event == "base":
         vim.vars["omniresult"] = {'words':Base(base), 'refresh': 'always'}
-
-if __name__ == "__main__":
-    pass
 

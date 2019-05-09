@@ -7,8 +7,8 @@ import os
 realpath = os.path.realpath
 
 def realpath(path):
-    path = os.path.expanduser(path)
-    path = os.path.realpath(path)
+#    path = os.path.expanduser(path)
+#    path = os.path.realpath(path)
 
     if not os.path.exists(path):
         return None
