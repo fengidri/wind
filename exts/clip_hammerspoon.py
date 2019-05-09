@@ -41,7 +41,16 @@ def MacClipGet():
     res = requests.get("http://10.0.2.2:1542/")
 #    text = res.text.decode('UTF8')
     setreg = vim.Function('setreg')
-    setreg('"', res.text)
+
+    c = res.text
+    if vim.eval('&ft') == 'markdown':
+        if c.startswith('http://') or c.startswith('https://'):
+            if c.endswith(".png") or c.endswith('.jpg'):
+                c = '![](%s)' % c
+            else:
+                c = '[](%s)' % c
+
+    setreg('"', c)
 
 @pyvim.cmd()
 def MacClipPost():
