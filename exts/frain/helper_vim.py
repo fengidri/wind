@@ -14,8 +14,9 @@ import pyvim
 from pyvim import log
 
 def BufEnter(FrainList):
-    if vim.current.buffer.options[ 'buftype' ] != '':
-        return -1
+    # this is '' inside python3
+    #if vim.current.buffer.options[ 'buftype' ] != '':
+    #    return -1
 
     if vim.current.buffer.name == '':
         return -1

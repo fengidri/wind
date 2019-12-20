@@ -68,8 +68,8 @@ def bufferpath(buf = None):
     if not buf:
         buf = vim.current.buffer
 
-    if buf.options['buftype'] != '':
-        return
+    #if buf.options['buftype'] != '':
+    #    return
 
     path = buf.name
 
