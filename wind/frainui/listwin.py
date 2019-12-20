@@ -6,10 +6,10 @@
 
 from pyvim import log as logging
 import pyvim
-import node
+from . import node
 import vim
 import copy
-import utils
+from . import utils
 import frainui
 
 def isshow(fun):
@@ -79,7 +79,7 @@ class NODE(object):
 
 
 
-import Buffer
+from . import Buffer
 class LIST(Buffer.BF, OP_OPTIONS, NODE):
     def __init__(self, name, get_roots, **kw):
         frainui.BF.__init__(self)
@@ -130,6 +130,8 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
                 如果进行全局性地查找是找不到的
             2.
         """
+
+        logging.error("find: %s" % names)
 
         if not names: return
         if not self.root: return

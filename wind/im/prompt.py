@@ -8,8 +8,8 @@ import os
 
 import vim
 from pyvim import log
-import imrc
-import env
+from . import imrc
+from . import env
 
 _prompt = []
 

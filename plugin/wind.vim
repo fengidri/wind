@@ -10,7 +10,7 @@ let g:wind_im_timer_complete = 600
 let g:wind_im_wubi = 0
 
 "------------------------------ python -----------------------------------------
-python <<EOF
+py3 <<EOF
 import sys
 import os.path as path
 import vim
@@ -25,7 +25,7 @@ EOF
 "-------------------------------------------------------------------------------
 
 function! Input_Monitor(tp, key)
-    py IM("key", vim.eval("a:tp"), vim.eval("a:key"))
+    py3 IM("key", vim.eval("a:tp"), vim.eval("a:key"))
     return ''
 endfunction
 
@@ -33,7 +33,7 @@ set omnifunc="wind#Prompt"
 "CursorHold default timer out is 4000ms and this value also used for swap
 "auto CursorHold   * py IM('event', "CursorHold")
 "auto CursorHoldI  * py IM('event', "CursorHoldI")
-auto CompleteDone * py IM("prompt", "done")
+auto CompleteDone * py3 IM("prompt", "done")
 
 "map  <F4>          :ProjectSync<cr>
 "map  <F6>          :Project<cr>
@@ -53,7 +53,7 @@ imap <F11>         <esc>:GotoInc<cr>
 map  <F11>         :GotoInc<cr>
 imap <C-s>         <esc>:SameWord<cr>
 map <C-s>          :SameWord<cr>a
-map  <tab>         :py IM("frainui", "OP-Focus", "frain")<CR>
+map  <tab>         :py3 IM("frainui", "OP-Focus", "frain")<CR>
 map *              viw""y/<C-R>0<CR>
 map <F5>           <esc>:Run<CR>
 inoremap <C-f>     <esc>:CFunComment<cr>

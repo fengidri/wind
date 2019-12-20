@@ -39,7 +39,7 @@ import pyvim
 
 def excepthook(type, value, trace):
     if type == KeyboardInterrupt:
-        print ""
+        print("")
         return
 
     pyvim.echoline(">>Error(%s): %s: " % (LOGFILE, type.__name__ + str(value)))

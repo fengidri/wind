@@ -9,11 +9,11 @@ import logging
 import tempfile
 import utils
 
-import libpathscp
+#import libpathscp
 import libpathdisk
 
 procts = {
-        'scp': libpathscp,
+       # 'scp': libpathscp,
         'disk': libpathdisk
         }
 

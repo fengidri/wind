@@ -4,7 +4,7 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-import imrc
+from . import imrc
 from pyvim import log
 import rc
 def handle(key, value):

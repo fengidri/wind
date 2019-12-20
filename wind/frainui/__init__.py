@@ -3,13 +3,13 @@
 #    time      :   2015-03-31 11:15:36
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
-from node import Node, Leaf
-from listwin import LIST
-from searchwin import Search
+from .node import Node, Leaf
+from .listwin import LIST
+from .searchwin import Search
 from pyvim import log
-import utils
+from . import utils
 import vim
-from Buffer import BF
+from .Buffer import BF
 
 def inputstream(tp, key):
     # 处理从 IM Stream 过来的输入流

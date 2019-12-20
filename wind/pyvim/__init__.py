@@ -39,12 +39,13 @@ class complete(object):
     user          = "user"                  # user names
     var           = "var"                   # user variables
 
-from pyvim import *
-from event import *
-from cmd import *
+from .pyvim import *
+from .event import *
+from .cmd import *
 
 
 
+echoline = pyvim.echoline
 if __name__ == "__main__":
     pass
 

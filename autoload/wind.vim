@@ -13,10 +13,10 @@ let g:wind_with_ycm = -4
 
 function! wind#Prompt(findstart, base)
     if a:findstart
-        py IM('prompt', 'findstart')
+        py3 IM('prompt', 'findstart')
         return g:omnicol
     else
-        py IM('prompt', 'base', vim.eval('a:base'))
+        py3 IM('prompt', 'base', vim.eval('a:base'))
         " sjust call this when prompt out
         call feedkeys( "\<C-P>", 'n' )
         return g:omniresult
@@ -24,10 +24,10 @@ function! wind#Prompt(findstart, base)
 endfunction
 
 function! wind#CommandsComplete(A, L, P)
-    py IM("cmd_complete", vim.eval("a:A"), vim.eval("a:L"), vim.eval("a:P"))
+    py3 IM("cmd_complete", vim.eval("a:A"), vim.eval("a:L"), vim.eval("a:P"))
     return g:wind_commands_complete
 endfunction
 
 function! wind#IMCompleteTimerHold(id)
-    py IM("timer", "complete")
+    py3 IM("timer", "complete")
 endfunction

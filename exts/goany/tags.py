@@ -60,7 +60,7 @@ def goto(path, prefix, pos):
     try:
 #        vim.command('%foldopen!')
         vim.command('normal zz')
-    except vim.error, e:
+    except vim.error as e:
         logging.error(e)
 
 
@@ -306,7 +306,7 @@ def TagJump(tag = None):
 
     try:
         vim.command('normal zz')
-    except vim.error, e:
+    except vim.error as e:
         logging.error(e)
 
 @pyvim.cmd()

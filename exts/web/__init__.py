@@ -9,11 +9,13 @@
 # So, this ext is to start the web server when the server is not working.
 
 import os
+import subprocess
 def start():
     curfile = os.path.realpath(__file__)
     curdir  = os.path.dirname(curfile)
     fwebdir = os.path.join(curdir, 'fweb')
-    os.popen2('cd %s; python2 fweb.py >/dev/null 2>&1' % fwebdir)
+    subprocess.call(['bash', '-c',
+        'cd %s; python2 fweb.py >/dev/null 2>&1' % fwebdir])
 
 
 start()

@@ -49,8 +49,8 @@ def Init():
 
 import im.handler as handler
 
-import code
-import tex
+from . import code
+from . import tex
 
 genmap(code.IM_Code())
 genmap(tex.IM_Tex())

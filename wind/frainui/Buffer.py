@@ -5,7 +5,7 @@
 #    version   :   1.0.1
 import vim
 import pyvim
-import utils
+from . import utils
 
 
 # OP: use Options

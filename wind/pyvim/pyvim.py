@@ -9,7 +9,7 @@ import os
 import logging
 log = logging.getLogger("wind")
 
-import event
+from . import event
 
 Roots = [] # 当前在编辑中的文件的根目录
 

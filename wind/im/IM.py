@@ -5,12 +5,12 @@ from pyvim import log
 import pyvim
 import vim
 
-import stream
-import prompt
-import timer
-import setting
+from . import stream
+from . import prompt
+from . import timer
+from . import setting
 import frainui
-from imrc import emit_event
+from .imrc import emit_event
 
 
 RouteMap = {

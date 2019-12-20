@@ -5,7 +5,7 @@
 #    version   :   1.0.1
 import os
 import pyvim
-import utils
+from  . import utils
 import vim
 import im
 
@@ -97,7 +97,7 @@ class BufferEvent(object):
                 if l < len(self.lines):
                     self.match_line = l
 
-        im.async('frainui', 'OP-Quit')
+        im.async_feed('frainui', 'OP-Quit')
 
 
     def quit(self, t = None):
@@ -123,7 +123,7 @@ class EnterEvent(object):
             self.match_line = self.nos[0]# self.BFb[1].strip()
 
         # 进入异步模式
-        im.async('frainui', 'OP-Quit')
+        im.async_feed('frainui', 'OP-Quit')
 
     def enter_change(self, enter):
         pats = []
@@ -150,7 +150,7 @@ class EnterEvent(object):
 
 
 
-import Buffer
+from . import Buffer
 class Search(Buffer.BF, SearchWIN, BufferEvent, EnterEvent):
     def __init__(self, lines, name='search'):
         Buffer.BF.__init__(self)

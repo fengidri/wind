@@ -7,7 +7,7 @@
 # set g:wind_im_wubi inside ftplugin to open/close wubi
 
 
-import urllib2
+import urllib3
 import json
 
 import pyvim
@@ -70,7 +70,7 @@ im_wub_pumvisible_handler =  IM_Wubi_Pum()
 cache={  }
 
 def webget(path):
-    r = urllib2.urlopen("http://127.0.0.1:9480%s" % path)
+    r = urllib3.urlopen("http://127.0.0.1:9480%s" % path)
     return json.loads(r.read())
 
 def search_from_db(patten):
@@ -78,7 +78,7 @@ def search_from_db(patten):
         w = webget("/wubi/search?patten=%s" % patten)
         cache[patten] = w
         return w
-    except Exception, e:
+    except Exception as e:
         pyvim.echoline(str(e))
         return ([], [])
 
@@ -100,7 +100,7 @@ def setcount(patten, num):
             ww.encode('utf8'))
     try:
         urllib2.urlopen(url)
-    except Exception, e:
+    except Exception as e:
         pyvim.echoline(str(e))
 
 

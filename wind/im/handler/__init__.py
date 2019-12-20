@@ -5,8 +5,8 @@
 #    version   :   1.0.1
 
 
-import prompt
-import wubi
+from . import prompt
+from . import wubi
 
 HD_Prompt = prompt.HD_Prompt()
 HD_WubiStream = wubi.IM_Wubi()

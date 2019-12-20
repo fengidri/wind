@@ -4,7 +4,7 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 import vim
-from imrc  import hook
+from .imrc  import hook
 import pyvim
 
 before   = ''
@@ -42,8 +42,8 @@ def init():
     num, col = vim.current.window.cursor
     line = vim.current.line
 
-    before = line[0: col].decode(encoding)
-    after = line[col:].decode(encoding)
+    before = line[0: col]
+    after = line[col:]
 
     command='synIDattr(synIDtrans(synID(line("."), col(".") - 1, 1)), "name")'
     syntax = vim.eval(command)

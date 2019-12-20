@@ -17,11 +17,11 @@ CMD_OPTS = {}
 # Command Api
 ###################################
 def funnargs(fun):
-    nargs = len(fun.func_code.co_varnames)
-    pargs = fun.func_code.co_argcount # pos args
+    nargs = len(fun.__code__.co_varnames)
+    pargs = fun.__code__.co_argcount # pos args
     dargs = 0
-    if fun.func_defaults:
-        dargs = len(fun.func_defaults)    # default args
+    if fun.__defaults__:
+        dargs = len(fun.__defaults__)    # default args
     _min = pargs - dargs
     if nargs > pargs:
         _max = 10000000
@@ -51,7 +51,7 @@ def __command(vimcmd, fun, complete):
         nargs = '-nargs=+'
 
     command = "command {args} {complete} {vimcmd} " \
-                    "py IM('command', {index}, '<args>')"
+                    "py3 IM('command', {index}, '<args>')"
 
     c = command.format(args = nargs, complete= complete, vimcmd = vimcmd,
             index=len(CMDS))
@@ -87,14 +87,14 @@ def cmd(complete = None):
         opts = complete
         complete = "-complete=customlist,wind#CommandsComplete"
 
-    elif isinstance(complete, basestring):
+    elif isinstance(complete, str):
         complete = "-complete=%s" % complete
 
     else:
         complete = ""
 
     def _cmd(fun):
-        name = fun.func_code.co_name
+        name = fun.__code__.co_name
         CMD_OPTS[name] = opts
         __command(name, fun, complete)
         return fun

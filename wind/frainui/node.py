@@ -7,7 +7,7 @@
 from pyvim import log as logging
 import vim
 import pyvim
-import utils
+from . import utils
 
 LIST = None
 
