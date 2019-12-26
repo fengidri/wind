@@ -11,7 +11,7 @@ import all_tag
 
 
 import pyvim
-#@pyvim.cmd(complete = ['file', 'tag'])
+@pyvim.cmd(complete = ['file', 'tag'])
 def GoAny(f, o=None):
     if f == 'file':
         filter_file.FileFilter()
@@ -27,14 +27,14 @@ def GoAny(f, o=None):
         elif o == 'all':
             all_tag.TagFilter()
 
-#        elif o == 'jump':
-#            tags.TagJump()
-#
-#        elif o == 'back':
-#            tags.TagBack()
-#
-#        elif o == 'refresh':
-#            tags.TagRefresh()
+        elif o == 'jump':
+            tags.TagJump()
+
+        elif o == 'back':
+            tags.TagBack()
+
+        elif o == 'refresh':
+            tags.TagRefresh()
 
 if __name__ == "__main__":
     pass

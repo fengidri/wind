@@ -4,7 +4,7 @@
 #    email     :   fengidri@yeah.net
 #    version   :   1.0.1
 
-import utils
+from . import utils
 import im
 import pyvim
 import vim
@@ -15,7 +15,7 @@ class EnterLineIM(im.keybase.BaseEnd):
         return True
 
     def cb_esc(self):
-        im.async('frainui', 'OP-Quit')
+        im.async_feed('frainui', 'OP-Quit')
         return True
 
     def cb_tab(self):

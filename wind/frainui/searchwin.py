@@ -168,7 +168,7 @@ class Search(Buffer.BF, SearchWIN, BufferEvent, EnterEvent):
         self.BFName     = "Search"
         self.BFCreate()
 
-        from enter import EnterLine
+        from .enter import EnterLine
         self.enter = EnterLine(self, 0, "Search:")
         self.enter.FREventBind("Enter-Active", self.enter_active)
         self.enter.FREventBind("Enter-Change", self.enter_change)
