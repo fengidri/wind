@@ -22,6 +22,9 @@ def encode(cmd):
 
 
 def goto(path, prefix, pos):
+
+    logging.error('goto path: %s, %s, %s' %(path, prefix, pos))
+
     if path != vim.current.buffer.name:
         vim.command('update')
 
@@ -37,9 +40,9 @@ def goto(path, prefix, pos):
         tagname = prefix[1]
 
         line_nu = None
-        if isinstance(line, basestring):
+        if isinstance(line, str):
             for i, l in enumerate(vim.current.buffer):
-                if l.startswith(line):
+                if l.startswith(line[2:-1]):
                     line_nu = i
         else:
             line_nu = line
@@ -79,22 +82,27 @@ class Frame(object):
 
 class Tag(object):
     def __init__(self, root, entry):
-        self.tag = entry["name"]
-        self.file_path = os.path.join(root, entry["file"])
+        self.tag = entry[b"name"]
 
-        line = entry["pattern"]
+        root = bytes(root, encoding="utf-8")
+
+        self.file_path = os.path.join(root, entry[b"file"])
+
+        line = entry[b"pattern"]
         if line.isdigit():
             self.line = int(line) - 1
         else:
-            patten = line.replace(r'\/','/')
+            line = str(line)
+            patten = line.replace(r'\/', '/')
             patten = patten.replace(r'\r','')
             self.line = encode(patten[2:-2])
 
-        self.line_num = entry["lineNumber"]
-        self.kind = entry["kind"]
+        self.line_num = entry[b"lineNumber"]
+        self.kind = entry[b"kind"]
 
     def goto(self):
-        goto(self.file_path, (self.line, self.tag), None)
+        goto(self.file_path.decode('utf8'),
+                (self.line, self.tag.decode('utf8')), None)
 
 
 
@@ -119,7 +127,7 @@ class TagList:
         self.funs = None
 
         self.tagsfile = tags;
-        self.tagfile = ctags.CTags(self.tagsfile)
+        self.tagfile = ctags.CTags(bytes(self.tagsfile, encoding='utf-8'))
         self.entry = ctags.TagEntry()
         return True
 
@@ -163,7 +171,7 @@ class TagList:
                 return None
 
         list_tags = []
-        status = self.tagfile.find(self.entry, tag, MODE )
+        status = self.tagfile.find(self.entry, bytes(tag, encoding='utf-8'), MODE )
         if not status:
             return None
 
@@ -248,10 +256,12 @@ class class_tag:
             return 0
 
         #echo
-        vim.command("echo '%s %s %s/%s'"  % (
-            frame.tagname,
-            frame.taglist[frame.index].kind,
-            frame.index, frame.num))
+        #cmd = "echo '%s %s %s/%s'"  % ( frame.tagname,
+        #    frame.taglist[frame.index].kind,
+        #    frame.index, frame.num)
+
+        #print(cmd)
+        #vim.command(cmd)
 
         self.goto(frame)
 

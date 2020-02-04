@@ -62,6 +62,8 @@ class file_filter(object):
 
     def quit(self, win, index):
         file_filter.INSTANCE = None
+        if not index:
+            return
 
         if index > -1:
             path = os.path.join(self.path, self.fs[index])

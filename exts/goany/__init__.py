@@ -7,7 +7,7 @@
 import filter_tag
 import filter_file
 import all_tag
-#import tags
+import tags
 
 
 import pyvim

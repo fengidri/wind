@@ -57,7 +57,6 @@ def __command(vimcmd, fun, complete):
             index=len(CMDS))
 
     CMDS.append(fun)
-    logging.debug(c)
     vim.command(c)
 
 

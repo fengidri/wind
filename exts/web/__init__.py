@@ -14,8 +14,6 @@ def start():
     curfile = os.path.realpath(__file__)
     curdir  = os.path.dirname(curfile)
     fwebdir = os.path.join(curdir, 'fweb')
-    subprocess.call(['bash', '-c',
-        'cd %s; python2 fweb.py >/dev/null 2>&1' % fwebdir])
 
 
 start()
