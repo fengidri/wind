@@ -19,6 +19,7 @@ import vim
 
 import im.keybase
 import pyvim
+import wbtree
 
 import vim
 from im import imrc
@@ -69,41 +70,16 @@ im_wub_pumvisible_handler =  IM_Wubi_Pum()
 
 cache={  }
 
-def webget(path):
-    r = urllib3.urlopen("http://127.0.0.1:9480%s" % path)
-    return json.loads(r.read())
-
-def search_from_db(patten):
-    try:
-        w = webget("/wubi/search?patten=%s" % patten)
-        cache[patten] = w
-        return w
-    except Exception as e:
-        pyvim.echoline(str(e))
-        return ([], [])
-
 def search(patten):
     '得到备选的字词'
     words= cache.get( patten )
 
-    if  words:
+    if words:
         return words
 
-    return search_from_db(patten)
-
-def setcount(patten, num):
-    w, ass = cache.pop(patten)
-    if len(w) -1 < num:
-        return
-    ww = w[num]
-    url = "http://localhost/wubi/setcount?patten=%s&word=%s" % (patten,
-            ww.encode('utf8'))
-    try:
-        urllib2.urlopen(url)
-    except Exception as e:
-        pyvim.echoline(str(e))
-
-
+    w = wbtree.wbsearch(patten)
+    cache[patten] = w
+    return w
 
 
 def findstart():
