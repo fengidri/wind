@@ -88,7 +88,7 @@ def get_buffers(Node):
     Node.need_fresh = True
 
 def FrainListGetRootsHook(node, listwin):
-    pyvim.Roots = []  # 整个vim 可用的变量
+#    pyvim.Roots = []  # 整个vim 可用的变量
 
     if vim.vars.get("frain_buffer", 0) == 1: # show buffers in listwin
         dp = r"\green;Buffers\end;"

@@ -6,13 +6,21 @@ import re
 
 SUFFIX = ['*.[ch]', '*.cpp', '*.cc', '*.py']
 
-@pyvim.cmd()
-def FSearch(word):
-    command, path = context(word)
+def search(word, target = ''):
+    command, path = context(word, target = target)
 
     if not command:
         return
 
+    pyvim.log.error("search cmd: %s", command)
+    f_popen = os.popen(command)
+    lines = f_popen.readlines()
+    if lines:
+        filter_quick( lines, path, command )
+
+
+@pyvim.cmd()
+def FSearch(word):
     f = vim.current.buffer.name
     if f:
         f = os.path.basename(f)
@@ -22,11 +30,9 @@ def FSearch(word):
             if suffix not in SUFFIX:
                 SUFFIX.append(suffix)
 
-    pyvim.log.error("search cmd: %s", command)
-    f_popen = os.popen(command)
-    lines = f_popen.readlines()
-    if lines:
-        filter_quick( lines, path, command )
+
+    search(word)
+
 
 @pyvim.cmd()
 def FSearchX(sel = False):
@@ -37,7 +43,29 @@ def FSearchX(sel = False):
         word = word.replace("'", "\\'")
     pyvim.log.error(": %s", word)
 
-    FSearch(word)
+    search(word)
+
+
+@pyvim.cmd()
+def FSearchLinux():
+    root = pyvim.get_cur_root()
+    if not root:
+        return
+
+    f = vim.current.buffer.name.split('/')
+    t = root.split('/')
+    if t[-1] == '':
+        sub = f[len(t) - 1]
+    else:
+        sub = f[len(t)]
+
+    target = 'include %s' % sub
+    word = "\<%s\>" % pyvim.current_word()
+
+    search(word, target)
+
+
+
 
 
 """
@@ -58,21 +86,19 @@ def byte_to_unicode( byte ):
 """
     分析上下文
 """
-def context(word, filter=""):
-    target = ""
+def context(word, target = ''):
     dirname = ""
 
     cur_path = vim.current.buffer.name
     if not cur_path:
         return None, None
 
-    for path in pyvim.Roots:
-        if cur_path.startswith( path ):
-            include = [" --include='%s' " % s for s in SUFFIX ]
-            include = ' '.join(include)
+    root = pyvim.get_cur_root()
+    if root:
+        include = [" --include='%s' " % s for s in SUFFIX ]
+        include = ' '.join(include)
 
-            dirname = path
-            break
+        dirname = root
     else:
         include = ""
         target =  os.path.basename( cur_path )
@@ -81,6 +107,7 @@ def context(word, filter=""):
 
     if  dirname in [ "/", "/home", os.environ.get("HOME") ]:
         return None,None
+
 
     cmd = "cd {dirname};grep -RHn --binary-file=without-match "\
             "{include} '{word}' {target} "
@@ -98,7 +125,8 @@ def filter_quick( lines, path, command ):
     grep_output = u"Grep Entering directory '%s'\n%s\n\n"  % (path, command)
     outs=[ grep_output ]
     for l in  lines:
-        line = byte_to_unicode( l )
+        line = l
+        #line = byte_to_unicode( l )
         if not line:
             vim.command( "echom  'I do not know this code [%s]'" % l)
             return
@@ -109,7 +137,7 @@ def filter_quick( lines, path, command ):
         outs.append( line )
 
     #写入文件之前转换成字节码
-    context = u''.join(outs).encode('utf8' )
+    context = u''.join(outs)
     f = open(tmp_file, 'w')
     f.write(context )
     f.close()
