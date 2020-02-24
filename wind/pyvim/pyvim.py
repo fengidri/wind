@@ -201,15 +201,28 @@ echo = echoline
 
 def str_before_cursor():
     "返回光标前的字符串"
-    col_nu_cursor=vim.current.window.cursor[1]
-    cur_line=vim.current.line
-    return cur_line[0:col_nu_cursor].decode(vim.eval('&encoding'))
+
+    code = vim.eval('&encoding')
+
+    num, col = vim.current.window.cursor
+    line = vim.current.line
+    line = bytes(line,  encoding=code)
+
+
+    return line[0: col].decode(code)
+
 
 def str_after_cursor():
     "返回光标后的字符串"
-    col_nu_cursor=vim.current.window.cursor[1]
-    cur_line=vim.current.line
-    return cur_line[col_nu_cursor:].decode(vim.eval('&encoding'))
+    code = vim.eval('&encoding')
+
+    num, col = vim.current.window.cursor
+    line = vim.current.line
+    line = bytes(line,  encoding=code)
+
+
+    return line[col:].decode(code)
+
 
 def getline( ):
     return vim.current.line

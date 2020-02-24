@@ -17,7 +17,6 @@ ft       = ''
 syntax   = ''
 ycm      = False
 pumvisible = False
-pumvisible_handler = None
 
 @hook('start')
 def init():
@@ -40,10 +39,13 @@ def init():
     vchar    = vim.eval('v:char')
 
     num, col = vim.current.window.cursor
+
     line = vim.current.line
 
-    before = line[0: col]
-    after = line[col:]
+    line = bytes(line,  encoding="utf-8")
+
+    before = line[0: col].decode('utf8')
+    after = line[col:].decode('utf8')
 
     command='synIDattr(synIDtrans(synID(line("."), col(".") - 1, 1)), "name")'
     syntax = vim.eval(command)

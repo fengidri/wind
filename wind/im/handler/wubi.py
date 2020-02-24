@@ -25,6 +25,21 @@ import vim
 from im import imrc
 feedkeys = imrc.feedkeys
 
+cache={  }
+
+def search(patten):
+    '得到备选的字词'
+    words= cache.get( patten )
+
+    if words:
+        return words
+
+    w = wbtree.wbsearch(patten)
+    cache[patten] = w
+    return w
+
+
+
 class IM_Wubi_Pum(im.keybase.BaseEnd):
     def cb_tab(self):
         feedkeys('\<C-n>')
@@ -53,69 +68,45 @@ class IM_Wubi_Pum(im.keybase.BaseEnd):
         return True
 
     def im_lower(self, k):
-        # call wubi
-
-        func = "wind#Prompt"
-
-        vim.command("let &omnifunc='%s'" % func)
-        vim.command("let &l:omnifunc='%s'" % func)
-
-        imrc.feedkeys('\<C-Y>')
         imrc.feedkeys(k)
-        imrc.feedkeys('\<C-X>\<C-O>')
+        prompt.co_active()
         return True
 
 
-im_wub_pumvisible_handler =  IM_Wubi_Pum()
 
-cache={  }
+class wb_prompt(prompt.Prompt):
+    def findstart(self):
+        for i in [-1, -2, -3, -4]:
+            try:
+                c = env.before[i]
+                if not c.islower():
+                    raise Exception()
+            except:
+                n = (i + 1) * -1
+                if 0 == n:
+                    return
+                return n
 
-def search(patten):
-    '得到备选的字词'
-    words= cache.get( patten )
+        return 4
 
-    if words:
-        return words
+    def base(self, patten):
+        log.debug("wubi patten: %s", patten)
+        words, associate = search(''.join(patten))
 
-    w = wbtree.wbsearch(patten)
-    cache[patten] = w
-    return w
+        i = 0
+        for w in words:
+            i += 1
+            self.abuild(w, "%s.%s" % (i, w))
 
-
-def findstart():
-    for i in [-1, -2, -3, -4]:
-        try:
-            c = env.before[i]
-            if not c.islower():
-                raise Exception()
-        except:
-            n = (i + 1) * -1
-            if 0 == n:
-                return
-            return n
-
-    return 4
-
-def base(patten):
-    log.debug("wubi patten: %s", patten)
-    words, associate = search(''.join(patten))
-
-    #abuild(" ", "%s                  " %  patten)
-
-    env.pumvisible_handler = im_wub_pumvisible_handler.handler
-
-    i = 0
-    for w in words:
-        i += 1
-        prompt.abuild(w, "%s.%s" % (i, w))
-
-    for w, k, c  in associate:
-        i += 1
-        prompt.abuild( w, "%s.%s %s"%(i, w, k))
+        for w, k, c  in associate:
+            i += 1
+            self.abuild( w, "%s.%s %s"%(i, w, k))
 
 
+prompt = wb_prompt(IM_Wubi_Pum())
 
 class IM_Wubi(im.keybase.BaseEnd):
+
     def isenable(self):
         return vim.vars.get("wind_im_wubi", 1)
 
@@ -124,16 +115,9 @@ class IM_Wubi(im.keybase.BaseEnd):
             imrc.feedkeys(k)
             return
 
-        func = "wind#Prompt"
-
-        vim.command("let &omnifunc='%s'" % func)
-        vim.command("let &l:omnifunc='%s'" % func)
-
-        prompt.findstart = findstart
-        prompt.base = base
-
         imrc.feedkeys(k)
-        imrc.feedkeys('\<C-X>\<C-O>')
+
+        prompt.active()
         return True
 
 

@@ -12,6 +12,7 @@ from pyvim import log
 import string
 import frainui
 import im.env as env
+import im.prompt as prompt
 
 
 __map = {}
@@ -65,10 +66,10 @@ def handle(tp, key):
         return
 
     if env.pumvisible:
-        if env.pumvisible_handler:
-            env.pumvisible_handler(tp, key)
-        else:
-            handler.HD_Prompt.handler(tp, key)
+        if prompt.stream(tp, key):
+            return
+
+        handler.HD_Prompt.handler(tp, key)
         return
 
     __map.get(env.ft, handler.HD_WubiStream).handler(tp, key)

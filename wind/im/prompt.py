@@ -11,58 +11,78 @@ from pyvim import log
 from . import imrc
 from . import env
 
-_prompt = []
+class g:
+    active = None
 
-################################################################################
-def append_string(ppt):
-    _prompt.append({"word": ppt})
+class Prompt(object):
+    _prompt = []
+    co_done = 0
 
-def append_list(ppt):
-    for x in ppt:
-        if isinstance(x, dict):
-            _prompt.append(x)
+    def __init__(self, key_handler = None):
+        self.keyhandler = key_handler
 
-        elif isinstance(x, basestring):
-            append_string(x)
+    def active(self):
+        func = "wind#Prompt"
+
+        vim.command("let &omnifunc='%s'" % func)
+        vim.command("let &l:omnifunc='%s'" % func)
+
+        imrc.feedkeys('\<C-X>\<C-O>')
+
+        g.active = self
+
+    def co_active(self):
+        self.co_done += 1
+        self.active()
+
+    def append_string(self, ppt):
+        self._prompt.append({"word": ppt})
+
+    def append_list(self, ppt):
+        for x in ppt:
+            if isinstance(x, dict):
+                self._prompt.append(x)
+
+            elif isinstance(x, basestring):
+                self.append_string(x)
 
 
 
-def append(ppt):
-    if isinstance(ppt, list):
-        append_list(ppt)
+    def append(self, ppt):
+        if isinstance(ppt, list):
+            self.append_list(ppt)
 
-    elif isinstance(ppt, basestring):
-        append_string(ppt)
+        elif isinstance(ppt, basestring):
+            self.append_string(ppt)
 
-def build(word, abbr = None, menu = None):
-    s = {"word": word}
-    if abbr:
-        s["abbr"] = abbr
+    def build(self, word, abbr = None, menu = None):
+        s = {"word": word}
+        if abbr:
+            s["abbr"] = abbr
 
-    if menu:
-        s["menu"] = menu
+        if menu:
+            s["menu"] = menu
 
-    return s
+        return s
 
-def abuild(word, abbr = None, menu = None):
-    _prompt.append(build(word, abbr, menu))
+    def abuild(self, word, abbr = None, menu = None):
+        self._prompt.append(self.build(word, abbr, menu))
 
-################################################################################
 
-def popmenu():
-    if not _prompt:
-        return
-    vim.vars["omniresult"] = _prompt
-    vim.vars["omnicol"] = vim.current.window.cursor[1] - length + 1
+    def popmenu(self):
+        if not self._prompt:
+            return
 
-findstart = None
-base = None
+        vim.vars["omniresult"] = self._prompt
+        vim.vars["omnicol"] = vim.current.window.cursor[1] - length + 1
 
-def Findstart():
-    tt = None
-    col = -3
+    def findstart(self):
+        pass
 
-    col = findstart()
+    def base(self, b):
+        pass
+
+def Findstart(col):
     if not isinstance(col, int):
         col = -3
 
@@ -71,20 +91,45 @@ def Findstart():
         return _col
     return col
 
-def Base(b):
-    del _prompt[:]
-    base(b)
-    return _prompt
 
 def handle(event, base=None):
     if event == 'done':
-        env.pumvisible_handler = None
+        if g.active.co_done:
+            g.active.co_done -= 1
+            return
+
+        g.active = None
         return
 
     if event == "findstart":
-        start = Findstart()
-        vim.vars["omnicol"] =  start
+        vim.vars["omnicol"] = Findstart(g.active.findstart())
+        return
 
-    elif event == "base":
-        vim.vars["omniresult"] = {'words':Base(base), 'refresh': 'always'}
+    if event == "base":
+        g.active.base(base)
+
+        words = g.active._prompt
+
+        vim.vars["omniresult"] = {'words':words, 'refresh': 'always'}
+
+        del g.active._prompt[:]
+
+
+def stream(tp, key):
+    if g.active and g.active.keyhandler:
+        g.active.keyhandler.handler(tp, key)
+        return True
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -33,7 +33,6 @@ set omnifunc="wind#Prompt"
 "CursorHold default timer out is 4000ms and this value also used for swap
 "auto CursorHold   * py IM('event', "CursorHold")
 "auto CursorHoldI  * py IM('event', "CursorHoldI")
-auto CompleteDone * py3 IM("prompt", "done")
 
 "map  <F4>          :ProjectSync<cr>
 "map  <F6>          :Project<cr>
@@ -42,8 +41,11 @@ map  <F2>          :update<cr>
 imap <F2>          <esc>:update<cr>
 map  <F7>          <esc>:MarkTo<cr>
 imap <F7>          <esc>:MarkTo<cr>
-map  <F10>         <esc>:FSearchX<cr>
+
+map  <F10>         <esc>:MarkTo<cr>:FSearchX<cr>
 vmap <F10>         <esc>:FSearchX Sel<cr>
+map  <F9>          :MarkTo<cr>:FSearchLinux<cr>
+
 imap <F12>         <esc>:ProjectTerminal<cr><cr>
 map  <F12>         <esc>:ProjectTerminal<cr><cr>
 map  <2-LeftMouse> <esc>:MarkTo<cr>
@@ -65,8 +67,6 @@ map gf             :GoAny file<cr>
 map gt             :GoAny tag file<cr>
 map tt             :GoAny tag all<cr>
 
-map  <F9>          :GoAny tag jump<cr>
-map  <F8>          :GoAny tag back<cr>
 map  gh            :GoAny tag jump<cr>
 map  gb            :GoAny tag back<cr>
 "map  O             :Zoom<cr>

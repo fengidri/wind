@@ -47,7 +47,7 @@ def FSearchX(sel = False):
 
 
 @pyvim.cmd()
-def FSearchLinux():
+def FSearchLinux(_sub = ''):
     root = pyvim.get_cur_root()
     if not root:
         return
@@ -59,7 +59,8 @@ def FSearchLinux():
     else:
         sub = f[len(t)]
 
-    target = 'include %s' % sub
+
+    target = 'include %s %s' % (sub, _sub)
     word = "\<%s\>" % pyvim.current_word()
 
     search(word, target)
