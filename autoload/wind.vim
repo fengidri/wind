@@ -26,7 +26,7 @@ function! wind#Prompt(findstart, base)
 endfunction
 
 function! wind#CommandsComplete(A, L, P)
-    py3 IM("cmd_complete", vim.eval("a:A"), vim.eval("a:L"), vim.eval("a:P"))
+    py3 pyvim.command_complete(vim.eval("a:A"), vim.eval("a:L"), vim.eval("a:P"))
     return g:wind_commands_complete
 endfunction
 

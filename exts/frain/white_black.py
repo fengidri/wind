@@ -21,6 +21,7 @@ blacklist_file=[
     ".+\.symvers$",
     ".+\.order$",
     ".+\.pdf$",
+    "__pycache__"
     ]
 
 blacklist_switch = True

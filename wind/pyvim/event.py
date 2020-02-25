@@ -32,7 +32,9 @@ def addevent(event, cb, pat='*', arg  = ()):
 
     cbid = "%s_%s" % (cb.__code__.co_name, __Event_Index)
     log.error("addevent: %s" % cbid)
-    cmd = "py3 IM('event', '%s')" % cbid
+
+    cmd = "py3 pyvim.event_callback('%s')" % cbid
+
     __Event_Map[cbid] = (cb, arg)
 
     if not isinstance(pat, str):

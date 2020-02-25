@@ -51,7 +51,7 @@ def __command(vimcmd, fun, complete):
         nargs = '-nargs=+'
 
     command = "command {args} {complete} {vimcmd} " \
-                    "py3 IM('command', {index}, '<args>')"
+                    "py3 pyvim.cmd_cb({index}, '<args>')"
 
     c = command.format(args = nargs, complete= complete, vimcmd = vimcmd,
             index=len(CMDS))

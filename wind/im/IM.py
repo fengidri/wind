@@ -1,9 +1,5 @@
 #encoding:utf8
-import os
-import sys
 from pyvim import log
-import pyvim
-import vim
 
 from . import stream
 from . import prompt
@@ -16,9 +12,6 @@ RouteMap = {
         "prompt":       prompt.handle,
         "key":          stream.handle,
         "setting":      setting.handle,
-        "command":      pyvim.cmd_cb,
-        "event":        pyvim.event_callback,
-        "cmd_complete": pyvim.command_complete,
         "frainui":      frainui.handle,
         }
 
