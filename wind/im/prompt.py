@@ -63,7 +63,7 @@ class Prompt(object):
             if isinstance(x, dict):
                 self._prompt.append(x)
 
-            elif isinstance(x, basestring):
+            elif isinstance(x, str):
                 self.append_string(x)
 
 
@@ -113,6 +113,7 @@ def Findstart(col):
         return _col
     return col
 
+from . import tips
 
 def handle(event, base=None):
     log.debug("prompt: %s before: %s", g.active, env.before)
@@ -124,6 +125,7 @@ def handle(event, base=None):
             g.active.co_done -= 1
             return
 
+        tips.do_tips()
         g.active = None
         return
 

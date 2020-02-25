@@ -41,10 +41,15 @@ def Init():
             vim.command(command)
 
 
+class g:
+    timerid = None
+
+
 
 from . import code
 from . import tex
 from . import wubi
+from im.tips import tips_handler
 
 code_gen = code.IM_Code()
 code_lua = code.IM_Lua()
@@ -59,12 +64,17 @@ def handle(tp, key):
     log.debug("stream handle ft: %s syn: %s before: %s", env.ft, env.syntax,
             env.before)
 
+    if g.timerid:
+        pyvim.timerstop(g.timerid)
+        g.timerid = None
+
     if env.ft.startswith('frainui'):
         frainui.inputstream(tp, key)
         return
 
     if env.pumvisible:
         prompt.stream(tp, key)
+        g.timerid = pyvim.timerstart(700, tips_handler)
         return
 
     if env.ft in tex.fts:
@@ -78,5 +88,9 @@ def handle(tp, key):
 
     else:
         wubi.handler(tp, key)
+
+    g.timerid = pyvim.timerstart(700, tips_handler)
+
+
 
 
