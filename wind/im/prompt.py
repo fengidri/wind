@@ -36,7 +36,6 @@ class PromptKey(im.keybase.BaseEnd):
 
 class Prompt(object):
     _prompt = []
-    co_done = 0
 
     def __init__(self, key_handler = None):
         self.keyhandler = key_handler
@@ -49,11 +48,8 @@ class Prompt(object):
 
         imrc.feedkeys('\<C-X>\<C-O>')
 
+        g.queue.append(self)
 
-        if g.active == self:
-            self.co_done += 1
-        else:
-            g.active = self
 
     def append_string(self, ppt):
         self._prompt.append({"word": ppt})
@@ -116,45 +112,50 @@ def Findstart(col):
 from . import tips
 
 def handle(event, base=None):
-    log.debug("prompt: %s before: %s", g.active, env.before)
-    if not g.active:
+    log.debug("prompt: %s before: %s", g.queue, env.before)
+    if not g.queue:
         return
 
-    if event == 'done':
-        if g.active.co_done:
-            g.active.co_done -= 1
-            return
+    active = g.queue[0]
 
-        tips.do_tips()
-        g.active = None
+    if event == 'done':
+        del g.queue[0]
+
+        if not g.queue:
+            tips.do_tips()
         return
 
     if event == "findstart":
-        start = Findstart(g.active.findstart())
+        start = Findstart(active.findstart())
         log.debug("prompt findstart start: %s" % start)
         vim.vars["omnicol"] = start
         return
 
     if event == "base":
-        g.active.base(base)
+        active.base(base)
 
-        words = g.active._prompt
+        words = active._prompt
 
         vim.vars["omniresult"] = {'words':words, 'refresh': 'always'}
 
-        del g.active._prompt[:]
+        del active._prompt[:]
 
 
 
 class g:
-    active = None
+    queue = []
     default_key = PromptKey()
 
 
 def stream(tp, key):
+    if not g.queue:
+        return
+
+    active = g.queue[0]
+
     log.debug("prompt stream: %s %s" % (tp, key))
-    if g.active and g.active.keyhandler:
-        g.active.keyhandler.handler(tp, key)
+    if active and active.keyhandler:
+        active.keyhandler.handler(tp, key)
         return True
 
     g.default_key.handler(tp, key)

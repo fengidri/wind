@@ -61,11 +61,7 @@ class handle(object):
         return True
 
     def cb_dot(self):
-        if env.before.endswith('.'):
-            feedkeys('\<bs>->')
-        else:
-            feedkeys('.')
-
+        feedkeys('.')
         self.ycm = True
         return True
 
@@ -125,7 +121,7 @@ def timer_callback():
 
 class IM_Code(im.keybase.BaseEnd, handle):
     wubi_syntax = ['Constant', 'CCommentDesc', 'CCommentArg', 'Comment', 'String']
-    fts = ['c', 'cpp', 'python', 'javascript', 'ch', 'vim', 'html', 'sh']
+    fts = ['python', 'javascript', 'ch', 'vim', 'html', 'sh', 'lua']
 
     ycm = False
     timerid = None
@@ -150,10 +146,18 @@ class IM_Code(im.keybase.BaseEnd, handle):
             if key.isalpha() or key == '_':
                 self.timerid = pyvim.timerstart(750, timer_callback)
 
-class IM_Lua(IM_Code):
+
+class IM_C(IM_Code):
+    fts = ['c', 'cpp', 'ch', 'h']
     def cb_dot(self):
-        feedkeys('.')
+        if env.before.endswith('.'):
+            feedkeys('\<bs>->')
+        else:
+            feedkeys('.')
+
+        self.ycm = True
         return True
+
 
 
 if __name__ == "__main__":

@@ -52,7 +52,7 @@ from . import wubi
 from im.tips import tips_handler
 
 code_gen = code.IM_Code()
-code_lua = code.IM_Lua()
+code_c = code.IM_C()
 
 tex = tex.IM_Tex()
 wubi = wubi.IM_Wubi()
@@ -74,20 +74,18 @@ def handle(tp, key):
 
     if env.pumvisible:
         prompt.stream(tp, key)
-        g.timerid = pyvim.timerstart(700, tips_handler)
-        return
-
-    if env.ft in tex.fts:
-        tex.handler(tp, key)
-
-    elif 'lua' == env.ft:
-        code_lua.handler(tp, key)
-
-    elif env.ft in code_gen.fts:
-        code_gen.handler(tp, key)
-
     else:
-        wubi.handler(tp, key)
+        if env.ft in tex.fts:
+            tex.handler(tp, key)
+
+        elif env.ft in code_c.fts:
+            code_c.handler(tp, key)
+
+        elif env.ft in code_gen.fts:
+            code_gen.handler(tp, key)
+
+        else:
+            wubi.handler(tp, key)
 
     g.timerid = pyvim.timerstart(700, tips_handler)
 

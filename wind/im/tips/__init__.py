@@ -10,8 +10,17 @@ from . import path
 from . import date
 from ..imrc import emit_event
 import pyvim
+import vim
+
+class g:
+    last_pos = None
 
 def do_tips():
+    pos = vim.current.window.cursor
+    if pos == g.last_pos:
+        return
+    g.last_pos = pos
+
     if pyvim.pumvisible():
         return
 
