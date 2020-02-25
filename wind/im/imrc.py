@@ -94,32 +94,6 @@ def async_feed(*k):
     c = c % ', '.join(l)
     feedkeys(c)
 
-class TimerComplete(object):
-    """
-    在输入流中, 启动定时器, 当时间到了之后触发补全动作.
-    特点: 不会不停地触发补全, 那样可能带的结果是太乱了, 并影响正常的
-    输入. 定时器的方式, 只在输入暂停的时候触发.
-    """
-    def __init__(self):
-        self.timerid = 0
-
-    def stop(self):
-        if self.timerid:
-            vim.eval('timer_stop(%s)' % self.timerid)
-            self.timerid = 0
-
-    def start(self):
-        t = vim.vars.get('wind_im_timer_complete', 750)
-        self.timerid = vim.eval('timer_start(%s, "wind#IMCompleteTimerHold")' %
-                t)
-
-complete_timer = TimerComplete()
-
-
-
-
-
-
 
 
 

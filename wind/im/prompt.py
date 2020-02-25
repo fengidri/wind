@@ -10,9 +10,29 @@ import vim
 from pyvim import log
 from . import imrc
 from . import env
+import im.keybase
 
-class g:
-    active = None
+class PromptKey(im.keybase.BaseEnd):
+    def cb_tab(self):
+        imrc.feedkeys('\<C-n>')
+        return True
+
+
+    def cb_esc(self):
+        imrc.feedkeys('\<esc>')
+        return True
+
+    def cb_enter(self):
+        imrc.feedkeys('\<C-e>')
+        return True
+
+    def cb_space(self):
+        #uchar = env.before[-1]
+        #if (uchar >= u'u0041' and uchar<=u'u005a') or \
+        #        (uchar >= u'u0061' and uchar<=u'u007a'):
+        imrc.feedkeys('\<C-N>')
+        imrc.feedkeys('\<C-Y>')
+        return True
 
 class Prompt(object):
     _prompt = []
@@ -29,11 +49,11 @@ class Prompt(object):
 
         imrc.feedkeys('\<C-X>\<C-O>')
 
-        g.active = self
 
-    def co_active(self):
-        self.co_done += 1
-        self.active()
+        if g.active == self:
+            self.co_done += 1
+        else:
+            g.active = self
 
     def append_string(self, ppt):
         self._prompt.append({"word": ppt})
@@ -83,7 +103,9 @@ class Prompt(object):
         pass
 
 def Findstart(col):
+    log.debug("prompt findstart recv: %s" % col)
     if not isinstance(col, int):
+        # vim help: complete-functions: To cancel silently and leave completion mode.
         col = -3
 
     if col > -1:
@@ -93,6 +115,10 @@ def Findstart(col):
 
 
 def handle(event, base=None):
+    log.debug("prompt: %s before: %s", g.active, env.before)
+    if not g.active:
+        return
+
     if event == 'done':
         if g.active.co_done:
             g.active.co_done -= 1
@@ -102,7 +128,9 @@ def handle(event, base=None):
         return
 
     if event == "findstart":
-        vim.vars["omnicol"] = Findstart(g.active.findstart())
+        start = Findstart(g.active.findstart())
+        log.debug("prompt findstart start: %s" % start)
+        vim.vars["omnicol"] = start
         return
 
     if event == "base":
@@ -115,10 +143,21 @@ def handle(event, base=None):
         del g.active._prompt[:]
 
 
+
+class g:
+    active = None
+    default_key = PromptKey()
+
+
 def stream(tp, key):
+    log.debug("prompt stream: %s %s" % (tp, key))
     if g.active and g.active.keyhandler:
         g.active.keyhandler.handler(tp, key)
         return True
+
+    g.default_key.handler(tp, key)
+
+
 
 
 

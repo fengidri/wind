@@ -6,13 +6,14 @@
 
 
 
-import im.handler as handler
 import im.env as env
 import im.imrc as imrc
 import vim
 import re
 
-class IM_Tex(handler.wubi.IM_Wubi):
+from . import wubi
+
+class IM_Tex(wubi.IM_Wubi):
     fts = ['tex', 'plaintex', 'latex']
 
     def isenable(self):

@@ -7,7 +7,6 @@ import vim
 
 from . import stream
 from . import prompt
-from . import timer
 from . import setting
 import frainui
 from .imrc import emit_event
@@ -15,7 +14,6 @@ from .imrc import emit_event
 
 RouteMap = {
         "prompt":       prompt.handle,
-        "timer":        timer.handle,
         "key":          stream.handle,
         "setting":      setting.handle,
         "command":      pyvim.cmd_cb,

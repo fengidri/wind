@@ -49,7 +49,7 @@ class handle(object):
             o = '    '
             feedkeys(o)
         else:
-            env.ycm = True
+            self.ycm = True
         return True
 
 
@@ -66,7 +66,7 @@ class handle(object):
         else:
             feedkeys('.')
 
-        env.ycm = True
+        self.ycm = True
         return True
 
     def cb_underline(self):
@@ -104,28 +104,51 @@ class handle(object):
         feedkeys('\<bs>')
         return True
 
-import im.handler as handler
 import im.imrc as imrc
+from .. import stream
+
+
+def timer_callback():
+    # 目前用于在 cursor hold 的时候触发补全
+    # 不使用 CursorHoldI 事件是由于这事件触发时间比较长 4000ms
+    # 同时这个时间还用于 swap, 并不方便修改
+
+    s = pyvim.pyvim.str_before_cursor()
+    if len(s) < 2:
+        return
+
+    if not s[-1].isalpha():
+        return
+
+    pyvim.feedkeys(('\<C-c>', 'm'))
+
 
 class IM_Code(im.keybase.BaseEnd, handle):
     wubi_syntax = ['Constant', 'CCommentDesc', 'CCommentArg', 'Comment', 'String']
     fts = ['c', 'cpp', 'python', 'javascript', 'ch', 'vim', 'html', 'sh']
 
+    ycm = False
+    timerid = None
     def handler(self, tp, key):
 
-        imrc.complete_timer.stop()
+        if self.timerid:
+            pyvim.timerstop(self.timerid)
+            self.timerid = None
 
         if env.syntax in self.wubi_syntax:
-            handler.HD_WubiStream.handler(tp, key)
+            stream.wubi.handler(tp, key)
             return
+
+        self.ycm = False
 
         getattr(self, tp)(key)
 
-        if env.ycm:
+        if self.ycm: # 直接调用 ycm. 比如在 . 或 tab 的后面
             imrc.feedkeys(('\<C-c>', 'm'))
-        else:
-            if (key.isalpha() or key == '_'):
-                imrc.complete_timer.start()
+
+        else: # 延时调用 ycm
+            if key.isalpha() or key == '_':
+                self.timerid = pyvim.timerstart(750, timer_callback)
 
 class IM_Lua(IM_Code):
     def cb_dot(self):

@@ -29,6 +29,8 @@ def Debug(level):
     log.critical('critical')
 
 
+Debug('debug')
+
 
 if __name__ == "__main__":
     pass

@@ -15,7 +15,6 @@ col      = 0
 num      = 0
 ft       = ''
 syntax   = ''
-ycm      = False
 pumvisible = False
 
 @hook('start')
@@ -28,11 +27,9 @@ def init():
     global num
     global ft
     global syntax
-    global ycm
     global pumvisible
 
     pumvisible = pyvim.pumvisible()
-    ycm = False
 
     ft       = vim.eval('&ft')
     encoding = vim.eval('&encoding')

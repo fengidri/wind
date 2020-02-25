@@ -30,6 +30,6 @@ function! wind#CommandsComplete(A, L, P)
     return g:wind_commands_complete
 endfunction
 
-function! wind#IMCompleteTimerHold(id)
-    py3 IM("timer", "complete")
+function! wind#TimerHandler(id)
+    py3 pyvim.timercall(vim.eval("a:id"))
 endfunction

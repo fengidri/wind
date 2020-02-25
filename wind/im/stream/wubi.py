@@ -7,9 +7,6 @@
 # set g:wind_im_wubi inside ftplugin to open/close wubi
 
 
-import urllib3
-import json
-
 import pyvim
 from pyvim import log
 
@@ -23,7 +20,7 @@ import wbtree
 
 import vim
 from im import imrc
-feedkeys = imrc.feedkeys
+
 
 cache={  }
 
@@ -40,54 +37,40 @@ def search(patten):
 
 
 
-class IM_Wubi_Pum(im.keybase.BaseEnd):
-    def cb_tab(self):
-        feedkeys('\<C-n>')
-        return True
-
-
-    def cb_esc(self):
-        feedkeys('\<esc>')
-        return True
-
-    def cb_enter(self):
-        feedkeys('\<C-e>')
-        return True
-
-    def cb_space(self):
-        #uchar = env.before[-1]
-        #if (uchar >= u'u0041' and uchar<=u'u005a') or \
-        #        (uchar >= u'u0061' and uchar<=u'u007a'):
-        feedkeys('\<C-N>')
-        feedkeys('\<C-Y>')
-        return True
-
-    def cb_backspace(self):
-        feedkeys('\<bs>')
-        #feedkeys('\<C-X>\<C-O>\<C-P>')  # TODO   should auto
-        return True
-
+class IM_Wubi_Pum(prompt.PromptKey):
     def im_lower(self, k):
+        # 一些情况下, 连接输入的字符会导致空字符或者说两次输入的字符都没有了
+        # 在 tex 文件类型下测试没有问题, 但是在 c 下面测试的时候出现了问题.
+        # 增加 <C-E> 明确要求, 回复到之前的状态, 再输入新的字符可以解决这个问题.
+        imrc.feedkeys('\<C-E>')
         imrc.feedkeys(k)
-        prompt.co_active()
+        prompt.active()
         return True
 
 
 
 class wb_prompt(prompt.Prompt):
     def findstart(self):
-        for i in [-1, -2, -3, -4]:
-            try:
-                c = env.before[i]
-                if not c.islower():
-                    raise Exception()
-            except:
-                n = (i + 1) * -1
+        log.debug("wubi patten findstart before: %s", env.before)
+
+        l = len(env.before)
+        if l > 4:
+            l = 4
+
+        i = 1
+        while i <= l:
+            ii = i * -1
+            i += 1
+
+            c = env.before[ii]
+
+            if not c.islower():
+                n = (ii + 1) * -1
                 if 0 == n:
                     return
                 return n
 
-        return 4
+        return i - 1
 
     def base(self, patten):
         log.debug("wubi patten: %s", patten)

@@ -21,6 +21,7 @@ join    = path.join
 sys.path.insert(0, join(dirname(vim.eval('s:script_folder_path')), 'wind'))
 
 from wind import IM
+from wind import pyvim
 EOF
 "-------------------------------------------------------------------------------
 

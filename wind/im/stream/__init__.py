@@ -15,13 +15,6 @@ import im.env as env
 import im.prompt as prompt
 
 
-__map = {}
-
-def genmap(s):
-    for ft in s.fts:
-        __map[ft] = s
-
-
 def Init():
     keys = {
             'digit': string.digits,
@@ -48,30 +41,42 @@ def Init():
             vim.command(command)
 
 
-import im.handler as handler
 
 from . import code
 from . import tex
+from . import wubi
 
-genmap(code.IM_Code())
-genmap(tex.IM_Tex())
+code_gen = code.IM_Code()
+code_lua = code.IM_Lua()
+
+tex = tex.IM_Tex()
+wubi = wubi.IM_Wubi()
+
 
 
 def handle(tp, key):
     tp = "im_%s" % tp
-    log.debug("stream handle ft: %s syn: %s", env.ft, env.syntax)
+    log.debug("stream handle ft: %s syn: %s before: %s", env.ft, env.syntax,
+            env.before)
 
     if env.ft.startswith('frainui'):
         frainui.inputstream(tp, key)
         return
 
     if env.pumvisible:
-        if prompt.stream(tp, key):
-            return
-
-        handler.HD_Prompt.handler(tp, key)
+        prompt.stream(tp, key)
         return
 
-    __map.get(env.ft, handler.HD_WubiStream).handler(tp, key)
+    if env.ft in tex.fts:
+        tex.handler(tp, key)
+
+    elif 'lua' == env.ft:
+        code_lua.handler(tp, key)
+
+    elif env.ft in code_gen.fts:
+        code_gen.handler(tp, key)
+
+    else:
+        wubi.handler(tp, key)
 
 

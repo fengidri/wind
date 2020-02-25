@@ -43,6 +43,8 @@ from .pyvim import *
 from .event import *
 from .cmd import *
 
+from .timer import timerstart, timerstop, timercall
+
 
 
 echoline = pyvim.echoline
