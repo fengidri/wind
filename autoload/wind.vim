@@ -11,8 +11,6 @@ let g:wind_commands_complete = []
 let s:invoke_other_fun = 0
 let g:wind_with_ycm = -4
 
-auto CompleteDone * py3 IM("prompt", "done")
-
 function! wind#Prompt(findstart, base)
     if a:findstart
         py3 IM('prompt', 'findstart')

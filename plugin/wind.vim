@@ -21,6 +21,7 @@ join    = path.join
 sys.path.insert(0, join(dirname(vim.eval('s:script_folder_path')), 'wind'))
 
 from wind import IM
+from wind import tips
 from wind import pyvim
 EOF
 "-------------------------------------------------------------------------------
@@ -29,6 +30,8 @@ function! Input_Monitor(tp, key)
     py3 IM("key", vim.eval("a:tp"), vim.eval("a:key"))
     return ''
 endfunction
+
+autocmd CursorMovedI * py3 tips()
 
 set omnifunc="wind#Prompt"
 "CursorHold default timer out is 4000ms and this value also used for swap

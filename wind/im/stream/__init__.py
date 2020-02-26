@@ -87,7 +87,7 @@ def handle(tp, key):
         else:
             wubi.handler(tp, key)
 
-    g.timerid = pyvim.timerstart(700, tips_handler)
+#    g.timerid = pyvim.timerstart(700, tips_handler)
 
 
 

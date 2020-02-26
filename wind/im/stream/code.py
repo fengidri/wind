@@ -139,6 +139,10 @@ class IM_Code(im.keybase.BaseEnd, handle):
 
         getattr(self, tp)(key)
 
+        # ycm 在 .vimrc 中配置了 g:ycm_auto_trigger = 0
+        # 所以 ycm 不会自动触发.
+        # 并且触发的 key 设置成子  <C-c>
+
         if self.ycm: # 直接调用 ycm. 比如在 . 或 tab 的后面
             imrc.feedkeys(('\<C-c>', 'm'))
 

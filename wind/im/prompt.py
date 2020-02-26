@@ -23,22 +23,37 @@ class PromptKey(im.keybase.BaseEnd):
         return True
 
     def cb_enter(self):
-        imrc.feedkeys('\<C-e>')
+        imrc.feedkeys('\<C-y>')
         return True
 
     def cb_space(self):
-        #uchar = env.before[-1]
-        #if (uchar >= u'u0041' and uchar<=u'u005a') or \
-        #        (uchar >= u'u0061' and uchar<=u'u007a'):
-        imrc.feedkeys('\<C-N>')
-        imrc.feedkeys('\<C-Y>')
+        imrc.feedkeys(' ')
         return True
+
+    def im_punc(self, k):
+        cb = self.cbs.get(k)
+        if cb:
+            cb()
+        else:
+            imrc.feedkeys('\<C-Y>')
+            imrc.feedkeys(k)
+        return True
+
+    def im_lower(self, k):
+        imrc.feedkeys('\<C-Y>')
+        imrc.feedkeys(k)
+
+    def im_upper(self, k):
+        imrc.feedkeys('\<C-Y>')
+        imrc.feedkeys(k)
+
 
 class Prompt(object):
     _prompt = []
 
     def __init__(self, key_handler = None):
         self.keyhandler = key_handler
+
 
     def active(self):
         func = "wind#Prompt"
@@ -48,7 +63,8 @@ class Prompt(object):
 
         imrc.feedkeys('\<C-X>\<C-O>')
 
-        g.queue.append(self)
+        g.active = self
+
 
 
     def append_string(self, ppt):
@@ -109,20 +125,18 @@ def Findstart(col):
         return _col
     return col
 
-from . import tips
 
 def handle(event, base=None):
-    log.debug("prompt: %s before: %s", g.queue, env.before)
-    if not g.queue:
+    log.debug("prompt active: %s before: %s, line: %s", g.active, env.before,
+            vim.current.line)
+
+    if not g.active:
         return
 
-    active = g.queue[0]
+    active = g.active
 
     if event == 'done':
-        del g.queue[0]
-
-        if not g.queue:
-            tips.do_tips()
+        #del g.queue[0]
         return
 
     if event == "findstart":
@@ -136,27 +150,26 @@ def handle(event, base=None):
 
         words = active._prompt
 
-        vim.vars["omniresult"] = {'words':words, 'refresh': 'always'}
+        vim.vars["omniresult"] = {'words':words, 'refresh': 'none'}
 
         del active._prompt[:]
+
+    base = None
 
 
 
 class g:
-    queue = []
+    active = None
     default_key = PromptKey()
 
 
 def stream(tp, key):
-    if not g.queue:
-        return
+    if g.active:
+        active = g.active
 
-    active = g.queue[0]
-
-    log.debug("prompt stream: %s %s" % (tp, key))
-    if active and active.keyhandler:
-        active.keyhandler.handler(tp, key)
-        return True
+        if active.keyhandler:
+            active.keyhandler.handler(tp, key)
+            return True
 
     g.default_key.handler(tp, key)
 

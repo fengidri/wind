@@ -34,6 +34,16 @@ keyname = {
      "space"       : '<space>' ,
      "esc"         : '<esc>'   ,
      'jump'        : '<c-j>'   ,
+     'digit0'        : '0'   ,
+     'digit1'        : '1'   ,
+     'digit2'        : '2'   ,
+     'digit3'        : '3'   ,
+     'digit4'        : '4'   ,
+     'digit5'        : '5'   ,
+     'digit6'        : '6'   ,
+     'digit7'        : '7'   ,
+     'digit8'        : '8'   ,
+     'digit9'        : '9'   ,
 }
 
 class BasePass(object):
@@ -60,7 +70,8 @@ class BasePass(object):
     def run_handle(self, k):
         cb = self.cbs.get(k)
         if cb:
-            return cb()
+            cb()
+            return True
         else:
             return False
 
@@ -73,7 +84,8 @@ class BasePass(object):
 class BaseEnd(BasePass):
     " All the key will handle defaultly."
     def output(self, k):
-        feedkeys(k)
+        if not BasePass.run_handle(self, k):
+            feedkeys(k)
         return True
     im_digit = im_upper = im_lower = output
 

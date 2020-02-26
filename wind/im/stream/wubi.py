@@ -36,18 +36,62 @@ def search(patten):
     return w
 
 
+class g:
+    base = None
+
 
 class IM_Wubi_Pum(prompt.PromptKey):
     def im_lower(self, k):
         # 一些情况下, 连接输入的字符会导致空字符或者说两次输入的字符都没有了
         # 在 tex 文件类型下测试没有问题, 但是在 c 下面测试的时候出现了问题.
         # 增加 <C-E> 明确要求, 回复到之前的状态, 再输入新的字符可以解决这个问题.
-        imrc.feedkeys('\<C-E>')
+        imrc.feedkeys('\<C-Y>')
         imrc.feedkeys(k)
         prompt.active()
         return True
 
+    def cb_space(self):
+        if g.base and env.before.endswith(g.base):
+            imrc.feedkeys('\<C-N>')
 
+        imrc.feedkeys('\<C-Y>')
+        return True
+
+    def cb_digit1(self):
+        imrc.feedkeys('\<C-N>')
+        imrc.feedkeys('\<C-Y>')
+
+    def cb_digit2(self):
+        imrc.feedkeys('\<C-N>'*2)
+        imrc.feedkeys('\<C-Y>')
+
+    def cb_digit3(self):
+        imrc.feedkeys('\<C-N>'*3)
+        imrc.feedkeys('\<C-Y>')
+
+    def cb_digit4(self):
+        imrc.feedkeys('\<C-N>'*4)
+        imrc.feedkeys('\<C-Y>')
+
+    def cb_digit5(self):
+        imrc.feedkeys('\<C-N>'*5)
+        imrc.feedkeys('\<C-Y>')
+
+    def cb_digit6(self):
+        imrc.feedkeys('\<C-N>'*6)
+        imrc.feedkeys('\<C-Y>')
+
+    def cb_digit7(self):
+        imrc.feedkeys('\<C-N>'*7)
+        imrc.feedkeys('\<C-Y>')
+
+    def cb_digit8(self):
+        imrc.feedkeys('\<C-N>'*8)
+        imrc.feedkeys('\<C-Y>')
+
+    def cb_digit9(self):
+        imrc.feedkeys('\<C-N>'*9)
+        imrc.feedkeys('\<C-Y>')
 
 class wb_prompt(prompt.Prompt):
     def findstart(self):
@@ -73,6 +117,9 @@ class wb_prompt(prompt.Prompt):
         return i - 1
 
     def base(self, patten):
+
+        g.base = patten
+
         log.debug("wubi patten: %s", patten)
         words, associate = search(''.join(patten))
 

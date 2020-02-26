@@ -6,7 +6,7 @@
 
 from .IM import IM
 from .imrc import async_feed
-A=1
+from .tips import tips_handler as tips
 
 if __name__ == "__main__":
     pass

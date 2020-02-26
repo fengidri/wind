@@ -8,23 +8,28 @@
 
 from . import path
 from . import date
+from . import c_include
 from ..imrc import emit_event
 import pyvim
 import vim
+import im.env as env
 
 class g:
     last_pos = None
 
 def do_tips():
+    if pyvim.pumvisible():
+        return
+
     pos = vim.current.window.cursor
     if pos == g.last_pos:
         return
     g.last_pos = pos
 
-    if pyvim.pumvisible():
+    if date.handler():
         return
 
-    if date.handler():
+    if c_include.handler():
         return
 
     if path.handler():
@@ -32,6 +37,8 @@ def do_tips():
 
 def tips_handler():
     emit_event('start')
+
+    pyvim.log.error("enter tips_handler: ft: %s", env.ft)
 
     do_tips()
 
