@@ -162,6 +162,25 @@ class IM_C(IM_Code):
         self.ycm = True
         return True
 
+    def cb_space(self):
+        logging.error("=================%s", env.before);
+        for k in env.before:
+            if k == ' ' or k == '\t':
+                continue
+            feedkeys(' ')
+            return True
+
+        feedkeys('\t')
+        return True
+
+    def cb_tab( self ):
+        if re.search(r'^\s*$', env.before):
+            o = '\t'
+            feedkeys(o)
+        else:
+            self.ycm = True
+        return True
+
 
 
 if __name__ == "__main__":
