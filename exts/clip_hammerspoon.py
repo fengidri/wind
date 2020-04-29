@@ -35,12 +35,18 @@ import sys
 import os
 import requests
 
+class g:
+    host = "clipboard"
+    port = "8080"
+    url = 'http://clipboard:8080/'
+
 
 @pyvim.cmd()
 def MacClipGet():
-    res = requests.get("http://host.virt:1542/")
-#    text = res.text.decode('UTF8')
     setreg = vim.Function('setreg')
+    setreg('"', '')
+    res = requests.get(g.url, timeout=1)
+#    text = res.text.decode('UTF8')
 
     c = res.text
     if vim.eval('&ft') == 'markdown':
@@ -68,7 +74,7 @@ def MacClipPost():
     getreg = vim.Function("getreg")
     copy = getreg('"')
 
-    requests.post("http://host.virt:1542/", data = getreg('"'))
+    requests.post(g.url, data = getreg('"'), timeout=1)
 
 
 

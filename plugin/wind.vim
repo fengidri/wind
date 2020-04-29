@@ -81,6 +81,8 @@ map  gb            :GoAny tag back<cr>
 if has("gui_running")
 else
     vnoremap "+y     y:MacClipPost<cr>
-    map "+p      :MacClipGet<cr>p
+    vnoremap Y       y:MacClipPost<cr>
+    map      "+p     :MacClipGet<cr>p
+    map      P       :MacClipGet<cr>p
 endif
 
