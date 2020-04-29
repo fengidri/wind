@@ -262,6 +262,7 @@ def feedkeys(key, mode='n'):
         key = '\\\\'
 
     command='call feedkeys("%s", "%s")' %(key, mode)
+    log.error(command)
     vim.command(command)
 
 def pumvisible( ):

@@ -7,6 +7,7 @@
 import pyvim
 from pyvim import log
 from .imrc import feedkeys
+from . import env
 
 keyname = {
      "parenthess"  : "("       ,
@@ -83,6 +84,37 @@ class BasePass(object):
 
 class BaseEnd(BasePass):
     " All the key will handle defaultly."
+    def cb_jump(self):
+        string = env.after
+
+        tag=r'\'"([{}])'
+
+        for i, c in enumerate(string):
+            if c in tag:
+                break
+
+        if None == i:
+            return True
+
+#        if c == '"' or c == "'":
+#            if i + 1 < len(string):
+#                c = string[i + 1]
+#                if c == ')' or c == ']':
+#                    i = i + 1
+
+        feedkeys( '\<right>' * (i +1))
+
+        return True
+
+    def cb_esc(self):
+        feedkeys('\<esc>')
+        return True
+
+    def cb_backspace(self):
+        feedkeys('\<bs>')
+        return False # continue
+
+
     def output(self, k):
         if not BasePass.run_handle(self, k):
             feedkeys(k)

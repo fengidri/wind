@@ -18,10 +18,6 @@ class PromptKey(im.keybase.BaseEnd):
         return True
 
 
-    def cb_esc(self):
-        imrc.feedkeys('\<esc>')
-        return True
-
     def cb_enter(self):
         imrc.feedkeys('\<C-y>')
         return True
@@ -39,13 +35,22 @@ class PromptKey(im.keybase.BaseEnd):
             imrc.feedkeys(k)
         return True
 
-    def im_lower(self, k):
-        imrc.feedkeys('\<C-Y>')
-        imrc.feedkeys(k)
 
-    def im_upper(self, k):
+    def output(self, k):
         imrc.feedkeys('\<C-Y>')
-        imrc.feedkeys(k)
+        return False # continue
+        
+
+    im_digit = im_upper = im_lower = output
+
+    def im_punc(self, k):
+        return self.run_handle(k)
+
+    def im_mult(self, k):
+        return self.run_handle(k)
+
+    def handler(self, tp, key):
+        return getattr(self, tp)(key)
 
 
 class Prompt(object):

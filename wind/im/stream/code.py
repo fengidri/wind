@@ -70,35 +70,22 @@ class handle(object):
         return True
 
 
-    def cb_jump(self):
-        string = env.after
-        tag=r'\'"([{}])'
 
-        n_list=[ ]
-        for i in tag:
-            t=string.find( i )
-            if t > -1:
-                n_list.append( t )
+    #def cb_backspace(self):
+    #    #for c in env.before:
+    #    #    if c != ' ':
+    #    #        break
+    #    #else: #
+    #    #    l = len(env.before)
+    #    #    if l != 0:
+    #    #        left = l % 4
+    #    #        if left == 0:
+    #    #            left = 4
+    #    #        feedkeys('\<bs>' * left)
+    #    #        return True
 
-        if len( n_list ) > 0:
-            feedkeys( '\<right>' * ( min( n_list ) +1))
-        return True
-
-    def cb_backspace(self):
-        #for c in env.before:
-        #    if c != ' ':
-        #        break
-        #else: #
-        #    l = len(env.before)
-        #    if l != 0:
-        #        left = l % 4
-        #        if left == 0:
-        #            left = 4
-        #        feedkeys('\<bs>' * left)
-        #        return True
-
-        feedkeys('\<bs>')
-        return True
+    #    feedkeys('\<bs>')
+    #    return True
 
 import im.imrc as imrc
 from .. import stream
@@ -163,22 +150,34 @@ class IM_C(IM_Code):
         return True
 
     def cb_space(self):
-        logging.error("=================%s", env.before);
         for k in env.before:
             if k == ' ' or k == '\t':
                 continue
             feedkeys(' ')
             return True
 
-        feedkeys('\t')
+        feedkeys('\<tab>')
         return True
 
     def cb_tab( self ):
         if re.search(r'^\s*$', env.before):
-            o = '\t'
+            o = '\<tab>'
             feedkeys(o)
         else:
             self.ycm = True
+        return True
+
+    def cb_brace(self):#{  }
+        if env.after == '' and  env.before.endswith(')'):
+            if env.before:
+                if env.before[0] in ' \t':
+                    feedkeys(' {\<cr>}\<esc>O') # if,for,while
+                    return True
+
+            feedkeys('\<cr>{\<cr>}\<up>\<cr>') # function
+            return True
+
+        self.double_out('{', '}')
         return True
 
 
