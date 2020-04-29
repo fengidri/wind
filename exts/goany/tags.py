@@ -9,6 +9,7 @@ import ctags
 import sys
 from pyvim import log as logging
 from frainui import Search
+import re
 
 
 def encode(cmd):
@@ -41,10 +42,22 @@ def goto(path, prefix, pos):
 
         line_nu = None
         if isinstance(line, str):
+            line_nu_b = None
+            pattern = line[2:-1].replace('\\t', '\t')
             for i, l in enumerate(vim.current.buffer):
-                if l.startswith(line[2:-1]):
+                if l == pattern:
                     line_nu = i
-        else:
+                    break
+
+                if l.find(tagname) > -1:
+                    line_nu_b  = i
+                    logging.error('suspicious line(%s): %s: %s', tagname, l,
+                            line)
+
+            else:
+                line_nu  = line_nu_b
+
+        elif line_nu.isdigit():
             line_nu = line
 
         if line_nu != None:
@@ -80,13 +93,14 @@ class Frame(object):
         goto(self.file_path, None, self.cursor)
 
 
-class Tag(object):
+class ATag(object):
     def __init__(self, root, entry):
         self.tag = entry[b"name"]
 
         root = bytes(root, encoding="utf-8")
 
         self.file_path = os.path.join(root, entry[b"file"])
+        self.show_path = entry[b"file"].decode('utf8')
 
         line = entry[b"pattern"]
         if line.isdigit():
@@ -176,7 +190,7 @@ class TagList:
             return None
 
         while (status):
-            list_tags.append(Tag(self.tag_root_dir, self.entry))
+            list_tags.append(ATag(self.tag_root_dir, self.entry))
             status = self.tagfile.findNext(self.entry)
         return list_tags
 
@@ -270,22 +284,30 @@ class class_tag:
             frame.index  = 0
 
     def goto(self, frame):
-        if frame.num < 4:
+        if frame.num < 2:
             frame.taglist[frame.index].goto()
         else:
             lines = []
             maxlen = 0
             for t in frame.taglist:
-                l = len(os.path.basename(t.file_path))
+                l = len(t.show_path)
                 if l > maxlen:
                     maxlen = l
 
             for t in frame.taglist:
-                f = os.path.basename(t.file_path)
+                f = t.show_path
                 l = t.line
-                if isinstance(l, basestring):
+                if isinstance(l, str):
                     l = l.strip()
-                tt = r"%s  %s" % (f.ljust(maxlen), l)
+
+                    if l.startswith('/^'):
+                        l = l[2:]
+                    if l[-1] == '$':
+                        l = l[0:-1]
+
+                    l = l.replace('\\t', '    ')
+
+                tt = r"%s  %s|%s" % (f.ljust(maxlen), t.kind.decode('utf8'), l)
                 line = encode(tt)
                 lines.append(line)
 
@@ -295,6 +317,9 @@ class class_tag:
     def quit_search(self, win, index):
         logging.error("tags search window get: %s", index)
 
+        if index == None:
+            return
+
         if index > -1:
             frame = self.wstack()[-1]
 
@@ -303,7 +328,7 @@ class class_tag:
 
 
 @pyvim.cmd()
-def TagJump(tag = None):
+def Tag(tag = None):
     global TAG
     if TAG == None:
         TAG = class_tag()
@@ -313,6 +338,9 @@ def TagJump(tag = None):
 
     if TAG.find_tag(tag):
         TAG.jump_tag()
+    else:
+        pyvim.echoline('404 NOT FOUND: %s' % tag)
+        return
 
     try:
         vim.command('normal zz')
@@ -324,10 +352,12 @@ def TagBack():
     if TAG == None:
         return
 
-    frame = TAG.wstack().pop()
-    if not frame:
+    ws = TAG.wstack()
+    if not ws:
         vim.command(" echo 'there is no tag in stack'")
         return 0
+
+    frame = TAG.wstack().pop()
 
     if not os.path.isfile(frame.file_path):
         return
@@ -338,7 +368,7 @@ def TagBack():
 def TagRefresh():
     global TAG
     if TAG == None:
-        return
+        TAG = class_tag()
 
     for tagfile in TAG.tagsfile_list:
         tagfile.refresh( )

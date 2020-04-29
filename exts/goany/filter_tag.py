@@ -54,6 +54,9 @@ class tag_filter(object):
 
     def quit(self, win, index):
         tag_filter.INSTANCE = None
+        if None == index:
+            return
+
         if index > -1:
             linenu = self.tags_lineno[index]
             if linenu:

@@ -28,7 +28,7 @@ def GoAny(f, o=None):
             all_tag.TagFilter()
 
         elif o == 'jump':
-            tags.TagJump()
+            tags.Tag()
 
         elif o == 'back':
             tags.TagBack()
