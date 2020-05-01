@@ -6,7 +6,7 @@ import pyvim
 import sys
 from pyvim import log as logging
 from frainui import Search
-
+import libtag
 
 def encode(cmd):
     # 把 tags 文件的里 命令式 tag 进行转码
@@ -18,44 +18,6 @@ def encode(cmd):
     return cmd
 
 
-def tag_file(root, tag):
-    p = os.path.join(root, '.wind_ctags/%s_tags' % tag[0])
-    if os.path.isfile(p):
-        return p
-
-    p = os.path.join(root, '.tags')
-    if os.path.isfile(p):
-        return p
-
-    p = os.path.join(root, 'tags')
-    if os.path.isfile(p):
-        return p
-
-def find_tag(tag):
-    root = pyvim.get_cur_root()
-    if not root:
-        pyvim.echoline('not in project path')
-        return
-
-    tags = tag_file(root, tag)
-    if not tags:
-        pyvim.echoline('not found tags/.ctags at %s' % tags)
-        return
-
-    prefix = '%s\t' % tag
-
-    o = []
-    for line in open(tags).readlines():
-        if line.startswith(prefix):
-            o.append(line)
-            continue
-        if o:
-            break
-    if not o:
-        pyvim.echoline('404 NOT FOUND: %s' % tag)
-        return
-
-    return TagFrame(o)
 
 def goto_file(path):
     if path == vim.current.buffer.name:
@@ -118,6 +80,33 @@ def goto(path, pattern, tag, pos):
         logging.error(e)
 
 
+
+
+class TagStack(object):
+    stacks = {}
+    stack = None
+    def __new__(cls, *args, **kwargs):
+        w = vim.current.window
+        stack = cls.stacks.get(w)
+        if not stack:
+            org = super(TagStack, cls)
+            stack = org.__new__(cls, *args, **kwargs)
+            cls.stacks[w] = stack
+        return stack
+
+    def __init__(self):
+        if None == self.stack:
+            self.stack = []
+
+    def push(self, frame):
+        self.stack.append(frame)
+
+    def pop(self):
+        if not self.stack:
+            return
+        return self.stack.pop()
+
+
 class TagOne(object):
     def __init__(self, line):
         t = line.split('\t', 2)
@@ -135,10 +124,11 @@ class TagOne(object):
             pattern = pattern[2:-2]
             pattern = pattern.replace('\\t', '\t').replace('\\/', '/')
             pattern = pattern.replace(r'\r','')
-            pattern = encode(pattern)
+            #pattern = encode(pattern)
         self.pattern = pattern
 
         t = t[2][pos:].split('\t')
+        logging.error(line)
         self.kind      = t[1]
 
 
@@ -228,41 +218,22 @@ class TagFrame(object):
             self._goto(index)
 
 
-class TagStack(object):
-    stacks = {}
-    stack = None
-    def __new__(cls, *args, **kwargs):
-        w = vim.current.window
-        stack = cls.stacks.get(w)
-        if not stack:
-            org = super(TagStack, cls)
-            stack = org.__new__(cls, *args, **kwargs)
-            cls.stacks[w] = stack
-        return stack
-
-    def __init__(self):
-        if None == self.stack:
-            self.stack = []
-
-    def push(self, frame):
-        self.stack.append(frame)
-
-    def pop(self):
-        if not self.stack:
-            return
-        return self.stack.pop()
-
-
-
-
 @pyvim.cmd()
 def Tag(tag = None):
     if not tag:
         tag = pyvim.current_word()
 
-    frame = find_tag(tag)
-    if not frame:
+    root = pyvim.get_cur_root()
+    if not root:
+        pyvim.echoline('not in project path')
         return
+
+    taglist, err = libtag.find_tag(root, tag)
+    if not taglist:
+        pyvim.echoline(err)
+        return
+
+    frame = TagFrame(taglist)
 
     frame.goto()
 
@@ -282,31 +253,9 @@ def TagBack():
 def TagRefresh():
     root = pyvim.get_cur_root()
 
-    d = os.path.join(root, '.wind_ctags')
-    os.mkdir(d)
-
-    f = os.path.join(d, 'tags')
-
-    os.system("cd %s;ctags -f .wind_ctags/tags -R * 2>/dev/null"  % root)
-
-    fd_map = {}
-
-    for line in open(f).readlines():
-        p = line[0]
-        if '!' == p:
-            continue
-
-        fd = fd_map.get(p)
-        if not fd:
-            fd = open(os.path.join(d, '%s_tags' % p), 'w')
-            fd_map[p] = fd
-
-        fd.write(line)
-
+    libtag.refresh(root)
 
     vim.command("echo 'the ctags is ok'")
 
 
-if not __name__== "__main__":
-    TAG = None
 
