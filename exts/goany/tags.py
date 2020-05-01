@@ -1,15 +1,11 @@
 #encoding:utf8
 
-
-
 import vim
 import os
 import pyvim
-import ctags
 import sys
 from pyvim import log as logging
 from frainui import Search
-import re
 
 
 def encode(cmd):
@@ -22,54 +18,96 @@ def encode(cmd):
     return cmd
 
 
-def goto(path, prefix, pos):
+def tag_file(root, tag):
+    p = os.path.join(root, '.wind_ctags/%s_tags' % tag[0])
+    if os.path.isfile(p):
+        return p
 
-    logging.error('goto path: %s, %s, %s' %(path, prefix, pos))
+    p = os.path.join(root, '.tags')
+    if os.path.isfile(p):
+        return p
 
-    if path != vim.current.buffer.name:
-        vim.command('update')
+    p = os.path.join(root, 'tags')
+    if os.path.isfile(p):
+        return p
 
-        for b in vim.buffers:
-            if path == b.name:
-                vim.current.buffer = b
+def find_tag(tag):
+    root = pyvim.get_cur_root()
+    if not root:
+        pyvim.echoline('not in project path')
+        return
+
+    tags = tag_file(root, tag)
+    if not tags:
+        pyvim.echoline('not found tags/.ctags at %s' % tags)
+        return
+
+    prefix = '%s\t' % tag
+
+    o = []
+    for line in open(tags).readlines():
+        if line.startswith(prefix):
+            o.append(line)
+            continue
+        if o:
+            break
+    if not o:
+        pyvim.echoline('404 NOT FOUND: %s' % tag)
+        return
+
+    return TagFrame(o)
+
+def goto_file(path):
+    if path == vim.current.buffer.name:
+        return
+
+    vim.command('update')
+
+    for b in vim.buffers:
+        if path == b.name:
+            vim.current.buffer = b
+            break
+    else:
+        vim.command('silent edit %s'  % path)
+
+
+
+def goto(path, pattern, tag, pos):
+    root = pyvim.get_cur_root()
+    path = os.path.join(root, path)
+    logging.error('goto path: %s, %s, %s, %s' %(path, pattern, tag, pos))
+
+    goto_file(path)
+
+
+    pattern_nu = None
+    if isinstance(pattern, str):
+        pattern_nu_b = None
+        for i, l in enumerate(vim.current.buffer):
+            if l == pattern:
+                pattern_nu = i
                 break
+
+            if l.find(tag) > -1:
+                pattern_nu_b  = i
+                logging.error('suspicious pattern(%s): %s: %s', tag, l, pattern)
+
         else:
-            vim.command('silent edit %s'  % path)
+            pattern_nu  = pattern_nu_b
 
-    if prefix:
-        line = prefix[0]
-        tagname = prefix[1]
+    else:
+        pattern_nu  = pattern
 
-        line_nu = None
-        if isinstance(line, str):
-            line_nu_b = None
-            pattern = line[2:-1].replace('\\t', '\t')
-            for i, l in enumerate(vim.current.buffer):
-                if l == pattern:
-                    line_nu = i
-                    break
+    if pattern_nu != None:
+        pattern = vim.current.buffer[pattern_nu]
+        col_nu = pattern.find(tag)
+        if col_nu < 0:
+            col_nu = 0
 
-                if l.find(tagname) > -1:
-                    line_nu_b  = i
-                    logging.error('suspicious line(%s): %s: %s', tagname, l,
-                            line)
-
-            else:
-                line_nu  = line_nu_b
-
-        elif line_nu.isdigit():
-            line_nu = line
-
-        if line_nu != None:
-            line = vim.current.buffer[line_nu]
-            col_nu = line.find(tagname)
-            if col_nu < 0:
-                col_nu = 0
-
-            pos = (line_nu + 1, col_nu)
-        else:
-            logging.error('patten: '+line)
-            return
+        pos = (pattern_nu + 1, col_nu)
+    else:
+        logging.error('patten: '+pattern)
+        return
 
     vim.current.window.cursor = pos
 
@@ -80,239 +118,105 @@ def goto(path, prefix, pos):
         logging.error(e)
 
 
-class Frame(object):
-    def __init__(self, taglist):
+class TagOne(object):
+    def __init__(self, line):
+        t = line.split('\t', 2)
+
+        self.tag = t[0]
+        self.file_path = t[1]
+
+        pos = t[2].find(';"\t')
+
+        pattern = t[2][0:pos]
+
+        if pattern.isdigit():
+            pattern = int(pattern) - 1
+        else:
+            pattern = pattern[2:-2]
+            pattern = pattern.replace('\\t', '\t').replace('\\/', '/')
+            pattern = pattern.replace(r'\r','')
+            pattern = encode(pattern)
+        self.pattern = pattern
+
+        t = t[2][pos:].split('\t')
+        self.kind      = t[1]
+
+
+    def goto(self):
+        self.last_file = vim.current.buffer.name
+        self.last_cursor = vim.current.window.cursor
+        goto(self.file_path, self.pattern, self.tag, None)
+
+    def back(self):
+        goto_file(self.last_file)
+
+        vim.current.window.cursor = self.last_cursor
+
+        try:
+#            vim.command('%foldopen!')
+            vim.command('normal zz')
+        except vim.error as e:
+            logging.error(e)
+
+
+class TagFrame(object):
+    def __init__(self, lines):
+        taglist   = []
+
+        for line in lines:
+            tag = TagOne(line)
+            taglist.append(tag)
+
+        _taglist = []
+
+        "加入到stack中tag从定义处开始"
+        for tag in taglist:
+            if tag.kind == 'f' or tag.kind == 'v':
+                _taglist.append(tag)
+                continue
+
+        for tag in taglist:
+            if tag.kind == 'f' or tag.kind == 'v':
+                continue
+            _taglist.append(tag)
+
+
         self.taglist   = taglist
         self.tagname   = taglist[0].tag
         self.num       = len(self.taglist)
-        self.index     = 0
-        self.file_path = pyvim.filepath()
-        self.cursor    = vim.current.window.cursor
 
-    def goto(self):
-        goto(self.file_path, None, self.cursor)
+    def _goto(self, index):
+        tag  = self.taglist[index]
+        tag.goto()
+        TagStack().push(tag)
 
+    def goto(self, index = None):
+        if self.num < 2:
+            index = 0
 
-class ATag(object):
-    def __init__(self, root, entry):
-        self.tag = entry[b"name"]
+        if None != index:
+            self._goto(index)
+            return
 
-        root = bytes(root, encoding="utf-8")
+        lines = []
+        maxlen = 0
+        for t in self.taglist:
+            l = len(t.file_path)
+            if l > maxlen:
+                maxlen = l
 
-        self.file_path = os.path.join(root, entry[b"file"])
-        self.show_path = entry[b"file"].decode('utf8')
+        for t in self.taglist:
+            f = t.file_path
+            l = t.pattern
+            if isinstance(l, str):
+                l = l.strip()
 
-        line = entry[b"pattern"]
-        if line.isdigit():
-            self.line = int(line) - 1
-        else:
-            line = str(line)
-            patten = line.replace(r'\/', '/')
-            patten = patten.replace(r'\r','')
-            self.line = encode(patten[2:-2])
+            tt = r"%s  %s|%s" % (f.ljust(maxlen), t.kind, l)
+            line = encode(tt)
+            lines.append(line)
 
-        self.line_num = entry[b"lineNumber"]
-        self.kind = entry[b"kind"]
-
-    def goto(self):
-        goto(self.file_path.decode('utf8'),
-                (self.line, self.tag.decode('utf8')), None)
-
-
-
-class TagList:
-    tagsfile = ''
-    list_tags = []
-    def __init__(self, root_dir):
-        self.tagfile = None
-        self.tag_root_dir = root_dir
-        self.open()
-
-    def open(self):
-        tags = os.path.join(self.tag_root_dir, '.tags')
-        if not os.path.isfile(tags):
-            tags = os.path.join(self.tag_root_dir, 'tags')
-            if not os.path.isfile(tags):
-                logging.error("not found the tags/.tags file in %s.",
-                        self.tag_root_dir)
-                return False
-
-        self.items = None
-        self.funs = None
-
-        self.tagsfile = tags;
-        self.tagfile = ctags.CTags(bytes(self.tagsfile, encoding='utf-8'))
-        self.entry = ctags.TagEntry()
-        return True
-
-    def refresh( self ):
-        if self.tag_root_dir:
-            os.popen("cd %s;ctags -f .tags -R *"  % self.tag_root_dir )
-            vim.command("echo 'the ctags is ok'")
-            self.open( )
-        else:
-            logging.error("this is not a project" )
-
-    def get_items( self ):
-        if self.items == None:
-
-            items = [  ]
-            status = self.tagfile.find(self.entry, '', ctags.TAG_PARTIALMATCH )
-            while ( status ):
-                items.append( self.entry["name"] )
-                status = self.tagfile.findNext(self.entry)
-            self.items = items
-        return self.items
-
-    def get_funs( self ):
-        if self.funs == None:
-
-            funs = [  ]
-            status = self.tagfile.find(self.entry, '', ctags.TAG_PARTIALMATCH )
-            while ( status ):
-                if self.entry[ "kind" ] == 'f':
-                    funs.append( self.entry["name"] )
-                status = self.tagfile.findNext(self.entry)
-            self.funs = funs
-        return list(set(self.funs ))
-
-    def out_list(self, tag, MODE=ctags.TAG_FULLMATCH):
-        "输出关于tag的所有信息"
-        if not self.tagfile:
-            self.open( )
-            if self.tagfile == None:
-                vim.command( "echo 'no tagfile'")
-                return None
-
-        list_tags = []
-        status = self.tagfile.find(self.entry, bytes(tag, encoding='utf-8'), MODE )
-        if not status:
-            return None
-
-        while (status):
-            list_tags.append(ATag(self.tag_root_dir, self.entry))
-            status = self.tagfile.findNext(self.entry)
-        return list_tags
-
-
-
-
-class class_tag:
-    wstacks = { }
-    last_tag = ''
-    def __init__(self):
-        self.tagsfile_list = []
-        for path in pyvim.Roots:
-            self.tagsfile_list.append(TagList(path))
-
-    def wstack(self):
-        "每一个窗口都有一个对应的stack,以及一些传回信息"
-        w = vim.current.window
-        stack = self.wstacks.get(w)
-        if not stack :
-            stack = []
-            self.wstacks[w] = stack
-        return stack
-
-    def wstack_push(self, frame):
-        "在当前窗口的stack后加上新tag的信息"
-        stack = self.wstack()
-
-        stack.append(frame)
-
-    def wstack_pop(self):
-        stack = self.wstack()
-        if stack:
-            return stack.pop()
-        return None
-
-    ############################################################################
-
-    def find_tag(self, tag):
-        if not self.tagsfile_list:
-            logging.error('this is not a project context')
-            return 0
-
-        wstack = TAG.wstack()
-        if wstack and tag == wstack[-1].tagname:
-            #相同的tag  平行跳转
-            return True
-
-        taglist = None
-        for tagsfile in self.tagsfile_list:
-            taglist = tagsfile.out_list(tag)
-            if taglist:
-                break
-
-        if not taglist:
-            return 0
-
-        frame = Frame(taglist)
-
-        "加入到stack中tag从定义处开始"
-        for pos, taginfos in enumerate(taglist):
-            if taginfos.kind == 'function':
-                break
-            if taginfos.kind  == 'variable':
-                break
-
-        frame.index = pos
-
-        #加入到stack中去
-        self.wstack_push(frame)
-        return True
-
-    def jump_tag(self):
-        frame = self.wstack()[-1]
-
-        if frame.num == 0:
-            vim.command("echo 'not find'")
-            return 0
-
-        #echo
-        #cmd = "echo '%s %s %s/%s'"  % ( frame.tagname,
-        #    frame.taglist[frame.index].kind,
-        #    frame.index, frame.num)
-
-        #print(cmd)
-        #vim.command(cmd)
-
-        self.goto(frame)
-
-        frame.index += 1
-        if frame.index >= frame.num:
-            frame.index  = 0
-
-    def goto(self, frame):
-        if frame.num < 2:
-            frame.taglist[frame.index].goto()
-        else:
-            lines = []
-            maxlen = 0
-            for t in frame.taglist:
-                l = len(t.show_path)
-                if l > maxlen:
-                    maxlen = l
-
-            for t in frame.taglist:
-                f = t.show_path
-                l = t.line
-                if isinstance(l, str):
-                    l = l.strip()
-
-                    if l.startswith('/^'):
-                        l = l[2:]
-                    if l[-1] == '$':
-                        l = l[0:-1]
-
-                    l = l.replace('\\t', '    ')
-
-                tt = r"%s  %s|%s" % (f.ljust(maxlen), t.kind.decode('utf8'), l)
-                line = encode(tt)
-                lines.append(line)
-
-            win = Search(lines)
-            win.FREventBind('Search-Quit', self.quit_search)
+        win = Search(lines)
+        win.FREventBind('Search-Quit', self.quit_search)
 
     def quit_search(self, win, index):
         logging.error("tags search window get: %s", index)
@@ -321,57 +225,86 @@ class class_tag:
             return
 
         if index > -1:
-            frame = self.wstack()[-1]
+            self._goto(index)
 
-            frame.taglist[index].goto()
-            frame.index = index
+
+class TagStack(object):
+    stacks = {}
+    stack = None
+    def __new__(cls, *args, **kwargs):
+        w = vim.current.window
+        stack = cls.stacks.get(w)
+        if not stack:
+            org = super(TagStack, cls)
+            stack = org.__new__(cls, *args, **kwargs)
+            cls.stacks[w] = stack
+        return stack
+
+    def __init__(self):
+        if None == self.stack:
+            self.stack = []
+
+    def push(self, frame):
+        self.stack.append(frame)
+
+    def pop(self):
+        if not self.stack:
+            return
+        return self.stack.pop()
+
+
 
 
 @pyvim.cmd()
 def Tag(tag = None):
-    global TAG
-    if TAG == None:
-        TAG = class_tag()
-
     if not tag:
         tag = pyvim.current_word()
 
-    if TAG.find_tag(tag):
-        TAG.jump_tag()
-    else:
-        pyvim.echoline('404 NOT FOUND: %s' % tag)
-        return
-
-    try:
-        vim.command('normal zz')
-    except vim.error as e:
-        logging.error(e)
-
-@pyvim.cmd()
-def TagBack():
-    if TAG == None:
-        return
-
-    ws = TAG.wstack()
-    if not ws:
-        vim.command(" echo 'there is no tag in stack'")
-        return 0
-
-    frame = TAG.wstack().pop()
-
-    if not os.path.isfile(frame.file_path):
+    frame = find_tag(tag)
+    if not frame:
         return
 
     frame.goto()
 
 @pyvim.cmd()
-def TagRefresh():
-    global TAG
-    if TAG == None:
-        TAG = class_tag()
+def TagBack():
+    stack = TagStack()
 
-    for tagfile in TAG.tagsfile_list:
-        tagfile.refresh( )
+    tag = stack.pop()
+
+    if not tag:
+        vim.command(" echo 'there is no tag in stack'")
+        return 0
+
+    tag.back()
+
+@pyvim.cmd()
+def TagRefresh():
+    root = pyvim.get_cur_root()
+
+    d = os.path.join(root, '.wind_ctags')
+    os.mkdir(d)
+
+    f = os.path.join(d, 'tags')
+
+    os.system("cd %s;ctags -f .wind_ctags/tags -R * 2>/dev/null"  % root)
+
+    fd_map = {}
+
+    for line in open(f).readlines():
+        p = line[0]
+        if '!' == p:
+            continue
+
+        fd = fd_map.get(p)
+        if not fd:
+            fd = open(os.path.join(d, '%s_tags' % p), 'w')
+            fd_map[p] = fd
+
+        fd.write(line)
+
+
+    vim.command("echo 'the ctags is ok'")
 
 
 if not __name__== "__main__":
