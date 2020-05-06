@@ -39,7 +39,7 @@ class PromptKey(im.keybase.BaseEnd):
     def output(self, k):
         imrc.feedkeys('\<C-Y>')
         return False # continue
-        
+
 
     im_digit = im_upper = im_lower = output
 
@@ -176,7 +176,7 @@ def stream(tp, key):
             active.keyhandler.handler(tp, key)
             return True
 
-    g.default_key.handler(tp, key)
+    return g.default_key.handler(tp, key)
 
 
 
