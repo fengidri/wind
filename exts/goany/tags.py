@@ -128,7 +128,6 @@ class TagOne(object):
         self.pattern = pattern
 
         t = t[2][pos:].split('\t')
-        logging.error(line)
         self.kind      = t[1]
 
 

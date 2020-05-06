@@ -39,29 +39,6 @@ def find_tag(root, tag):
 
     return o, None
 
-def refresh(root):
-    d = os.path.join(root, '.wind_ctags')
-    if not os.path.exists(d):
-        os.mkdir(d)
-
-    f = os.path.join(d, 'tags')
-
-    os.system("cd %s;ctags --sort=no -f .wind_ctags/tags -R * 2>/dev/null"  % root)
-
-    fd_map = {}
-
-    for line in open(f).readlines():
-        p = line[0]
-        if '!' == p:
-            continue
-
-        fd = fd_map.get(p)
-        if not fd:
-            fd = open(os.path.join(d, '%s_tags' % p), 'w')
-            fd_map[p] = fd
-
-        fd.write(line)
-
 
 def walk(root,  relat_path = None):
     for item in os.listdir(root):
@@ -76,7 +53,8 @@ def walk(root,  relat_path = None):
 
         if os.path.isfile(full_path):
             yield relat
-        else:
+
+        if os.path.isdir(full_path):
             for item in walk(full_path, relat):
                 yield item
 

@@ -32,7 +32,7 @@ def write_to_tags(d, r):
 
 
             f = line[0]
-            if not f.isalpha():
+            if not f.isalpha() and f != '_':
                 continue
 
             fd = fd_map.get(f)

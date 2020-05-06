@@ -18,4 +18,4 @@ syn keyword	cType		struct
 syn keyword	cType		int int32 int64
 
 syn keyword cLabel f
-syn keyword cRepeat m
+syn keyword cRepeat m s
