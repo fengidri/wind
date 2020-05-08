@@ -50,6 +50,8 @@ class IM_Wubi_Pum(prompt.PromptKey):
         prompt.active()
         return True
 
+    im_upper = im_lower
+
     def cb_space(self):
         if g.base and env.before.endswith(g.base):
             imrc.feedkeys('\<C-N>')
