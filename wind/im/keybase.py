@@ -112,7 +112,7 @@ class BaseEnd(BasePass):
 
     def cb_backspace(self):
         feedkeys('\<bs>')
-        return False # continue
+        return True # continue
 
 
     def output(self, k):

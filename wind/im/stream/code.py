@@ -8,6 +8,7 @@ import re
 from im.imrc import feedkeys
 import vim
 
+import im.prompt as prompt
 from pyvim import log as logging
 
 import im.env  as env
@@ -70,7 +71,6 @@ class handle(object):
         return True
 
 
-
     #def cb_backspace(self):
     #    #for c in env.before:
     #    #    if c != ' ':
@@ -91,6 +91,12 @@ import im.imrc as imrc
 from .. import stream
 
 
+class ycm_prompt(prompt.Prompt):
+    trigger_key = ('\<C-c>', 'm')
+
+prompt = ycm_prompt()
+
+
 def timer_callback():
     # 目前用于在 cursor hold 的时候触发补全
     # 不使用 CursorHoldI 事件是由于这事件触发时间比较长 4000ms
@@ -103,7 +109,8 @@ def timer_callback():
     if not s[-1].isalpha():
         return
 
-    pyvim.feedkeys(('\<C-c>', 'm'))
+    prompt.active(delay = False)
+    #pyvim.feedkeys(('\<C-c>', 'm'))
 
 
 class IM_Code(im.keybase.BaseEnd, handle):
@@ -131,7 +138,8 @@ class IM_Code(im.keybase.BaseEnd, handle):
         # 并且触发的 key 设置成子  <C-c>
 
         if self.ycm: # 直接调用 ycm. 比如在 . 或 tab 的后面
-            imrc.feedkeys(('\<C-c>', 'm'))
+            prompt.active()
+            #imrc.feedkeys(('\<C-c>', 'm'))
 
         else: # 延时调用 ycm
             if key.isalpha() or key == '_':

@@ -11,6 +11,7 @@ from pyvim import log
 from . import imrc
 from . import env
 import im.keybase
+import pyvim
 
 class PromptKey(im.keybase.BaseEnd):
     def cb_tab(self):
@@ -40,6 +41,18 @@ class PromptKey(im.keybase.BaseEnd):
         imrc.feedkeys('\<C-Y>')
         return False # continue
 
+    def cb_backspace(self):
+        # 这里的逻辑要分三步
+        # 1. 接受当前的 prompt 状态, 并关闭 prompt
+        # 2. 删除字符
+        # 3. 再次触发 prompt.
+
+        imrc.feedkeys('\<C-Y>')
+        imrc.feedkeys('\<bs>')
+        g.active.active()
+        return False
+
+
 
     im_digit = im_upper = im_lower = output
 
@@ -55,20 +68,25 @@ class PromptKey(im.keybase.BaseEnd):
 
 class Prompt(object):
     _prompt = []
+    trigger_key = '\<C-X>\<C-O>'
 
     def __init__(self, key_handler = None):
         self.keyhandler = key_handler
 
 
-    def active(self):
+    def active(self, delay=True):
         func = "wind#Prompt"
 
         vim.command("let &omnifunc='%s'" % func)
         vim.command("let &l:omnifunc='%s'" % func)
 
-        imrc.feedkeys('\<C-X>\<C-O>')
-
         g.active = self
+
+        if delay:
+            imrc.feedkeys(self.trigger_key)
+        else:
+            pyvim.feedkeys(self.trigger_key)
+
 
 
 
