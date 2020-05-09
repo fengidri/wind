@@ -50,7 +50,7 @@ def write_to_tags(d, r):
 root = sys.argv[1]
 os.chdir(root)
 cmd = ['ctags', '--sort=no', '-L', '-', '-f','/dev/null']
-cmd = ['ctags', '--sort=no', '--filter=yes']
+cmd = ['ctags', '--sort=no', '--filter=yes', '--c-kinds=+p']
 p = subprocess.Popen(cmd, stdin=sys.stdin, stdout=subprocess.PIPE, universal_newlines=True)
 d = os.path.join(root, '.wind_ctags')
 write_to_tags(d, p.stdout)
