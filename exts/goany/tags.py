@@ -35,6 +35,8 @@ def goto_file(path):
 
 
 def goto(path, pattern, tag, pos):
+    msg = ''
+
     root = pyvim.get_cur_root()
     path = os.path.join(root, path)
     logging.error('goto path: %s, %s, %s, %s' %(path, pattern, tag, pos))
@@ -50,11 +52,12 @@ def goto(path, pattern, tag, pos):
                 pattern_nu = i
                 break
 
-            if l.find(tag) > -1:
+            if l.find(tag) > -1 and None == pattern_nu_b:
                 pattern_nu_b  = i
                 logging.error('suspicious pattern(%s): %s: %s', tag, l, pattern)
 
         else:
+            msg = "linue num is guessed"
             pattern_nu  = pattern_nu_b
 
     else:
@@ -68,8 +71,7 @@ def goto(path, pattern, tag, pos):
 
         pos = (pattern_nu + 1, col_nu)
     else:
-        logging.error('patten: '+pattern)
-        return
+        return 'error patten: '+pattern
 
     vim.current.window.cursor = pos
 
@@ -78,6 +80,8 @@ def goto(path, pattern, tag, pos):
         vim.command('normal zz')
     except vim.error as e:
         logging.error(e)
+
+    return msg
 
 
 
@@ -109,6 +113,8 @@ class TagStack(object):
 
 class TagOne(object):
     def __init__(self, line):
+        self.msg_guess_cursor = False
+
         t = line.split('\t', 2)
 
         self.tag = t[0]
@@ -134,7 +140,7 @@ class TagOne(object):
     def goto(self):
         self.last_file = vim.current.buffer.name
         self.last_cursor = vim.current.window.cursor
-        goto(self.file_path, self.pattern, self.tag, None)
+        return goto(self.file_path, self.pattern, self.tag, None)
 
     def back(self):
         goto_file(self.last_file)
@@ -150,15 +156,27 @@ class TagOne(object):
 
 class TagFrame(object):
     def __init__(self, lines):
+        self.kinds = {}
         taglist   = []
 
         for line in lines:
             tag = TagOne(line)
+
+            if isinstance(tag.pattern, str):
+                " skip EXPORT_SYMBOL inside kernel source"
+                if tag.pattern.startswith('EXPORT_SYMBOL'):
+                    continue
+
+            if self.kinds.get(tag.kind):
+                self.kinds[tag.kind] += 1
+            else:
+                self.kinds[tag.kind] = 1
+
             taglist.append(tag)
 
         _taglist = []
 
-        "加入到stack中tag从定义处开始"
+        "同一个 tag 的多个纪录, 把 f, v kind 的放前面."
         for tag in taglist:
             if tag.kind == 'f' or tag.kind == 'v':
                 _taglist.append(tag)
@@ -170,22 +188,39 @@ class TagFrame(object):
             _taglist.append(tag)
 
 
-        self.taglist   = taglist
+        self.taglist   = _taglist
         self.tagname   = taglist[0].tag
         self.num       = len(self.taglist)
 
     def _goto(self, index):
         tag  = self.taglist[index]
-        tag.goto()
+
+
+        msg = tag.goto()
         TagStack().push(tag)
 
+        pyvim.echoline('Tag(%s) goto %s/%s kind: %s. [%s]' %
+                (tag.tag, index + 1, self.num, tag.kind, msg))
+
     def goto(self, index = None):
+        '不指定的情况下, 并且只一个纪录直接跳转'
         if self.num < 2:
             index = 0
 
         if None != index:
             self._goto(index)
             return
+
+        '如果不算 p(申明) 只有一个, 直接跳转到另一个上面'
+        if self.num - self.kinds.get('p', 0) == 1:
+            for i, tag in enumerate(self.taglist):
+                if tag.kind == 'p':
+                    continue
+                self._goto(i)
+                return
+
+
+        '使用 frainui 展示, 用户进行选择'
 
         lines = []
         maxlen = 0
