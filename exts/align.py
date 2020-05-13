@@ -26,9 +26,11 @@ class Line(list):
 
         self.index = 0
         self.cols = 0
+        self.index_char = ' '
 
         for c in s:
             if c == ' ' or c == '\t':
+                self.index_char = c
                 self.index += 1
             else:
                 break
@@ -78,7 +80,7 @@ class Line(list):
         self.append(item(w, start))
 
     def s(self):
-        l = [' ' * self.index ]
+        l = [self.index_char * self.index ]
         for ii, i in enumerate(self):
             i.index = ii
             i.cols = self.cols
