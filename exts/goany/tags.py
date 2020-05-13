@@ -8,6 +8,11 @@ from pyvim import log as logging
 from frainui import Search
 import libtag
 
+class g:
+    last_path = None
+    last_pos  = None
+    last_tag  = None
+
 def encode(cmd):
     # 把 tags 文件的里 命令式 tag 进行转码
     show_enco=vim.eval('&encoding')
@@ -35,6 +40,10 @@ def goto_file(path):
 
 
 def goto(path, pattern, tag, pos):
+    g.last_pos = None
+    g.last_path = None
+    g.last_tag = tag
+
     msg = ''
 
     root = pyvim.get_cur_root()
@@ -74,6 +83,8 @@ def goto(path, pattern, tag, pos):
         return 'error patten: '+pattern
 
     vim.current.window.cursor = pos
+    g.last_pos = pos
+    g.last_path = path
 
     try:
 #        vim.command('%foldopen!')
@@ -195,31 +206,13 @@ class TagFrame(object):
     def _goto(self, index):
         tag  = self.taglist[index]
 
-
         msg = tag.goto()
         TagStack().push(tag)
 
         pyvim.echoline('Tag(%s) goto %s/%s kind: %s. [%s]' %
                 (tag.tag, index + 1, self.num, tag.kind, msg))
 
-    def goto(self, index = None):
-        '不指定的情况下, 并且只一个纪录直接跳转'
-        if self.num < 2:
-            index = 0
-
-        if None != index:
-            self._goto(index)
-            return
-
-        '如果不算 p(申明) 只有一个, 直接跳转到另一个上面'
-        if self.num - self.kinds.get('p', 0) == 1:
-            for i, tag in enumerate(self.taglist):
-                if tag.kind == 'p':
-                    continue
-                self._goto(i)
-                return
-
-
+    def ui_select(self):
         '使用 frainui 展示, 用户进行选择'
 
         lines = []
@@ -241,6 +234,56 @@ class TagFrame(object):
 
         win = Search(lines)
         win.FREventBind('Search-Quit', self.quit_search)
+
+    def goto_p(self):
+        if self.tagname != g.last_tag:
+            return
+
+        if self.kinds.get('p', 0) == 0:
+            return
+
+        if g.last_path != vim.current.buffer.name:
+            return
+
+        if not g.last_pos:
+            return
+
+        if g.last_pos[0] != vim.current.window.cursor[0]:
+            return
+
+        if 1 < self.kinds.get('p'):
+            self.ui_select()
+            return True
+
+        for i, tag in enumerate(self.taglist):
+            if tag.kind == 'p':
+                self._goto(i)
+                return True
+
+
+    def goto(self, index = None):
+        '不指定的情况下, 并且只一个纪录直接跳转'
+        if self.num < 2:
+            index = 0
+
+        if None != index:
+            self._goto(index)
+            return
+
+        '如果有对应的申明 p, 并且当前还在上一次跳转之后的地方. 尝试去申明'
+        if self.goto_p():
+            return
+
+        '如果不算 p(申明) 只有一个, 直接跳转到另一个'
+        if self.num - self.kinds.get('p', 0) == 1:
+            for i, tag in enumerate(self.taglist):
+                if tag.kind == 'p':
+                    continue
+                self._goto(i)
+                return
+
+        self.ui_select()
+
 
     def quit_search(self, win, index):
         logging.error("tags search window get: %s", index)

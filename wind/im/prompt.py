@@ -20,7 +20,7 @@ class PromptKey(im.keybase.BaseEnd):
 
 
     def cb_enter(self):
-        imrc.feedkeys('\<C-y>')
+        imrc.feedkeys(('\<C-y>', 'm'))
         return True
 
     def cb_space(self):
@@ -40,6 +40,14 @@ class PromptKey(im.keybase.BaseEnd):
     def output(self, k):
         imrc.feedkeys('\<C-Y>')
         return False # continue
+
+    def cb_esc(self):
+        # 回到原始的状态, 并关闭 prompt
+        #imrc.feedkeys(('\<C-e>', 'm'))
+        # TODO 这里输入的 c-y 好像没有起到作用, 手动输入是可以的
+        # 要增加 m 这里就可以了, 但是还是不能和 c-e 一起
+        imrc.feedkeys('\<esc>')
+        return True
 
     def cb_backspace(self):
         # 这里的逻辑要分三步
