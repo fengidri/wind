@@ -38,11 +38,11 @@ def write_to_tags(d, r):
             fd = fd_map.get(f)
             if not fd:
                 path = os.path.join(d, '%s_tags' % f)
-                fd = open(path, 'aw')
+                fd = os.open(path, os.O_APPEND|os.O_WRONLY|os.O_CREAT)
                 fd_map[f] = fd
 
             i += 1
-            fd.write(line)
+            os.write(fd, line)
         if buf[-1] != '\n':
             last = buf[i:]
 
