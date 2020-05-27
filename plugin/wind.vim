@@ -65,7 +65,7 @@ map <F5>           <esc>:Run<CR>
 inoremap <C-f>     <esc>:CFunComment<cr>
 inoremap <C-h>     /*  */<esc>hhi
 
-vnoremap /         ""y/<C-R>0<CR>
+vnoremap /         ""y/\<<C-R>0\><CR>
 
 map gf             :GoAny file<cr>
 map gt             :GoAny tag file<cr>

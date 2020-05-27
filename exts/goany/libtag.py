@@ -81,7 +81,7 @@ def ctags_proc(num, root):
     f = os.path.dirname(f)
     f = os.path.join(f, 'libtag_proc.py')
 
-    cmd = ['python', f, root]
+    cmd = ['python2', f, root]
 
     while i < num:
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, universal_newlines=True)

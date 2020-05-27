@@ -50,7 +50,9 @@ def write_to_tags(d, r):
 root = sys.argv[1]
 os.chdir(root)
 cmd = ['ctags', '--sort=no', '-L', '-', '-f','/dev/null']
-cmd = ['ctags', '--sort=no', '--filter=yes', '--c-kinds=+p']
+cmd = ['ctags', '--sort=no', '--filter=yes',
+        '--c-kinds=+p',
+        r"--regex-c=/^SYSCALL_DEFINE[[:digit:]]?\(([^,)]+).*/\1/"]
 p = subprocess.Popen(cmd, stdin=sys.stdin, stdout=subprocess.PIPE, universal_newlines=True)
 d = os.path.join(root, '.wind_ctags')
 write_to_tags(d, p.stdout)

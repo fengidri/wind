@@ -17,8 +17,7 @@ def ctag(filename):
     f.close()
     tags = pyvim.parse_tags(lines)
 
-    tags_name = []
-    tags_lineno = []
+    l = {'v':[], 'm':[], 'f':[]}
 
     for tag, v in tags.items():
         for f, cmd, ext in v:
@@ -30,13 +29,18 @@ def ctag(filename):
                 continue
 
             if len(ext) > 1:
-                _tag = "%s.%s" % (ext[1], tag)
-                tags_name.append(_tag)
-            else:
-                tags_name.append(tag)
-            tags_lineno.append(cmd)
+                tag = "%s.%s" % (ext[1], tag)
 
-    return tags_name, tags_lineno
+            l[t].append((tag, cmd))
+
+    for v in l.values():
+        v.sort(key = lambda x:x[0])
+
+    o = l['f']
+    o.extend(l['v'])
+    o.extend(l['m'])
+
+    return zip(*o)
 
 class tag_filter(object):
     INSTANCE = None
