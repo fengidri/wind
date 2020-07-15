@@ -4,7 +4,7 @@ import vim
 import os
 import re
 
-SUFFIX = ['*.[ch]', '*.cpp', '*.cc', '*.py']
+SUFFIX = ['*.[ch]', '*.cpp', '*.cc', '*.py', '*.S']
 
 def search(word, target = ''):
     command, path = context(word, target = target)

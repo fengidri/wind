@@ -17,7 +17,6 @@ syn keyword	cType		__le32 __le16 __le8 __le64
 syn keyword	cType		struct
 syn keyword	cType		int int32 int64
 
-syn keyword cLabel f
-syn keyword cRepeat m s e
-syn keyword Type v d g l m n s t u x
-syn keyword PreProc p
+syn keyword cLabel fun
+syn keyword cRepeat mem str var
+syn keyword PreProc pro

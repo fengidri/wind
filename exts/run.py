@@ -15,14 +15,9 @@ def Run():
     line = line.split('$', 1)
 
     if len(line) != 2:
-        pyvim.echo('Not Found Cmd')
-        return
+        cmd = '!clear; make'
+    else:
+        cmd = line[1]
 
-    cmd = line[1]
-
-    f = os.popen(cmd)
-    pyvim.echo('Run: %s' % (cmd,))
-
-    #for line in f.readlines():
-    #    pyvim.echo(line.strip())
+    vim.command(cmd)
 

@@ -4,7 +4,8 @@ import sys
 import subprocess
 import threading
 
-
+class g:
+    iskernel = False
 
 
 def tag_file(root, tag):
@@ -26,7 +27,7 @@ def find_tag(root, tag):
     if not tags:
         return  None, 'not found tags/.ctags at %s' % tags
 
-    prefix = '%s\t' % tag
+    prefix = '%s ' % tag
 
     o = []
     for line in open(tags).readlines():
@@ -40,10 +41,14 @@ def find_tag(root, tag):
     return o, None
 
 
-def walk(root,  relat_path = None):
+def walk(root,  relat_path = None, depth=0):
     for item in os.listdir(root):
         if item[0] == '.':
             continue
+
+        if 0 == depth:
+            if item == 'tools' or item == 'samples' or item == 'scripts':
+                continue
 
         full_path = os.path.join(root, item)
         if relat_path:
@@ -55,7 +60,7 @@ def walk(root,  relat_path = None):
             yield relat
 
         if os.path.isdir(full_path):
-            for item in walk(full_path, relat):
+            for item in walk(full_path, relat, depth + 1):
                 yield item
 
 
@@ -79,7 +84,7 @@ def ctags_proc(num, root):
     i = 0
     f = os.path.realpath(__file__)
     f = os.path.dirname(f)
-    f = os.path.join(f, 'libtag_proc.py')
+    f = os.path.join(f, 'ctags.py')
 
     cmd = ['python2', f, root]
 

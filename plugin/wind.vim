@@ -83,6 +83,5 @@ else
     vnoremap "+y     y:MacClipPost<cr>
     vnoremap Y       y:MacClipPost<cr>
     map      "+p     :MacClipGet<cr>p
-    map      P       :MacClipGet<cr>p
 endif
 

@@ -10,7 +10,7 @@ from frainui import Search
 import vim
 
 def ctag(filename):
-    cmd = "ctags --sort=no -f - -n --fields=-lzf %s" % filename
+    cmd = r"ctags --sort=no -f - -n --fields=-lzf --regex-c='/^SYSCALL_DEFINE[[:digit:]]?\(([^,)]+).*/syscall_\1/' %s" % filename
     f = os.popen(cmd)
 
     lines = f.readlines()

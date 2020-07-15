@@ -39,64 +39,6 @@ def goto_file(path):
 
 
 
-def goto(path, pattern, tag, pos):
-    g.last_pos = None
-    g.last_path = None
-    g.last_tag = tag
-
-    msg = ''
-
-    root = pyvim.get_cur_root()
-    path = os.path.join(root, path)
-    logging.error('goto path: %s, %s, %s, %s' %(path, pattern, tag, pos))
-
-    goto_file(path)
-
-
-    pattern_nu = None
-    if isinstance(pattern, str):
-        pattern_nu_b = None
-        for i, l in enumerate(vim.current.buffer):
-            if l == pattern:
-                pattern_nu = i
-                break
-
-            if l.find(tag) > -1 and None == pattern_nu_b:
-                pattern_nu_b  = i
-                logging.error('suspicious pattern(%s): %s: %s', tag, l, pattern)
-
-        else:
-            msg = "linue num is guessed"
-            pattern_nu  = pattern_nu_b
-
-    else:
-        pattern_nu  = pattern
-
-    if pattern_nu != None:
-        pattern = vim.current.buffer[pattern_nu]
-        col_nu = pattern.find(tag)
-        if col_nu < 0:
-            col_nu = 0
-
-        pos = (pattern_nu + 1, col_nu)
-    else:
-        return 'error patten: '+pattern
-
-    vim.current.window.cursor = pos
-    g.last_pos = pos
-    g.last_path = path
-
-    try:
-#        vim.command('%foldopen!')
-        vim.command('normal zz')
-    except vim.error as e:
-        logging.error(e)
-
-    return msg
-
-
-
-
 class TagStack(object):
     stacks = {}
     stack = None
@@ -122,36 +64,130 @@ class TagStack(object):
         return self.stack.pop()
 
 
+# d  macro definitions
+# e  enumerators (values inside an enumeration)
+# f  function definitions
+# g  enumeration names
+# h  included header files
+# l  local variables [off]
+# m  struct, and union members
+# p  function prototypes [off]
+# s  structure names
+# t  typedefs
+# u  union names
+# v  variable definitions
+# x  external and forward variable declarations [off]
+# z  function parameters inside function definitions [off]
+# L  goto labels [off]
+# D  parameters inside macro definitions [off]
+
 class TagOne(object):
     def __init__(self, line):
         self.msg_guess_cursor = False
+        self.show = None
+        self.pattern = None
 
-        t = line.split('\t', 2)
+        if ';"' in line:
+            t = line.split('\t', 2)
 
-        self.tag = t[0]
-        self.file_path = t[1]
+            self.tag = t[0]
+            self.file_path = t[1]
 
-        pos = t[2].find(';"\t')
+            pos = t[2].find(';"\t')
 
-        pattern = t[2][0:pos]
+            pattern = t[2][0:pos]
 
-        if pattern.isdigit():
-            pattern = int(pattern) - 1
-        else:
-            pattern = pattern[2:-2]
-            pattern = pattern.replace('\\t', '\t').replace('\\/', '/')
-            pattern = pattern.replace(r'\r','')
-            #pattern = encode(pattern)
-        self.pattern = pattern
+            if pattern.isdigit():
+                pattern = int(pattern) - 1
+                self.line_nu = pattern
+            else:
+                pattern = pattern[2:-2]
+                pattern = pattern.replace('\\t', '\t').replace('\\/', '/')
+                pattern = pattern.replace(r'\r','')
+                #pattern = encode(pattern)
+            self.pattern = pattern
 
-        t = t[2][pos:].split('\t')
-        self.kind      = t[1]
+            t = t[2][pos:].split('\t')
+
+            kind_map = {'p':'prototype',
+                    'f': 'function',
+                    'm': 'member',
+                    's': 'struct',
+                    'v': 'variable',
+                    'd': 'marco',
+                    'e': 'enumerator',
+                    }
+            self.kind = kind_map.get(t[1], self.kind)
+        else: # xref
+            t = line.split(None, 4)
+            self.tag = t[0]
+            self.kind = t[1]
+            self.file_path = t[3]
+            self.line_nu = int(t[2]) - 1
+            self.show = t[4]
 
 
     def goto(self):
         self.last_file = vim.current.buffer.name
         self.last_cursor = vim.current.window.cursor
-        return goto(self.file_path, self.pattern, self.tag, None)
+        return self._goto()
+
+    def _goto(self):
+        g.last_pos = None
+        g.last_path = None
+        g.last_tag = self.tag
+
+        tag = self.tag
+
+        msg = ''
+
+        root = pyvim.get_cur_root()
+        path = os.path.join(root, self.file_path)
+        #logging.error('goto path: %s, %s, %s, %s' %(path, pattern, tag, pos))
+
+        goto_file(path)
+
+        pattern = self.pattern
+        pattern_nu = None
+        if self.line_nu:
+            pattern_nu = self.line_nu
+        else:
+            pattern_nu_b = None
+            for i, l in enumerate(vim.current.buffer):
+                if l == pattern:
+                    pattern_nu = i
+                    break
+
+                if l.find(tag) > -1 and None == pattern_nu_b:
+                    pattern_nu_b  = i
+                    logging.error('suspicious pattern(%s): %s: %s', tag, l, pattern)
+
+            else:
+                msg = "linue num is guessed"
+                pattern_nu  = pattern_nu_b
+
+
+        if pattern_nu == None:
+            return 'error patten: %s' % pattern
+
+        pattern = vim.current.buffer[pattern_nu]
+        col_nu = pattern.find(tag)
+        if col_nu < 0:
+            col_nu = 0
+
+        pos = (pattern_nu + 1, col_nu)
+
+        vim.current.window.cursor = pos
+        g.last_pos = pos
+        g.last_path = path
+
+        try:
+    #        vim.command('%foldopen!')
+            vim.command('normal zz')
+        except vim.error as e:
+            logging.error(e)
+
+        return msg
 
     def back(self):
         goto_file(self.last_file)
@@ -185,23 +221,30 @@ class TagFrame(object):
 
             taglist.append(tag)
 
+        taglist = self.sort(taglist)
+
+        self.taglist   = taglist
+        self.tagname   = taglist[0].tag
+        self.num       = len(self.taglist)
+
+    def sort(self, taglist):
+        "同一个 tag 的多个纪录, 把 f, v kind 的放前面."
+
         _taglist = []
 
-        "同一个 tag 的多个纪录, 把 f, v kind 的放前面."
-        for tag in taglist:
-            if tag.kind == 'f' or tag.kind == 'v':
-                _taglist.append(tag)
-                continue
+        #kinds = 'fstudvm'
+        kinds = ['function', 'struct', 'marco', 'variable', 'member']
+        for k in kinds:
+            for tag in taglist:
+                if tag.kind == k:
+                    _taglist.append(tag)
 
         for tag in taglist:
-            if tag.kind == 'f' or tag.kind == 'v':
+            if tag.kind in kinds:
                 continue
             _taglist.append(tag)
 
-
-        self.taglist   = _taglist
-        self.tagname   = taglist[0].tag
-        self.num       = len(self.taglist)
+        return _taglist
 
     def _goto(self, index):
         tag  = self.taglist[index]
@@ -224,11 +267,16 @@ class TagFrame(object):
 
         for t in self.taglist:
             f = t.file_path
-            l = t.pattern
+
+            if t.show:
+                l = t.show
+            else:
+                l = t.pattern
+
             if isinstance(l, str):
                 l = l.strip()
 
-            tt = r"%s  %s|%s" % (f.ljust(maxlen), t.kind, l)
+            tt = r"%s  %s|%s" % (f.ljust(maxlen), t.kind[0:3], l)
             line = encode(tt)
             lines.append(line)
 
@@ -239,7 +287,9 @@ class TagFrame(object):
         if self.tagname != g.last_tag:
             return
 
-        if self.kinds.get('p', 0) == 0:
+        kind = 'prototype'
+
+        if self.kinds.get(kind, 0) == 0:
             return
 
         if g.last_path != vim.current.buffer.name:
@@ -251,12 +301,12 @@ class TagFrame(object):
         if g.last_pos[0] != vim.current.window.cursor[0]:
             return
 
-        if 1 < self.kinds.get('p'):
+        if 1 < self.kinds.get(kind):
             self.ui_select()
             return True
 
         for i, tag in enumerate(self.taglist):
-            if tag.kind == 'p':
+            if tag.kind == kind:
                 self._goto(i)
                 return True
 
@@ -275,9 +325,9 @@ class TagFrame(object):
             return
 
         '如果不算 p(申明) 只有一个, 直接跳转到另一个'
-        if self.num - self.kinds.get('p', 0) == 1:
+        if self.num - self.kinds.get('prototype', 0) == 1:
             for i, tag in enumerate(self.taglist):
-                if tag.kind == 'p':
+                if tag.kind == 'prototype':
                     continue
                 self._goto(i)
                 return
@@ -335,4 +385,7 @@ def TagRefresh():
     vim.command("echo 'the ctags is ok'")
 
 
-
+@pyvim.cmd()
+def TagKernel():
+    libtag.g.iskernel = True;
+    TagRefresh()
