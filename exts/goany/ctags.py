@@ -3,6 +3,17 @@
 import os
 import sys
 import subprocess
+import copy
+
+cmd = ['ctags', '--sort=no', '-L', '-', '-f','/dev/null']
+cmd = ['ctags', '--sort=no',
+        '--c-kinds=+p', '--output-format=xref',
+        r"--regex-c=/^SYSCALL_DEFINE[[:digit:]]?\(([^,)]+).*/syscall_\1/",
+        r"--regex-asm=/^SYM_CODE_START\(([^,)]+).*/\1/",
+        r"--regex-asm=/^SYM_FUNC_START\(([^,)]+).*/\1/",
+        r"--regex-asm=/^SYM_INNER_LABEL\(([^,)]+).*/\1/",
+        r"--regex-asm=/^ENTRY\(([^,)]+).*/\1/",
+        ]
 
 def write_to_tags(d, r):
     fd_map = {}
@@ -58,18 +69,28 @@ def write_to_tags(d, r):
         os.write(fd, ''.join(b))
 
 
-root = sys.argv[1]
-os.chdir(root)
-cmd = ['ctags', '--sort=no', '-L', '-', '-f','/dev/null']
-cmd = ['ctags', '--sort=no', '--filter=yes',
-        '--c-kinds=+p', '--output-format=xref',
-        r"--regex-c=/^SYSCALL_DEFINE[[:digit:]]?\(([^,)]+).*/syscall_\1/",
-        r"--regex-asm=/^SYM_CODE_START\(([^,)]+).*/\1/",
-        r"--regex-asm=/^SYM_FUNC_START\(([^,)]+).*/\1/",
-        r"--regex-asm=/^SYM_INNER_LABEL\(([^,)]+).*/\1/",
-        r"--regex-asm=/^ENTRY\(([^,)]+).*/\1/",
-        ]
-p = subprocess.Popen(cmd, stdin=sys.stdin, stdout=subprocess.PIPE, universal_newlines=True)
-d = os.path.join(root, '.wind_ctags')
-write_to_tags(d, p.stdout)
-p.wait()
+
+def main():
+    root = sys.argv[1]
+    os.chdir(root)
+
+    cmd.append('--filter=yes')
+
+    p = subprocess.Popen(cmd, stdin=sys.stdin, stdout=subprocess.PIPE, universal_newlines=True)
+    d = os.path.join(root, '.wind_ctags')
+    write_to_tags(d, p.stdout)
+    p.wait()
+
+def parse(path):
+    c = copy.copy(cmd)
+    c.append('-f')
+    c.append('-')
+    c.append(path)
+    p = subprocess.Popen(c, stdout=subprocess.PIPE, universal_newlines=True)
+    lines = p.stdout.readlines()
+    p.wait()
+    return lines
+
+if __name__== "__main__":
+    main()
+

@@ -8,8 +8,17 @@ import os
 import pyvim
 from frainui import Search
 import vim
+import libtag
 
 def ctag(filename):
+    tags = libtag.parse(filename)
+    name = []
+    linenu = []
+    for t in tags:
+        name.append(t.show)
+
+        linenu.append(t.line_nu)
+    return name, linenu
     cmd = r"ctags --sort=no -f - -n --fields=-lzf --regex-c='/^SYSCALL_DEFINE[[:digit:]]?\(([^,)]+).*/syscall_\1/' %s" % filename
     f = os.popen(cmd)
 
@@ -64,7 +73,12 @@ class tag_filter(object):
         if index > -1:
             linenu = self.tags_lineno[index]
             if linenu:
-                vim.current.window.cursor = (linenu, 0)
+                vim.current.window.cursor = (linenu + 1, 0)
+                try:
+    #                vim.command('%foldopen!')
+                    vim.command('normal zz')
+                except vim.error as e:
+                    logging.error(e)
 
     def show(self):
         pyvim.log.error('call show')

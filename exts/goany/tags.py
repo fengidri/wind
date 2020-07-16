@@ -64,69 +64,8 @@ class TagStack(object):
         return self.stack.pop()
 
 
-# d  macro definitions
-# e  enumerators (values inside an enumeration)
-# f  function definitions
-# g  enumeration names
-# h  included header files
-# l  local variables [off]
-# m  struct, and union members
-# p  function prototypes [off]
-# s  structure names
-# t  typedefs
-# u  union names
-# v  variable definitions
-# x  external and forward variable declarations [off]
-# z  function parameters inside function definitions [off]
-# L  goto labels [off]
-# D  parameters inside macro definitions [off]
 
-class TagOne(object):
-    def __init__(self, line):
-        self.msg_guess_cursor = False
-        self.show = None
-        self.pattern = None
-
-        if ';"' in line:
-            t = line.split('\t', 2)
-
-            self.tag = t[0]
-            self.file_path = t[1]
-
-            pos = t[2].find(';"\t')
-
-            pattern = t[2][0:pos]
-
-            if pattern.isdigit():
-                pattern = int(pattern) - 1
-                self.line_nu = pattern
-            else:
-                pattern = pattern[2:-2]
-                pattern = pattern.replace('\\t', '\t').replace('\\/', '/')
-                pattern = pattern.replace(r'\r','')
-                #pattern = encode(pattern)
-            self.pattern = pattern
-
-            t = t[2][pos:].split('\t')
-
-            kind_map = {'p':'prototype',
-                    'f': 'function',
-                    'm': 'member',
-                    's': 'struct',
-                    'v': 'variable',
-                    'd': 'marco',
-                    'e': 'enumerator',
-                    }
-            self.kind = kind_map.get(t[1], self.kind)
-        else: # xref
-            t = line.split(None, 4)
-            self.tag = t[0]
-            self.kind = t[1]
-            self.file_path = t[3]
-            self.line_nu = int(t[2]) - 1
-            self.show = t[4]
-
-
+class TagOne(libtag.Line):
     def goto(self):
         self.last_file = vim.current.buffer.name
         self.last_cursor = vim.current.window.cursor
