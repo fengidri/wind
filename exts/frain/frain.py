@@ -18,7 +18,8 @@ class FrainList(object):
 
         self.origin_window_title = pyvim.gettitle()
 
-        listwin = LIST("frain", helper_listwin.FrainListGetRootsHook)
+        listwin = LIST("frain", helper_listwin.FrainListGetRootsHook,
+                ft='listwin')
 
         listwin.FREventBind("List-ReFresh-Post",
                 helper_listwin.FrainListRefreshHook)

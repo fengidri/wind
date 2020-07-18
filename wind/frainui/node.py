@@ -26,7 +26,7 @@ class Item(utils.Object):# Node与Leaf 的父类
         num = 0
         for linenu, line in enumerate(self.lswin.BFb):
             try:
-                ID = int(line.split('<|>')[1])
+                ID = int(line.split(',', 1)[0])
                 if ID == self.ID:
                     num = linenu
                     break
@@ -132,7 +132,7 @@ class Node(Item):
         else:
             flag = '+'
 
-        return "%s%s%s/<|>%s" % ("  " * (self.level  -1), flag, dp, self.ID)
+        return "%s,%s%s%s/" % (self.ID, "  " * (self.level  -1), flag, dp)
 
     def _open(self): # 回车 TODO
 
@@ -206,15 +206,21 @@ class Leaf(Item):
             dp = self.display
         else:
             dp = self.name
-        return "%s %s<|>%s" % ("  " * (self.level  -1), dp, self.ID)
+        return "%s,%s %s" % (self.ID, "  " * (self.level  -1), dp)
 
     def _open(self):#TODO
+        if not self.handle:
+            return
+
         linenu = self.getlinenu()
 
-        vim.current.window = pyvim.previous()
+        win = pyvim.previous()
+        if win and win.valid:
+            vim.current.window = win
+        else:
+            vim.command("vertical rightbelow new")
 
-        if self.handle:
-            self.handle(self, LIST)
+        self.handle(self, LIST)
 
 
 

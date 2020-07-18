@@ -70,7 +70,7 @@ class NODE(object):
 
         #line = line.decode('utf8')
         try:
-            node_index = int(line.split('<|>')[1])
+            node_index = int(line.split(',', 1)[0])
             logging.debug("getnode ID: %s" % node_index)
 
             return self.nodes.get(node_index)
@@ -81,7 +81,11 @@ class NODE(object):
 
 from . import Buffer
 class LIST(Buffer.BF, OP_OPTIONS, NODE):
-    def __init__(self, name, get_roots, **kw):
+    def __init__(self, name, get_roots,
+                 position = 'topleft',
+                 use_current_buffer= False,
+                 ft = "frainuilist",
+                 ):
         frainui.BF.__init__(self)
         node.LIST = self
 
@@ -97,11 +101,11 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
             self.FREventEmit("List-Show")
 
 
-        self.BFFt       = "frainuilist"
+        self.BFFt       = ft
         self.BFName     = "Frain"
         self.BFWdith    = 25
         self.BFVertical = True
-        self.BFVertical = kw.get("positoin", 'topleft')
+        self.BFVertical = position
 
 
         self.FREventBind("BF-Create-Post", hook)
@@ -115,9 +119,10 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
             self.BFFocus()
 
         self.FREventBind("OP-Focus",          focus)
+        self.use_current_buffer = use_current_buffer
 
     def show(self):
-        self.BFCreate()
+        self.BFCreate(use_current = self.use_current_buffer)
         pyvim.addevent("CursorMovedI", self.update_status, self.BFb)
 
 

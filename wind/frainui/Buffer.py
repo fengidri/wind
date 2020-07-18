@@ -65,13 +65,17 @@ class BF(utils.Object, BFVimEvent):
         else:
             self.BFb = vim.current.buffer
 
-    def BFCreate(self):
+    def BFCreate(self, use_current=False):
         if self.BFb and self.BFb.valid:
             return
 
         self.FREventEmit("BF-Create-Pre")
 
-        self.__create_win()
+        if not use_current:
+            self.__create_win()
+        else:
+            self.BFb = vim.current.buffer
+
         if self.BFFt:
             vim.command("set ft=%s" % self.BFFt)
 
