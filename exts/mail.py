@@ -8,6 +8,9 @@ import frainui
 from pyvim import log as logging
 import time
 
+class g:
+    default = None
+
 def leaf_handle(leaf, listwin):
     mail = leaf.ctx
 
@@ -65,6 +68,9 @@ def list_root(node, listwin):
     r = frainui.Node("FM.feng mail", None, get_child)
     node.append(r)
 
+    if g.default == None:
+        g.default = r
+
 
 
 
@@ -84,6 +90,7 @@ def Mail():
             use_current_buffer = True)
     listwin.show()
     listwin.refresh()
+    g.default.node_open()
 
 
 
