@@ -53,13 +53,14 @@ IM = im.IM
 im.stream.Init()
 tips = im.tips
 
-ftpath = os.path.realpath(__file__)
-ftpath = os.path.dirname(ftpath)
-exts_path = os.path.join(ftpath, '../exts')
+
 def load_ext():
     from plugins import Plugins
+
+    ftpath = os.path.realpath(__file__)
+    ftpath = os.path.dirname(ftpath)
+    exts_path = os.path.join(ftpath, '../exts')
+
     Plugins(exts_path).loads()
 
-if __name__ != "__main__":
-    load_ext()
 

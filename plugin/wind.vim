@@ -20,9 +20,14 @@ join    = path.join
 
 sys.path.insert(0, join(dirname(vim.eval('s:script_folder_path')), 'wind'))
 
-from wind import IM
-from wind import tips
-from wind import pyvim
+import wind
+
+IM    = wind.IM
+tips  = wind.tips
+pyvim = wind.pyvim
+
+wind.load_ext()
+
 EOF
 "-------------------------------------------------------------------------------
 
