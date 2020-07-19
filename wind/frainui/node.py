@@ -222,5 +222,10 @@ class Leaf(Item):
 
         self.handle(self, LIST)
 
+    def update(self, display):
+        self.display = display
+
+        linenu = self.getlinenu()
+        self.lswin.BFb[linenu - 1] = self.show()
 
 
