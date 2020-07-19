@@ -64,3 +64,8 @@ def load_ext():
     Plugins(exts_path).loads()
 
 
+import importlib
+def load_plugin(name, path):
+    l = importlib.find_loader(name, path)
+    l.load_module()
+

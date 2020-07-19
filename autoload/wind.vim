@@ -31,3 +31,8 @@ endfunction
 function! wind#TimerHandler(id)
     py3 pyvim.timercall(vim.eval("a:id"))
 endfunction
+
+function! wind#py_load(name)
+    let s:script_folder_path = escape(expand('<sfile>:p:h' ), '\')
+    py3 wind.load_plugin(vim.eval('a:name'), vim.eval('s:script_folder_path'))
+endfunction
