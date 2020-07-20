@@ -66,6 +66,20 @@ def load_ext():
 
 import importlib
 def load_plugin(name, path):
-    l = importlib.find_loader(name, path)
-    l.load_module()
+    sys.path.insert(0, path)
+    importlib.import_module(name)
+
+    #import importlib.util
+
+    #path = os.path.join(path, name)
+
+    #spec = importlib.util.spec_from_file_location(name, path)
+    #foo = importlib.util.module_from_spec(spec)
+    #spec.loader.exec_module(foo)
+
+
+    #l = importlib.find_loader(name, path)
+    #if not l:
+    #    print('not find loader %s from %s' % (name, path))
+    #l.load_module()
 

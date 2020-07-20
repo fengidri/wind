@@ -72,12 +72,6 @@ inoremap <C-h>     /*  */<esc>hhi
 
 vnoremap /         ""y/\<<C-R>0\><CR>
 
-map gf             :GoAny file<cr>
-map gt             :GoAny tag file<cr>
-map tt             :GoAny tag all<cr>
-
-map  gh            :GoAny tag jump<cr>
-map  gb            :GoAny tag back<cr>
 "map  O             :Zoom<cr>
 
 
