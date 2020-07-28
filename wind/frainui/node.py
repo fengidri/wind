@@ -194,12 +194,15 @@ class Node(Item):
 
 
 class Leaf(Item):
-    def __init__(self, name, ctx=None, handle=None, display=None):
+    def __init__(self, name, ctx=None, handle=None,
+            display=None, win=None, new_win=False):
         Item.__init__(self)
         self.name    = name
         self.display = display
         self.ctx     = ctx
         self.handle  = handle
+        self.win = win
+        self.new_win = new_win
 
     def show(self):
         if self.display:
@@ -208,17 +211,28 @@ class Leaf(Item):
             dp = self.name
         return "%s,%s %s" % (self.ID, "  " * (self.level  -1), dp)
 
+    def node_open(self):
+        self._open()
+
     def _open(self):#TODO
         if not self.handle:
             return
 
-        linenu = self.getlinenu()
+        cmd = "vertical rightbelow new"
 
-        win = pyvim.previous()
-        if win and win.valid:
-            vim.current.window = win
+        if self.new_win:
+            vim.command(cmd)
         else:
-            vim.command("vertical rightbelow new")
+            if self.win:
+                if not self.win.valid:
+                    return
+                vim.current.window = self.win
+            else:
+                win = pyvim.previous()
+                if win and win.valid:
+                    vim.current.window = win
+                else:
+                    vim.command(cmd)
 
         self.handle(self, LIST)
 

@@ -46,7 +46,7 @@ class OP_OPTIONS(object):
 
     def refresh(self, win=None):
         del self.BFb[:]
-        self.BFb[0] = "FrainUI"
+        self.BFb[0] = self.title
         self.nodes = {}
 
         self.FREventEmit("List-ReFresh-Pre")
@@ -85,6 +85,7 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
                  position = 'topleft',
                  use_current_buffer= False,
                  ft = "frainuilist",
+                 title = 'FrainUI'
                  ):
         frainui.BF.__init__(self)
         node.LIST = self
@@ -100,6 +101,7 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
         def hook(buf):
             self.FREventEmit("List-Show")
 
+        self.title = title
 
         self.BFFt       = ft
         self.BFName     = "Frain"
