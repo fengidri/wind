@@ -5,6 +5,7 @@ import os
 import re
 
 SUFFIX = ['*.[ch]', '*.cpp', '*.cc', '*.py', '*.S']
+EX_SUFFIX= ['*.mod.c']
 
 def search(word, target = ''):
     command, path = context(word, target = target)
@@ -99,9 +100,13 @@ def context(word, target = ''):
         include = [" --include='%s' " % s for s in SUFFIX ]
         include = ' '.join(include)
 
+        exclude = [" --exclude='%s' " % s for s in EX_SUFFIX ]
+        exclude = ' '.join(exclude)
+
         dirname = root
     else:
         include = ""
+        exclude = ""
         target =  os.path.basename( cur_path )
         dirname = os.path.dirname( cur_path )
 
@@ -111,9 +116,12 @@ def context(word, target = ''):
 
 
     cmd = "cd {dirname};grep -RHn --binary-file=without-match "\
-            "{include} '{word}' {target} "
+            "{include} {exclude} '{word}' {target} "
 
-    cmd = cmd.format( dirname = dirname, include = include, word    = word,
+    cmd = cmd.format(dirname = dirname,
+            word    = word,
+            include = include,
+            exclude = exclude,
             target  = target,)
 
     return cmd, dirname

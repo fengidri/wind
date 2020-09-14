@@ -5,6 +5,9 @@ map <buffer> <bs>          :py3 IM("frainui", "OP-Close")<CR>
 map <buffer> R             :py3 IM("frainui", "OP-Refresh")<CR>
 map <buffer> dd            :py3 IM("frainui", "OP-Delete")<CR>
 map <buffer> <tab>         :wincmd p<cr>
+map <buffer> i j
+map <buffer> s j
+map <buffer> a j
 
 "map <buffer> H :FrainFilter<CR>
 let b:frain_status_path = 'root'
