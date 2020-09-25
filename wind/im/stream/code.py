@@ -55,7 +55,7 @@ class handle(object):
 
 
     def cb_brace(self):#{  }
-        if env.after == '' and  env.before.endswith(')'):
+        if env.after == '' and  env.before.strip().endswith(')'):
             feedkeys('\<cr>{\<cr>}\<up>\<cr>')
             return True
         self.double_out('{', '}')
