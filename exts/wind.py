@@ -24,3 +24,12 @@ def Wind(t, *k):
                     vim.vars['wind_im_wubi'] = 0
         except:
             pass
+
+@cmd()
+def Wubi():
+    v = vim.vars['wind_im_wubi']
+    if v:
+        v = 0
+    else:
+        v = 1
+    vim.vars['wind_im_wubi'] = v
