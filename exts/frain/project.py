@@ -16,6 +16,22 @@ import utils
 from kvcache import KvCache
 VARS = ["wind_im_wubi"]
 
+def is_kernel(path):
+    path = os.path.join(path, 'net/ipv4/tcp.c')
+    if os.path.isfile(path):
+        return True
+    return False
+
+def for_kernel(path):
+    if is_kernel(path):
+        vim.command("set tabstop=8")
+        vim.command("set softtabstop=8")
+        vim.command("set shiftwidth=8")
+        vim.command("set noexpandtab")
+
+
+
+
 class Project(object):
     All = []
     @classmethod
@@ -72,6 +88,8 @@ class Project(object):
 
         self.gitinfo = gitinfo.gitinfo(root)
         Project.All.append(self)
+
+        for_kernel(root)
 
     def close(self):
         self.save_curfile()
