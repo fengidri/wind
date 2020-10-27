@@ -129,9 +129,9 @@ def context(word, target = ''):
 """
     对于结果进行过滤, 打开quickfix
 """
-def filter_quick( lines, path, command ):
+def filter_quick( lines, root, command = '' ):
     tmp_file = '/tmp/vimgrep'
-    grep_output = u"Grep Entering directory '%s'\n%s\n\n"  % (path, command)
+    grep_output = u"Grep Entering directory '%s'\n%s\n\n"  % (root, command)
     outs=[ grep_output ]
     for l in  lines:
         line = l
@@ -156,3 +156,11 @@ def filter_quick( lines, path, command ):
     if lines_nu > 15:
         lines_nu = 15
     pyvim.quickfix( lines_nu )
+
+
+
+@pyvim.cmd()
+def Quickfix(path):
+    lines = open(path).readlines()
+    root = pyvim.get_cur_root()
+    filter_quick(lines, root)
