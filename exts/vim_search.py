@@ -131,7 +131,7 @@ def context(word, target = ''):
 """
 def filter_quick( lines, root, command = '' ):
     tmp_file = '/tmp/vimgrep'
-    grep_output = u"Grep Entering directory '%s'\n%s\n\n"  % (root, command)
+    grep_output = u"Entering directory '%s'\n%s\n\n"  % (root, command)
     outs=[ grep_output ]
     for l in  lines:
         line = l
@@ -151,11 +151,23 @@ def filter_quick( lines, root, command = '' ):
     f.write(context )
     f.close()
 
+    # 下面会打开 quickfix window,
+    # 在进入 window 之后 path 应该是由于 autochdir
+    # 会发现变化, 所以这里把 autochdir 先关闭掉.
+    # 并设置 path 到 root, 这样 quickfix 在
+    # 显示 filepath 的时候才会基于 root 进行显示,
+    # 不然会基于当前目录进行显示, 导致其它
+    # 目录下的文件名特别长
+    vim.command('set noautochdir')
+    os.chdir(root)
+
     pyvim.quickfix_read_error( tmp_file )
     lines_nu = len(outs) + 3
     if lines_nu > 15:
         lines_nu = 15
     pyvim.quickfix( lines_nu )
+
+    vim.command('set autochdir')
 
 
 

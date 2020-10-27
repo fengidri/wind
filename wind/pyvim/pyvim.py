@@ -290,7 +290,6 @@ def current_word( from_vim=True ):
 def quickfix(hight = 15):
     vim.command('botright cope %s'  % hight )
 
-
 def quickfix_read_error(error_file):
     vim.command('cgetfile %s'  %  error_file)
 
