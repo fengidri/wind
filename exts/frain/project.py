@@ -22,14 +22,14 @@ def is_kernel(path):
         return True
     return False
 
-def for_kernel(path):
-    if is_kernel(path):
+def tabexpand(path, kvdb):
+    tabexpend = kvdb.get('tabexpand')
+
+    if tabexpend or is_kernel(path):
         vim.command("set tabstop=8")
         vim.command("set softtabstop=8")
         vim.command("set shiftwidth=8")
         vim.command("set noexpandtab")
-
-
 
 
 class Project(object):
@@ -89,7 +89,8 @@ class Project(object):
         self.gitinfo = gitinfo.gitinfo(root)
         Project.All.append(self)
 
-        for_kernel(root)
+        tabexpand(root, self.kvdb)
+        vim.command('set makeprg=make\ -j\ 100\ -C\ %s' % root)
 
     def close(self):
         self.save_curfile()
