@@ -142,7 +142,7 @@ class EnterEvent(object):
             else:
                 pats.append(pat)
 
-        lines, nos = match_lines(pats, ng_pats, self.lines, 20)
+        lines, nos = match_lines(pats, ng_pats, self.lines, 100)
         self.nos = nos
         self.show_list(lines)
         self.hi_pats(pats)
