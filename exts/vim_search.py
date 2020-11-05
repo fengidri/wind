@@ -17,7 +17,7 @@ def search(word, target = ''):
     f_popen = os.popen(command)
     lines = f_popen.readlines()
     if lines:
-        filter_quick( lines, path, command )
+        filter_quick(word, lines, path, command )
 
 
 @pyvim.cmd()
@@ -129,10 +129,12 @@ def context(word, target = ''):
 """
     对于结果进行过滤, 打开quickfix
 """
-def filter_quick( lines, root, command = '' ):
+def filter_quick(word, lines, root, command = '' ):
     tmp_file = '/tmp/vimgrep'
-    grep_output = u"Entering directory '%s'\n%s\n\n"  % (root, command)
-    outs=[ grep_output ]
+    outs = []
+    outs.append(">> %s\n" % word)
+    outs.append(u"Entering directory '%s'\n"  % root)
+    outs.append(u"%s\n" % command)
     for l in  lines:
         line = l
         #line = byte_to_unicode( l )
@@ -144,6 +146,7 @@ def filter_quick( lines, root, command = '' ):
             continue
         line = line.replace('\r','')
         outs.append( line )
+
 
     #写入文件之前转换成字节码
     context = u''.join(outs)
@@ -175,4 +178,4 @@ def filter_quick( lines, root, command = '' ):
 def Quickfix(path):
     lines = open(path).readlines()
     root = pyvim.get_cur_root()
-    filter_quick(lines, root)
+    filter_quick('', lines, root)

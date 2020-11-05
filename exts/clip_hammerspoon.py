@@ -36,9 +36,7 @@ import os
 import requests
 
 class g:
-    host = "clipboard"
-    port = "8080"
-    url = 'http://clipboard:8080/'
+    url = 'http://clipboard:8989/'
 
 
 @pyvim.cmd()
