@@ -17,6 +17,8 @@ class Item(utils.Object):# Node与Leaf 的父类
         self.lswin   = None # 指向list.win对象.
         self.level   = 0
         self.father  = None  # 指向father 对象
+        self.root    = None
+        self.last_win = None
 
         # 从 frainui listwin 的 line 得到 item 时, 要依赖于这个索引.
         self.ID      = 0
@@ -102,6 +104,7 @@ class Node(Item):
         node.father = self # 子node 要记录自己的father
         node.lswin = self.lswin
         node.ID = Item.ID
+        node.root = self.root
 
         self.lswin.nodes[Item.ID] = node
 
@@ -195,7 +198,7 @@ class Node(Item):
 
 class Leaf(Item):
     def __init__(self, name, ctx=None, handle=None,
-            display=None, win=None, new_win=False):
+            display=None, win=None, new_win=False, last_win = False):
         Item.__init__(self)
         self.name    = name
         self.display = display
@@ -203,6 +206,7 @@ class Leaf(Item):
         self.handle  = handle
         self.win = win
         self.new_win = new_win
+        self.last_win = last_win
 
     def show(self):
         if self.display:
@@ -220,20 +224,37 @@ class Leaf(Item):
 
         cmd = "vertical rightbelow new"
 
-        if self.new_win:
-            vim.command(cmd)
-        else:
+        while True:
+            if self.new_win:
+                vim.command(cmd)
+                break
+
+            if self.last_win:
+                if self.root.last_win:
+                    if not self.root.last_win.valid:
+                        self.root.last_win = None
+                        vim.command(cmd)
+                    else:
+                        vim.current.window = self.root.last_win
+                else:
+                        vim.command(cmd)
+                break
+
             if self.win:
                 if not self.win.valid:
-                    return
-                vim.current.window = self.win
-            else:
-                win = pyvim.previous()
-                if win and win.valid:
-                    vim.current.window = win
-                else:
-                    vim.command(cmd)
+                    self.win = None
+                    continue
 
+                break
+
+            win = pyvim.previous()
+            if win and win.valid:
+                vim.current.window = win
+                break
+
+            vim.command(cmd)
+
+        self.root.last_win = vim.current.window
         self.handle(self, LIST)
 
     def update(self, display):

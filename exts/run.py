@@ -8,16 +8,28 @@ import vim
 import pyvim
 import os
 
+class g:
+    last = None
 
 @pyvim.cmd()
-def Run():
-    line = vim.current.line
-    line = line.split('$', 1)
+def Run(cmd = None):
+    if not cmd:
+        if not g.last:
+            return
 
-    if len(line) != 2:
-        cmd = '!clear; make'
+        cmd = g.last
     else:
-        cmd = line[1]
+        g.last = cmd
+
+    root = pyvim.get_cur_root()
+    if root:
+        cmd = '!cd %s;%s' % (root, cmd)
+    else:
+        cmd = '!%s' % (cmd,)
 
     vim.command(cmd)
 
+
+@pyvim.cmd()
+def R(cmd = None):
+    Run(cmd)

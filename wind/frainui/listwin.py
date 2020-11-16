@@ -53,6 +53,7 @@ class OP_OPTIONS(object):
 
         self.root = node.Node("root", None, self.get_roots)
         self.root.lswin = self
+        self.root.root = self.root
 
         self.root.node_open()
 
