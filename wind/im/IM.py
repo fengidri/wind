@@ -7,12 +7,15 @@ from . import setting
 import frainui
 from .imrc import emit_event
 
+import pyvim
+import popup
 
 RouteMap = {
         "prompt":       prompt.handle,
         "key":          stream.handle,
         "setting":      setting.handle,
         "frainui":      frainui.handle,
+        "popup":        popup.handle,
         }
 
 def IM(*args):

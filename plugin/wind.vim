@@ -71,6 +71,9 @@ inoremap <C-f>     <esc>:CFunComment<cr>
 inoremap <C-h>     /*  */<esc>hhi
 map <F6>            :TmuxPopupTerm<cr>
 
+map <F4>            :Trans<cr>
+vmap <F4>            <esc>:TransV<cr>
+
 vnoremap /         ""y/\<<C-R>0\><CR>
 
 "map  O             :Zoom<cr>

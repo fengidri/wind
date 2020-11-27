@@ -36,3 +36,9 @@ function! wind#py_load(name, path)
     let s:script_folder_path = escape(a:path, '\')
     py3 wind.load_plugin(vim.eval('a:name'), vim.eval('s:script_folder_path'))
 endfunction
+
+func! wind#popup_filter(winid, key)
+    let key = char2nr(a:key)
+    py3 IM('popup', vim.eval('a:winid'), vim.eval('key'))
+    return 1
+endfunc

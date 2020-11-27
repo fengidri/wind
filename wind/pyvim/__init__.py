@@ -45,8 +45,6 @@ from .cmd import *
 
 from .timer import timerstart, timerstop, timercall
 
-
-
 echoline = pyvim.echoline
 if __name__ == "__main__":
     pass
