@@ -138,6 +138,7 @@ class PopupSearch(Popup):
         self.finish_cb = finish_cb
         self.filter_cb = filter_cb
         self.focus_line_nu = 0
+        self.mode_insert = True
 
         opt = {}
         opt['minheight']       = 20
@@ -161,9 +162,19 @@ class PopupSearch(Popup):
         opt['borderhighlight'] = ['MoreMsg']
 
         self.create('', opt)
-        self.update()
+        self.update(0)
 
-    def update(self, refresh = True):
+    def move_cursor(self, off):
+        self.focus_line_nu += off
+
+        if self.focus_line_nu >= len(self.lines):
+            if len(self.lines):
+                self.focus_line_nu = self.focus_line_nu % len(self.lines)
+            else:
+                self.focus_line_nu = 0
+        self.setpos(self.focus_line_nu + 3)
+
+    def update(self, off, refresh = True):
         if refresh:
             s = self.line.str().split()
 
@@ -184,35 +195,29 @@ class PopupSearch(Popup):
 
 
         o = []
-        o.append(self.line.str_with_prompt())
+        if self.mode_insert:
+            o.append(self.line.str_with_prompt())
+        else:
+            o.append(self.line.str())
         o.append('')
 
-        if self.focus_line_nu >= len(lines):
-            if len(lines):
-                self.focus_line_nu = self.focus_line_nu % len(lines)
-            else:
-                self.focus_line_nu = 0
 
         for i, line in enumerate(lines):
             if line[-1] == '\n':
                 line = line[0:-1]
 
-            if i == self.focus_line_nu % len(line):
-                line = '> %s' % (line, )
-            else:
-                line = '  %s' % (line, )
+            line = '  %s' % (line, )
             o.append(line)
 
-
         self.settext(o)
-        self.setpos(self.focus_line_nu + 3)
+        self.move_cursor(off)
 
         return o
 
     def handle(self, key):
         if key == 9: # \t
-            self.focus_line_nu += 1
-            self.update(False)
+            self.mode_insert = False
+            self.update(1, False)
             return
 
         if key == 13: # cr
@@ -225,9 +230,30 @@ class PopupSearch(Popup):
             self.finish_cb(-1)
             return
 
-        self.focus_line_nu = 0
+        if not self.mode_insert:
+            if key == ord('q'):
+                self.close()
+                self.finish_cb(-1)
+                return
+
+            if key == ord('j'):
+                self.move_cursor(1)
+                return
+
+            if key == ord('k'):
+                self.move_cursor(-1)
+                return
+
+            if key == ord('i'):
+                self.mode_insert = True
+                self.update(0, False)
+                return
+
+            return
+
         self.line.input(key)
-        self.update()
+        self.focus_line_nu = 0
+        self.update(0)
 
 
 
