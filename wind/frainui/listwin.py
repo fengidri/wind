@@ -44,7 +44,7 @@ class OP_OPTIONS(object):
             node.FREventEmit("delete", self)
 
 
-    def refresh(self, win=None):
+    def refresh(self, win=None, opensub = False):
         del self.BFb[:]
         self.BFb[0] = self.title
         self.nodes = {}
@@ -55,7 +55,7 @@ class OP_OPTIONS(object):
         self.root.lswin = self
         self.root.root = self.root
 
-        self.root.node_open()
+        self.root.node_open(opensub)
 
         self.FREventEmit("List-ReFresh-Post")
         self.nu_refresh += 1

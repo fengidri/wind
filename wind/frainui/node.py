@@ -81,14 +81,11 @@ class Item(utils.Object):# Node与Leaf 的父类
             fa = fa.father
         return rt
 
-
-
-
-
-
 class Node(Item):
-    def __init__(self, name, ctx=None, get_child=None, display=None):
+    def __init__(self, name, ctx=None, get_child=None, display=None,
+            isdir = True):
         Item.__init__(self)
+        self.is_node = True
         self.sub_nodes       = []
         self.name            = name
         self.display         = display
@@ -96,6 +93,7 @@ class Node(Item):
         self.ctx             = ctx
         self.need_fresh      = True      # opened or not
         self.get_child       = get_child
+        self.isdir           = isdir
 
     def append(self, node):
         Item.ID += 1
@@ -135,7 +133,10 @@ class Node(Item):
         else:
             flag = '+'
 
-        return "%s,%s%s%s/" % (self.ID, "  " * (self.level  -1), flag, dp)
+        if self.isdir:
+            return "%s,%s%s%s/" % (self.ID, "  " * (self.level  -1), flag, dp)
+        else:
+            return "%s,%s%s%s" % (self.ID, "  " * (self.level  -1), flag, dp)
 
     def _open(self): # 回车 TODO
 
@@ -150,7 +151,7 @@ class Node(Item):
             self.need_fresh = False
             self.get_child(self, LIST)
 
-    def node_open(self):
+    def node_open(self, opensub = False):
         if self.opened: return
 
         logging.debug("node_open:%s" % self.name)
@@ -158,17 +159,21 @@ class Node(Item):
 
         linenu = self.getlinenu()
 
-
         self._get_child()
 
         buf = self.lswin.BFb
         buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)
 
         for n in self.sub_nodes:
-            if hasattr(n, 'opened'):
+            if n.is_node:
                 n.opened = False
             self.lswin.BFb.append(n.show(), linenu)
             linenu += 1
+
+        if opensub:
+            for n in self.sub_nodes:
+                if n.is_node:
+                    n.node_open(True)
 
 
 
@@ -200,6 +205,7 @@ class Leaf(Item):
     def __init__(self, name, ctx=None, handle=None,
             display=None, win=None, new_win=False, last_win = False):
         Item.__init__(self)
+        self.is_node = False
         self.name    = name
         self.display = display
         self.ctx     = ctx

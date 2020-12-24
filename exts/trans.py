@@ -12,6 +12,7 @@ import popup
 class g:
     lastwin = None
     lines = []
+    last = None
 
 def translate(word):
     # 有道词典 api
@@ -59,20 +60,45 @@ def dict_en(w):
         return ['Request Fail']
 
     soup = BeautifulSoup(r.text, features="html.parser")
-    ret =  soup.findAll('div', attrs={'class': 'trans-container'})[0].findNext('ul').text
+    ret = soup.findAll('div', attrs={'class': 'trans-container'})
+    if not ret:
+        return ['Request Fail']
+
+    ret = ret[0].findNext('ul').text
     return ret.split('\n')
 
 def __trans(word):
+    word = word.replace('\n', ' ')
+    if word == g.last:
+        return
+
+    g.last = word
+
     if word.find(' ') > -1:
         ret = [trans(word)]
     else:
         ret = dict_en(word)
 
     line = []
-    line.append("%s:" % word)
-    line.append('')
+    line.append(" %s:" % word)
     for r in ret:
-        line.append("   " + r)
+        r = r.strip()
+        if not r:
+            continue
+
+        index = r.find('.')
+        if index > 0:
+            index = index + 2
+        else:
+            index = 0
+
+        for i, x in enumerate(r.split('；')):
+            if i != 0:
+                indent = ' ' * index
+            else:
+                indent = ''
+            line.append("   " + indent + x)
+
 
     if g.lines:
         line.append('')
@@ -85,7 +111,7 @@ def __trans(word):
         g.lastwin.close()
         g.lastwin = None
 
-    w = popup.PopupWin(line, time=4*1000, close="click", title="Wind Trans")
+    w = popup.PopupWin(line, title="Wind Trans")
 
     g.lastwin = w
 

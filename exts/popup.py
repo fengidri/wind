@@ -25,6 +25,15 @@ def finish_cb(line_nu):
 
 @pyvim.cmd()
 def Popup():
-    p = popup.PopupSearch(filter_cb, finish_cb)
+    p = popup.PopupSystem('ping www.baidu.com')
 
+
+@pyvim.cmd()
+def PopupMenu():
+    menu = ['MailSend', 'MailNew', "Mail Mark Read"]
+
+    def finish(i):
+        print(menu[i])
+
+    popup.PopupMenu(menu, finish)
 
