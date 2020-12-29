@@ -3,7 +3,9 @@
 import vim
 import pyvim
 import popup
+import vgit
 
+import vgit.options
 
 
 def filter_cb(ws, bw):
@@ -36,4 +38,9 @@ def PopupMenu():
         print(menu[i])
 
     popup.PopupMenu(menu, finish)
+
+
+@pyvim.cmd()
+def PopupGit(line, target = None):
+    vgit.options.commit_log_append(line, target = target)
 

@@ -27,7 +27,7 @@ def handle(winid, key):
     p.handle(int(key))
 
 class Popup(object):
-    def create(self, what, op, title = '', filter_ = False):
+    def create(self, what, op, title = ''):
         opt = {}
         if op == None:
             op = {}
@@ -45,8 +45,7 @@ class Popup(object):
         opt['mapping']    = False
         opt['drag']       = True
 
-        if filter_:
-            opt['filter'] = "wind#popup_filter"
+        opt['filter'] = "wind#popup_filter"
 
         if not op.get('center'):
             opt['line'] = 'cursor+1'
@@ -68,14 +67,16 @@ class Popup(object):
         cmd = 'call setbufvar(winbufnr(%s), "&filetype", "popup")' % self.winid
         vim.command(cmd)
 
-#        cmd = 'echo getbufvar(winbufnr(%s), "&tm")' % self.winid
-#        vim.command(cmd)
-#
-#        cmd = 'echo getbufvar(winbufnr(%s), "&ttm")' % self.winid
-#        vim.command(cmd)
-#
-#        cmd = 'echo getbufvar(winbufnr(%s), "&ek")' % self.winid
-#        vim.command(cmd)
+        self.offset = 0
+        self.focus_line_nu = 0
+        self.mode_insert = False
+        self.mode_insert_allow = False
+        self.ret_bool = False
+        self.finish_cb = None
+        self.finish_cb_arg = None
+
+        self.lines = what
+
 
     def command(self, cmd):
         vimfun.win_execute(self.winid, cmd)
@@ -92,8 +93,73 @@ class Popup(object):
     def setoptions(self, opt):
         popup.setoptions(self.winid, opt)
 
+    def move_cursor(self, off):
+        self.focus_line_nu += off
+
+        if self.focus_line_nu > len(self.lines):
+            if len(self.lines):
+                self.focus_line_nu = self.focus_line_nu % len(self.lines)
+            else:
+                self.focus_line_nu = 0
+        self.setpos(self.focus_line_nu + self.offset)
+
+    def finish(self, status):
+        if self.ret_bool:
+            i = status
+        else:
+            if status:
+                i = self.focus_line_nu
+            else:
+                i = -1
+
+        if self.finish_cb:
+            if self.finish_cb_arg:
+                self.finish_cb(i, self.finish_cb_arg)
+            else:
+                self.finish_cb(i)
+
     def handle(self, key):
-        pass
+        if key == 9: # \t
+            self.mode_insert = False
+            self.update(1, False)
+            return
+
+        if key == 13: # cr
+            self.close()
+            self.finish(True)
+            return
+
+        if key == 0x1B: # <esc>
+            self.close()
+            self.finish(False)
+            return
+
+        if not self.mode_insert:
+            if key == ord('q'):
+                self.close()
+                self.finish(False)
+                return
+
+            if key == ord('j'):
+                self.move_cursor(1)
+                return
+
+            if key == ord('k'):
+                self.move_cursor(-1)
+                return
+
+            if key == ord('i'):
+                if not self.mode_insert_allow:
+                    return
+                self.mode_insert = True
+                self.update(0, False)
+                return
+
+            return
+
+        self.line.input(key)
+        self.focus_line_nu = 0
+        self.update(0)
 
 
 class Line(object):
@@ -128,12 +194,20 @@ class Line(object):
 
 class PopupWin(Popup):
     def __init__(self, lines, title = '', **popup_opt):
-        self.create(lines, popup_opt, title = title, filter_ = False)
-
+        self.create(lines, popup_opt, title = title)
 
 class PopupDialog(Popup):
-    def __init__(self, **popup_opt):
-        self.create('', popup_opt)
+    def __init__(self, msg, finish_cb = None, arg = None, **popup_opt):
+        if isinstance(msg, str):
+            msg = msg.split('\n')
+
+        popup_opt['center'] = True
+        self.create(msg, popup_opt)
+
+        self.finish_cb = finish_cb
+        self.finish_cb_arg = arg
+        self.ret_bool = True
+
 
 class PopupSystem(Popup):
     def __init__(self, cmd, **popup_opt):
@@ -153,74 +227,52 @@ class PopupSystem(Popup):
             self.lines.extend(lines)
             self.settext(self.lines)
 
-class PopupMenu(Popup):
-    def __init__(self, menu, finish_cb, title = 'Popup Menu', **popup_opt):
-        self.finish_cb     = finish_cb
-        self.focus_line_nu = 1
+class PopupSelect(Popup):
+    def __init__(self, sel, finish_cb, target = None, title = 'Popup Select', **popup_opt):
 
         popup_opt['cursorline'] = True
         popup_opt['center'] = True
-        popup_opt['minheight']  = 20
+
+        h = min(20, len(sel) + 2)
+        popup_opt['minheight']  = h
         popup_opt['minwidth']   = 45
-        popup_opt['maxheight']  = 20
+        popup_opt['maxheight']  = h
         popup_opt['maxwidth']   = 45
 
-        self.menu = menu
-        self.create(menu, popup_opt, filter_ = True, title = title)
+        self.create(sel, popup_opt, title = title)
 
-    def move_cursor(self, off):
-        self.focus_line_nu += off
+        self.lines = sel
+        self.finish_cb = finish_cb
+        self.offset    = 1
 
-        if self.focus_line_nu > len(self.menu):
-            if len(self.menu):
-                self.focus_line_nu = self.focus_line_nu % len(self.menu)
-            else:
-                self.focus_line_nu = 0
-        self.setpos(self.focus_line_nu)
+        if target:
+            for i, l in enumerate(sel):
+                if l.find(target) > -1:
+                    self.move_cursor(i)
+                    break
 
-    def handle(self, key):
-        if key == ord('j'):
-            self.move_cursor(1)
-            return
 
-        if key == ord('k'):
-            self.move_cursor(-1)
-            return
 
-        if key == 13: # cr
-            self.close()
-            self.finish_cb(self.focus_line_nu - 1)
-            return
-
-        if key == 0x1B: # <esc>
-            self.close()
-            self.finish_cb(-1)
-            return
+class PopupMenu(PopupSelect):
+    def __init__(self, menu, finish_cb, title = 'Popup Menu'):
+        PopupMenu.__init__(self, menu, finish_cb)
 
 
 class PopupSearch(Popup):
     def __init__(self, filter_cb, finish_cb, title = 'Popup Search', **popup_opt):
+        popup_opt['cursorline'] = True
+
+        self.create('', popup_opt, title = title)
+
         self.line          = Line(prompt = 'Search> ')
         self.finish_cb     = finish_cb
         self.filter_cb     = filter_cb
-        self.focus_line_nu = 0
+        self.offset = 3
+
         self.mode_insert   = True
-
-        popup_opt['cursorline'] = True
-
-        self.create('', popup_opt, filter_ = True, title = title)
+        self.mode_insert_allow = True
 
         self.update(0)
-
-    def move_cursor(self, off):
-        self.focus_line_nu += off
-
-        if self.focus_line_nu >= len(self.lines):
-            if len(self.lines):
-                self.focus_line_nu = self.focus_line_nu % len(self.lines)
-            else:
-                self.focus_line_nu = 0
-        self.setpos(self.focus_line_nu + 3)
 
     def update(self, off, refresh = True):
         if refresh:
@@ -261,78 +313,5 @@ class PopupSearch(Popup):
         self.move_cursor(off)
 
         return o
-
-    def handle(self, key):
-        if key == 9: # \t
-            self.mode_insert = False
-            self.update(1, False)
-            return
-
-        if key == 13: # cr
-            self.close()
-            self.finish_cb(self.focus_line_nu)
-            return
-
-        if key == 0x1B: # <esc>
-            self.close()
-            self.finish_cb(-1)
-            return
-
-        if not self.mode_insert:
-            if key == ord('q'):
-                self.close()
-                self.finish_cb(-1)
-                return
-
-            if key == ord('j'):
-                self.move_cursor(1)
-                return
-
-            if key == ord('k'):
-                self.move_cursor(-1)
-                return
-
-            if key == ord('i'):
-                self.mode_insert = True
-                self.update(0, False)
-                return
-
-            return
-
-        self.line.input(key)
-        self.focus_line_nu = 0
-        self.update(0)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
