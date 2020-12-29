@@ -6,19 +6,25 @@ from . import output
 from . import common
 import popup
 
+def __commit_log_append(p, arg):
+    p.append("=== option log ====")
+    cmsg, chash = arg
+
+    commit.run = p.run
+
+    nid = commit.change(chash, cmsg)
+    p.append('')
+    p.append("=== new git log ====")
+    if not nid:
+        p.run('git log -1 --no-color')
+    else:
+        p.run('git log %s~..HEAD --no-color' % nid)
+
 def _commit_log_append(status, arg):
     if not status:
         return
 
-    cmsg, chash = arg
-    nid = commit.change(chash, cmsg)
-
-    if not nid:
-        common.run('git log -1 --no-color')
-    else:
-        common.run('git log %s..HEAD --no-color' % nid)
-
-    popup.PopupDialog(output.buf, title = 'git option log')
+    popup.PopupRun(__commit_log_append, arg)
 
 def commit_log_append(line, target = None, num = 20):
     output.clean()

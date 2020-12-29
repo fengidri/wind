@@ -148,6 +148,10 @@ class Popup(object):
                 self.move_cursor(-1)
                 return
 
+            if key == 32: # space
+                self.move_cursor(5)
+                return
+
             if key == ord('i'):
                 if not self.mode_insert_allow:
                     return
@@ -202,11 +206,38 @@ class PopupDialog(Popup):
             msg = msg.split('\n')
 
         popup_opt['center'] = True
+        popup_opt['cursorline'] = True
         self.create(msg, popup_opt)
 
         self.finish_cb = finish_cb
         self.finish_cb_arg = arg
         self.ret_bool = True
+
+class PopupRun(Popup):
+    def __init__(self, fun, arg, finish_cb = None, **popup_opt):
+        self.buf = []
+
+        fun(self, arg)
+
+        popup_opt['center'] = True
+        popup_opt['cursorline'] = True
+
+        self.create(self.buf, popup_opt)
+
+        self.finish_cb = finish_cb
+        self.ret_bool = True
+
+    def run(self, cmd):
+        self.append("$ " + cmd)
+        p = subprocess.run(cmd, shell = True,
+                stdout = subprocess.PIPE,
+                stderr = subprocess.STDOUT, text = True)
+
+        if p.stdout:
+            self.buf.extend(p.stdout.split('\n'))
+
+    def append(self, line):
+        self.buf.append(line)
 
 
 class PopupSystem(Popup):
@@ -251,8 +282,6 @@ class PopupSelect(Popup):
                     self.move_cursor(i)
                     break
 
-
-
 class PopupMenu(PopupSelect):
     def __init__(self, menu, finish_cb, title = 'Popup Menu'):
         PopupMenu.__init__(self, menu, finish_cb)
@@ -264,10 +293,10 @@ class PopupSearch(Popup):
 
         self.create('', popup_opt, title = title)
 
-        self.line          = Line(prompt = 'Search> ')
-        self.finish_cb     = finish_cb
-        self.filter_cb     = filter_cb
-        self.offset = 3
+        self.line      = Line(prompt = 'Search> ')
+        self.finish_cb = finish_cb
+        self.filter_cb = filter_cb
+        self.offset    = 3
 
         self.mode_insert   = True
         self.mode_insert_allow = True

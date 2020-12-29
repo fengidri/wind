@@ -7,8 +7,6 @@ from . import common
 
 run = common.run
 
-
-
 def amend(msg, log='/dev/null'):
     if msg:
         f = '/tmp/tmp-kernel-patch-%s-%s'  % (time.time(), os.getpid())
