@@ -27,7 +27,7 @@ def handle(winid, key):
     p.handle(int(key))
 
 class Popup(object):
-    def create(self, what, op, title = ''):
+    def create(self, what, op, title = '', filetype = None):
         opt = {}
         if op == None:
             op = {}
@@ -57,6 +57,9 @@ class Popup(object):
 
         opt.update(op)
 
+        if isinstance(what, str):
+            what = what.split('\n')
+
         self.winid = popup.create(what, opt)
         self.bufid = vim.eval('winbufnr(%s)' % self.winid)
 
@@ -64,10 +67,16 @@ class Popup(object):
 
         vimfun.setwinvar(self.winid, '&wincolor', 'Normal')
 
-        cmd = 'call setbufvar(winbufnr(%s), "&filetype", "popup")' % self.winid
-        vim.command(cmd)
+        if filetype:
+            cmd = 'call setbufvar(winbufnr(%s), "&filetype", "%s")' % (self.winid, filetype)
+            vim.command(cmd)
 
-        self.offset = 0
+        cmd = 'syn keyword Label Search'
+        self.command(cmd)
+        cmd = "syn match WildMenu '^> '"
+        self.command(cmd)
+
+        self.offset = 1
         self.focus_line_nu = 0
         self.mode_insert = False
         self.mode_insert_allow = False
@@ -202,9 +211,6 @@ class PopupWin(Popup):
 
 class PopupDialog(Popup):
     def __init__(self, msg, finish_cb = None, arg = None, **popup_opt):
-        if isinstance(msg, str):
-            msg = msg.split('\n')
-
         popup_opt['center'] = True
         popup_opt['cursorline'] = True
         self.create(msg, popup_opt)
@@ -214,15 +220,19 @@ class PopupDialog(Popup):
         self.ret_bool = True
 
 class PopupRun(Popup):
-    def __init__(self, fun, arg, finish_cb = None, **popup_opt):
+    def __init__(self, fun, arg = None, finish_cb = None, **popup_opt):
         self.buf = []
 
-        fun(self, arg)
+        if isinstance(fun, str):
+            self.run(fun)
+        else:
+            fun(self, arg)
 
         popup_opt['center'] = True
         popup_opt['cursorline'] = True
 
         self.create(self.buf, popup_opt)
+        self.command("ColorHighlight")
 
         self.finish_cb = finish_cb
         self.ret_bool = True
@@ -266,15 +276,11 @@ class PopupSelect(Popup):
 
         h = min(20, len(sel) + 2)
         popup_opt['minheight']  = h
-        popup_opt['minwidth']   = 45
         popup_opt['maxheight']  = h
-        popup_opt['maxwidth']   = 45
 
         self.create(sel, popup_opt, title = title)
 
-        self.lines = sel
         self.finish_cb = finish_cb
-        self.offset    = 1
 
         if target:
             for i, l in enumerate(sel):
@@ -284,14 +290,16 @@ class PopupSelect(Popup):
 
 class PopupMenu(PopupSelect):
     def __init__(self, menu, finish_cb, title = 'Popup Menu'):
-        PopupMenu.__init__(self, menu, finish_cb)
+        PopupSelect.__init__(self, menu, finish_cb, minwidth = 45, maxwidth = 45)
 
 
 class PopupSearch(Popup):
-    def __init__(self, filter_cb, finish_cb, title = 'Popup Search', **popup_opt):
+    def __init__(self, filter_cb, finish_cb, title = 'Popup Search',
+            filetype = None,
+            **popup_opt):
         popup_opt['cursorline'] = True
 
-        self.create('', popup_opt, title = title)
+        self.create('', popup_opt, title = title, filetype = filetype)
 
         self.line      = Line(prompt = 'Search> ')
         self.finish_cb = finish_cb

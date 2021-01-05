@@ -4,6 +4,7 @@
 
 import popup
 from . import log
+from . import branch
 
 
 def commit_choose(cb, num = 20, target = None):
@@ -19,4 +20,5 @@ def commit_choose(cb, num = 20, target = None):
 
         cb(l[i][0])
 
-    popup.PopupSelect(o, _f, target = target, title = 'commit choose')
+    title = 'Commit Choose: %s' % branch.branch()
+    popup.PopupSelect(o, _f, target = target, title = title)

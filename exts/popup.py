@@ -44,3 +44,8 @@ def PopupMenu():
 def PopupGit(line, target = None):
     vgit.options.commit_log_append(line, target = target)
 
+@pyvim.cmd()
+def GitLog(n = 10):
+    popup.PopupRun('git log -%s' % n)
+
+

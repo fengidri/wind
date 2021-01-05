@@ -67,9 +67,19 @@ def dict_en(w):
     ret = ret[0].findNext('ul').text
     return ret.split('\n')
 
+def show():
+    if g.lastwin:
+        g.lastwin.close()
+        g.lastwin = None
+
+    w = popup.PopupWin(g.lines, title="Wind Trans")
+
+    g.lastwin = w
+
 def __trans(word):
     word = word.replace('\n', ' ')
     if word == g.last:
+        show()
         return
 
     g.last = word
@@ -106,14 +116,8 @@ def __trans(word):
         line.extend(g.lines)
 
     g.lines = line
+    show()
 
-    if g.lastwin:
-        g.lastwin.close()
-        g.lastwin = None
-
-    w = popup.PopupWin(line, title="Wind Trans")
-
-    g.lastwin = w
 
 @pyvim.cmd()
 def Trans(word = None):
