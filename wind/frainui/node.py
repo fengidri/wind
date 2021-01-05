@@ -25,8 +25,14 @@ class Item(utils.Object):# Node与Leaf 的父类
 
 
     def getlinenu(self):
+        if self.lswin.lines:
+            lines = self.lswin.lines
+        else:
+            lines = self.lswin.BFb
+
         num = 0
-        for linenu, line in enumerate(self.lswin.BFb):
+
+        for linenu, line in enumerate(lines):
             try:
                 ID = int(line.split(',', 1)[0])
                 if ID == self.ID:
@@ -151,29 +157,29 @@ class Node(Item):
             self.need_fresh = False
             self.get_child(self, LIST)
 
-    def node_open(self, opensub = False):
+    def node_open(self, opensub = False, linenu = None):
         if self.opened: return
 
-        logging.debug("node_open:%s" % self.name)
         self.opened = True
 
-        linenu = self.getlinenu()
+        if linenu == None:
+            linenu = self.getlinenu()
 
         self._get_child()
 
-        buf = self.lswin.BFb
-        buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)
+        buf = self.lswin.lines
+        if len(buf) >= linenu:
+            buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)
 
         for n in self.sub_nodes:
+            self.lswin.append(n.show(), linenu)
+            linenu += 1
             if n.is_node:
                 n.opened = False
-            self.lswin.BFb.append(n.show(), linenu)
-            linenu += 1
+                if opensub:
+                    linenu = n.node_open(True, linenu)
 
-        if opensub:
-            for n in self.sub_nodes:
-                if n.is_node:
-                    n.node_open(True)
+        return linenu + 1
 
 
 

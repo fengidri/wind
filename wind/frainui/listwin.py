@@ -46,7 +46,9 @@ class OP_OPTIONS(object):
 
     def refresh(self, win=None, opensub = False):
         del self.BFb[:]
-        self.BFb[0] = self.title
+
+        self.lines = []
+        self.lines.append(self.title)
         self.nodes = {}
 
         self.FREventEmit("List-ReFresh-Pre")
@@ -55,10 +57,15 @@ class OP_OPTIONS(object):
         self.root.lswin = self
         self.root.root = self.root
 
-        self.root.node_open(opensub)
+        self.root.node_open(opensub, 2)
 
         self.FREventEmit("List-ReFresh-Post")
         self.nu_refresh += 1
+
+        self.BFb[0] = self.lines[0]
+        del self.lines[0]
+        self.BFb.append(self.lines)
+        self.lines = []
 
 class NODE(object):
     def getnode(self, linenu = None):
@@ -90,6 +97,8 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
                  ):
         frainui.BF.__init__(self)
         node.LIST = self
+
+        self.lines = []
 
         self.FRRegister(name)
 
@@ -193,5 +202,11 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
         except:
             path = route[1].name
         self.BFb.vars['frain_status_path'] = path
+
+    def append(self, line, index = None):
+        if index:
+            self.lines.insert(index, line)
+        else:
+            self.lines.append(line)
 
 
