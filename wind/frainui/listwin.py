@@ -57,15 +57,16 @@ class OP_OPTIONS(object):
         self.root.lswin = self
         self.root.root = self.root
 
-        self.root.node_open(opensub, 2)
+        self.root.node_open(opensub, 0, isroot = True)
+
+        self.BFb[0] = self.title
+        del self.lines[0]
+        self.BFb.append(self.lines)
+        self.lines = None
 
         self.FREventEmit("List-ReFresh-Post")
         self.nu_refresh += 1
 
-        self.BFb[0] = self.lines[0]
-        del self.lines[0]
-        self.BFb.append(self.lines)
-        self.lines = []
 
 class NODE(object):
     def getnode(self, linenu = None):
@@ -204,9 +205,52 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
         self.BFb.vars['frain_status_path'] = path
 
     def append(self, line, index = None):
+        if self.lines == None:
+            self.BFb.append(line, index + 1)
+            return
+
         if index:
-            self.lines.insert(index, line)
+            self.lines.insert(index + 1, line)
         else:
             self.lines.append(line)
+
+    def getline(self, index):
+        if self.lines == None:
+            return self.BFb[index]
+
+        return self.lines[index]
+
+    def setline(self, index, line):
+        if self.lines == None:
+            self.BFb[index] = line
+            return
+
+        self.lines[index] = line
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

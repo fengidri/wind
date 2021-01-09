@@ -72,43 +72,44 @@ def show():
         g.lastwin.close()
         g.lastwin = None
 
-    w = popup.PopupWin(g.lines, title="Wind Trans")
+    w = popup.PopupWin(g.lines, title="Wind Trans", any_close = True, maxwidth=40)
 
     g.lastwin = w
 
-def __trans(word):
-    word = word.replace('\n', ' ')
-    if word == g.last:
-        show()
-        return
-
-    g.last = word
-
-    if word.find(' ') > -1:
-        ret = [trans(word)]
-    else:
-        ret = dict_en(word)
-
+def format(word, ret):
     line = []
     line.append(" %s:" % word)
+
     for r in ret:
         r = r.strip()
         if not r:
             continue
 
-        index = r.find('.')
-        if index > 0:
-            index = index + 2
+        t = r.split('.', 1)
+        if len(t) == 2:
+            prefix = t[0] + '.'
+            r = t[1]
         else:
-            index = 0
+            prefix = ''
+            r = r[0]
 
-        for i, x in enumerate(r.split('；')):
+        ind = 5
+        for i, x in enumerate(r.strip().split('；')):
             if i != 0:
-                indent = ' ' * index
+                indent = ' ' * ind
             else:
-                indent = ''
-            line.append("   " + indent + x)
+                indent = prefix.ljust(ind)
 
+            line.append("   " + indent + x)
+    return line
+
+def trans_handle(word):
+    if word.find(' ') > -1:
+        ret = [trans(word)]
+    else:
+        ret = dict_en(word)
+
+    line = format(word, ret)
 
     if g.lines:
         line.append('')
@@ -116,6 +117,13 @@ def __trans(word):
         line.extend(g.lines)
 
     g.lines = line
+
+def __trans(word):
+    word = word.replace('\n', ' ')
+    if word != g.last:
+        g.last = word
+        trans_handle(word)
+
     show()
 
 

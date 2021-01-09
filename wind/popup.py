@@ -84,6 +84,9 @@ class Popup(object):
         self.finish_cb = None
         self.finish_cb_arg = None
 
+        # any input as quit
+        self.any_close = False
+
         self.lines = what
 
 
@@ -128,6 +131,11 @@ class Popup(object):
                 self.finish_cb(i)
 
     def handle(self, key):
+        if self.any_close:
+            self.close()
+            self.finish(False)
+            return
+
         if key == 9: # \t
             self.mode_insert = False
             self.update(1, False)
@@ -206,8 +214,10 @@ class Line(object):
 
 
 class PopupWin(Popup):
-    def __init__(self, lines, title = '', **popup_opt):
+    def __init__(self, lines, title = '', any_close = False, **popup_opt):
         self.create(lines, popup_opt, title = title)
+        if any_close: # first for trans
+            self.any_close = True
 
 class PopupDialog(Popup):
     def __init__(self, msg, finish_cb = None, arg = None, **popup_opt):
@@ -220,7 +230,7 @@ class PopupDialog(Popup):
         self.ret_bool = True
 
 class PopupRun(Popup):
-    def __init__(self, fun, arg = None, finish_cb = None, **popup_opt):
+    def __init__(self, fun, arg = None, finish_cb = None, title = "Popup Run", **popup_opt):
         self.buf = []
 
         if isinstance(fun, str):
@@ -231,20 +241,41 @@ class PopupRun(Popup):
         popup_opt['center'] = True
         popup_opt['cursorline'] = True
 
-        self.create(self.buf, popup_opt)
+        self.create(self.buf, popup_opt, title = title)
         self.command("ColorHighlight")
 
         self.finish_cb = finish_cb
         self.ret_bool = True
 
-    def run(self, cmd):
-        self.append("$ " + cmd)
+    def run(self, cmd, stdin = None):
+        if isinstance(cmd, str):
+            self.append("$ " + cmd)
+        else:
+            self.append("$ " + ' '.join(cmd))
+
+
         p = subprocess.run(cmd, shell = True,
+                stdin = subprocess.PIPE,
                 stdout = subprocess.PIPE,
                 stderr = subprocess.STDOUT, text = True)
 
-        if p.stdout:
-            self.buf.extend(p.stdout.split('\n'))
+        if stdin:
+            p = subprocess.Popen(cmd,
+                    stdin = subprocess.PIPE,
+                    stdout = subprocess.PIPE,
+                    stderr = subprocess.STDOUT)
+            out,err = p.communicate(stdin)
+            self.buf.extend(out.decode('utf8').split('\n'))
+        else:
+            p = subprocess.run(cmd, shell = True,
+                    stdin = subprocess.PIPE,
+                    stdout = subprocess.PIPE,
+                    stderr = subprocess.STDOUT, text = True)
+            if p.stdout:
+                self.buf.extend(p.stdout.split('\n'))
+
+
+        return p.returncode
 
     def append(self, line):
         self.buf.append(line)

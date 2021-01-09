@@ -89,17 +89,18 @@ class Item(utils.Object):# Node与Leaf 的父类
 
 class Node(Item):
     def __init__(self, name, ctx=None, get_child=None, display=None,
-            isdir = True):
+                isdir = True, defopen = False):
         Item.__init__(self)
-        self.is_node = True
-        self.sub_nodes       = []
-        self.name            = name
-        self.display         = display
-        self.opened          = False
-        self.ctx             = ctx
-        self.need_fresh      = True      # opened or not
-        self.get_child       = get_child
-        self.isdir           = isdir
+        self.is_node    = True
+        self.sub_nodes  = []
+        self.name       = name
+        self.display    = display
+        self.opened     = False
+        self.ctx        = ctx
+        self.need_fresh = True      # opened or not
+        self.get_child  = get_child
+        self.isdir      = isdir
+        self.defopen    = defopen  # default open
 
     def append(self, node):
         Item.ID += 1
@@ -157,29 +158,33 @@ class Node(Item):
             self.need_fresh = False
             self.get_child(self, LIST)
 
-    def node_open(self, opensub = False, linenu = None):
+    def node_open(self, opensub = False, index = None, isroot = False):
         if self.opened: return
 
         self.opened = True
 
-        if linenu == None:
-            linenu = self.getlinenu()
+        if index == None:
+            index = self.getlinenu() - 1
+
+        # index is the current node index
 
         self._get_child()
 
-        buf = self.lswin.lines
-        if len(buf) >= linenu:
-            buf[linenu - 1] = buf[linenu - 1].replace('+', '-', 1)
+        if not isroot:
+            line = self.lswin.getline(index)
+            line = line.replace('+', '-', 1)
+            self.lswin.setline(index, line)
 
         for n in self.sub_nodes:
-            self.lswin.append(n.show(), linenu)
-            linenu += 1
+            # add new node after the current index
+            self.lswin.append(n.show(), index)
+            index += 1
             if n.is_node:
                 n.opened = False
-                if opensub:
-                    linenu = n.node_open(True, linenu)
+                if opensub or n.defopen:
+                    index = n.node_open(True, index)
 
-        return linenu + 1
+        return index
 
 
 
