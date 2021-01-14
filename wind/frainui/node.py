@@ -143,7 +143,7 @@ class Node(Item):
         if self.isdir:
             return "%s,%s%s%s/" % (self.ID, "  " * (self.level  -1), flag, dp)
         else:
-            return "%s,%s%s%s" % (self.ID, "  " * (self.level  -1), flag, dp)
+            return "%s,%s%s" % (self.ID, flag, dp)
 
     def _open(self): # 回车 TODO
 
@@ -214,7 +214,7 @@ class Node(Item):
 
 class Leaf(Item):
     def __init__(self, name, ctx=None, handle=None,
-            display=None, win=None, new_win=False, last_win = False):
+            display=None, win=None, new_win=False, last_win = False, noindent = False):
         Item.__init__(self)
         self.is_node = False
         self.name    = name
@@ -224,13 +224,19 @@ class Leaf(Item):
         self.win = win
         self.new_win = new_win
         self.last_win = last_win
+        self.noindent = noindent
 
     def show(self):
         if self.display:
             dp = self.display
         else:
             dp = self.name
-        return "%s,%s %s" % (self.ID, "  " * (self.level  -1), dp)
+
+        if self.noindent:
+            return "%s,%s" % (self.ID, dp)
+        else:
+            return "%s,%s %s" % (self.ID, "  " * (self.level  -1), dp)
+
 
     def node_open(self):
         self._open()
