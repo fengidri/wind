@@ -146,6 +146,8 @@ class Popup(object):
         self.setpos(self.focus_line_nu + self.offset)
 
     def finish(self, status):
+        self.close()
+
         if self.ret_bool:
             i = status
         else:
@@ -162,8 +164,12 @@ class Popup(object):
 
     def handle(self, key):
         if self.any_close:
-            self.close()
             self.finish(False)
+            return
+
+        if key in self.hotmaps:
+            self.focus_line_nu = self.hotmaps[key]
+            self.finish(True)
             return
 
         if key == 9: # \t
@@ -172,18 +178,15 @@ class Popup(object):
             return
 
         if key == 13: # cr
-            self.close()
             self.finish(True)
             return
 
         if key == 0x1B: # <esc>
-            self.close()
             self.finish(False)
             return
 
         if not self.mode_insert:
             if key == ord('q'):
-                self.close()
                 self.finish(False)
                 return
 
