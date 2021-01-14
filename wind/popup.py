@@ -198,6 +198,14 @@ class Popup(object):
                 self.move_cursor(-1)
                 return
 
+            if key == ord('G'):
+                self.move_cursor(1, goto_buttom = True)
+                return
+
+            if key == ord('g'):
+                self.move_cursor(1, goto_top = True)
+                return
+
             if key == 32: # space
                 self.move_cursor(5)
                 return
