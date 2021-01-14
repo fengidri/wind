@@ -36,12 +36,15 @@ class Popup(object):
         opt['minwidth']   = 75
         opt['maxheight']  = 20
         opt['maxwidth']   = 75
+
         opt['title']      = title
         opt['border']     = [1, 1, 1, 1]
         opt['padding']    = [0, 1, 1, 1]
         opt['wrap']       = False
         opt['scrollbar']  = 0
+
         opt['moved']      = 'any'
+
         opt['mapping']    = False
         opt['drag']       = True
 
@@ -56,6 +59,12 @@ class Popup(object):
         opt['borderchars'] = [' ']
 
         opt.update(op)
+        _ = opt
+        opt = {}
+
+        for k, v in _.items():
+            if v != None:
+                opt[k] =v
 
         if isinstance(what, str):
             what = what.split('\n')
@@ -71,10 +80,6 @@ class Popup(object):
             cmd = 'call setbufvar(winbufnr(%s), "&filetype", "%s")' % (self.winid, filetype)
             vim.command(cmd)
 
-        cmd = 'syn keyword Label Search'
-        self.command(cmd)
-        cmd = "syn match WildMenu '^> '"
-        self.command(cmd)
 
         self.offset = 1
         self.focus_line_nu = 0
@@ -341,6 +346,11 @@ class PopupSearch(Popup):
         self.mode_insert_allow = True
 
         self.update(0)
+
+        cmd = 'syn keyword Label Search'
+        self.command(cmd)
+        cmd = "syn match WildMenu '^> '"
+        self.command(cmd)
 
     def update(self, off, refresh = True):
         if refresh:
