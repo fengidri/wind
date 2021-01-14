@@ -66,6 +66,8 @@ class Popup(object):
             if v != None:
                 opt[k] =v
 
+        opt['cursorline']  = True # must this for scroll
+
         if isinstance(what, str):
             what = what.split('\n')
 
@@ -80,6 +82,14 @@ class Popup(object):
             cmd = 'call setbufvar(winbufnr(%s), "&filetype", "%s")' % (self.winid, filetype)
             vim.command(cmd)
 
+        self.cursorline = op.get('cursorline')
+
+        if not self.cursorline:
+            # popup cursorline use the hi PmenuSel
+            cmd = 'hi PmenuSel guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=NONE'
+            self.command(cmd)
+            cmd = 'hi def link PopupCursor CursorColumn'
+            self.command(cmd)
 
         self.offset = 1
         self.focus_line_nu = 0
@@ -87,18 +97,27 @@ class Popup(object):
         self.mode_insert_allow = False
         self.ret_bool = False
         self.finish_cb = None
+        self.cr_handler = self.finish
         self.finish_cb_arg = None
 
         # any input as quit
         self.any_close = False
 
         self.lines = what
+        self.hotmaps = {}
+
 
 
     def command(self, cmd):
         vimfun.win_execute(self.winid, cmd)
 
     def setpos(self, line, col = 0):
+        if not self.cursorline:
+            cmd = 'silent! syntax clear PopupCursor'
+            self.command(cmd)
+            cmd = 'syntax match PopupCursor "\\%%%dl^."' % line
+            self.command(cmd)
+
         self.command("call setpos('.', [0, %s, %s,0])"% (line, col))
 
     def close(self):
