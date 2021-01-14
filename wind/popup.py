@@ -270,6 +270,23 @@ class PopupDialog(Popup):
         self.finish_cb_arg = arg
         self.ret_bool = True
 
+class PopupTips(Popup):
+    def __init__(self, what, title = "Popup Tips", **popup_opt):
+        popup_opt['center'] = True
+        popup_opt['cursorline'] = False
+        popup_opt['wrap'] = False
+        popup_opt['filter'] = None
+        popup_opt['moved'] = None
+        popup_opt['line'] = 1
+        popup_opt['col'] = vim.current.window.width
+        popup_opt['pos'] = 'topright'
+        popup_opt['minheight']  = 10
+        popup_opt['minwidth']   = 35
+        popup_opt['maxheight']  = 10
+        popup_opt['maxwidth']   = 45
+
+        self.create(what, popup_opt, title = title)
+
 class PopupRun(Popup):
     def __init__(self, fun, arg = None, finish_cb = None, title = "Popup Run", **popup_opt):
         self.buf = []
