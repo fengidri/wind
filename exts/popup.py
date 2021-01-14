@@ -26,9 +26,12 @@ def finish_cb(line_nu):
     vim.current.buffer[0] = str(line_nu)
 
 @pyvim.cmd()
-def Popup():
-    p = popup.PopupSystem('ping www.baidu.com')
+def PopupRun():
+    p = popup.PopupRun('ls -l /tmp/mail.link')
 
+@pyvim.cmd()
+def PopupTips():
+    p = popup.PopupTips('hello')
 
 @pyvim.cmd()
 def PopupMenu():

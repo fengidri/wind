@@ -382,9 +382,40 @@ class PopupSelect(Popup):
                     break
 
 class PopupMenu(PopupSelect):
-    def __init__(self, menu, finish_cb, title = 'Popup Menu'):
-        PopupSelect.__init__(self, menu, finish_cb, minwidth = 45, maxwidth = 45)
+    def __init__(self, menu, title = 'Popup Menu'):
+        self.menu = menu
+        show = list(list(zip(*menu))[0])
 
+
+        hotmaps = {}
+        for i, l in enumerate(show):
+            for c in l:
+                c = c.upper()
+                k = ord(c)
+                if k < ord('A') or k > ord('Z'):
+                    continue
+
+                if k not in hotmaps:
+                    hotmaps[k] = i
+                    show[i] = '%s. %s' % (c, l)
+                    break
+
+        PopupSelect.__init__(self, show, self.finish_cb, minwidth = 45, maxwidth = 45)
+
+        self.hotmaps = hotmaps
+
+    def finish_cb(self, i):
+        if i < 0:
+            return
+        m = self.menu[i]
+        if m[1] == None:
+            return
+
+        handler = m[1]
+        if len(m) >= 3:
+            handler(m[2])
+        else:
+            handler()
 
 class PopupSearch(Popup):
     def __init__(self, filter_cb, finish_cb, title = 'Popup Search',
