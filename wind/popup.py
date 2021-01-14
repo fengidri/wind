@@ -129,14 +129,20 @@ class Popup(object):
     def setoptions(self, opt):
         popup.setoptions(self.winid, opt)
 
-    def move_cursor(self, off):
+    def move_cursor(self, off, goto_buttom = False, goto_top = False):
         self.focus_line_nu += off
 
-        if self.focus_line_nu > len(self.lines):
-            if len(self.lines):
-                self.focus_line_nu = self.focus_line_nu % len(self.lines)
-            else:
-                self.focus_line_nu = 0
+        if self.focus_line_nu >= len(self.lines):
+            self.focus_line_nu = len(self.lines) - 1
+
+        if goto_buttom:
+            self.focus_line_nu = len(self.lines) - 1
+        elif goto_top:
+            self.focus_line_nu = 0
+
+        if self.focus_line_nu < 0:
+            self.focus_line_nu = 0
+
         self.setpos(self.focus_line_nu + self.offset)
 
     def finish(self, status):
