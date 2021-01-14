@@ -293,11 +293,15 @@ class PopupRun(Popup):
 
         if isinstance(fun, str):
             self.run(fun)
+        elif isinstance(fun, list):
+            for s in fun:
+                self.run(s)
         else:
             fun(self, arg)
 
         popup_opt['center'] = True
-        popup_opt['cursorline'] = True
+        popup_opt['cursorline'] = False
+        popup_opt['wrap'] = True
 
         self.create(self.buf, popup_opt, title = title)
         self.command("ColorHighlight")
