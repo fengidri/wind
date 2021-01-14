@@ -67,9 +67,17 @@ class Popup(object):
                 opt[k] =v
 
         opt['cursorline']  = True # must this for scroll
+        self.cursorline = op.get('cursorline')
+        if not self.cursorline:
+            self.fake_curosr = True # fake curosr or curosr line for line number
 
         if isinstance(what, str):
             what = what.split('\n')
+
+        if self.fake_curosr:
+            for i,l in enumerate(what):
+                if l == '':
+                    what[i] = ' '
 
         self.winid = popup.create(what, opt)
         self.bufid = vim.eval('winbufnr(%s)' % self.winid)
@@ -82,14 +90,15 @@ class Popup(object):
             cmd = 'call setbufvar(winbufnr(%s), "&filetype", "%s")' % (self.winid, filetype)
             vim.command(cmd)
 
-        self.cursorline = op.get('cursorline')
+        if self.fake_curosr:
+            self.command("set nu")
 
-        if not self.cursorline:
-            # popup cursorline use the hi PmenuSel
-            cmd = 'hi PmenuSel guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=NONE'
-            self.command(cmd)
-            cmd = 'hi def link PopupCursor CursorColumn'
-            self.command(cmd)
+            if self.fake_curosr:
+                # popup cursorline use the hi PmenuSel
+                cmd = 'hi PmenuSel guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=NONE'
+                self.command(cmd)
+                cmd = 'hi def link PopupCursor CursorColumn'
+                self.command(cmd)
 
         self.offset = 1
         self.focus_line_nu = 0
@@ -112,7 +121,7 @@ class Popup(object):
         vimfun.win_execute(self.winid, cmd)
 
     def setpos(self, line, col = 0):
-        if not self.cursorline:
+        if self.fake_curosr:
             cmd = 'silent! syntax clear PopupCursor'
             self.command(cmd)
             cmd = 'syntax match PopupCursor "\\%%%dl^."' % line
@@ -302,8 +311,13 @@ class PopupRun(Popup):
         popup_opt['center'] = True
         popup_opt['cursorline'] = False
         popup_opt['wrap'] = True
+        popup_opt['minheight']  = 20
+        popup_opt['minwidth']   = 85
+        popup_opt['maxheight']  = 20
+        popup_opt['maxwidth']   = 85
 
         self.create(self.buf, popup_opt, title = title)
+        # 支持终端转义 color, Colorizer plugin
         self.command("ColorHighlight")
 
         self.finish_cb = finish_cb
