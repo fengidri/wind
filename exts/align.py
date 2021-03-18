@@ -8,6 +8,99 @@ import pyvim
 import vim
 
 
+class C_Marco(object):
+    def __init__(self):
+        tabstop = int(vim.eval('&tabstop'))
+        exptab = int(vim.eval('&expandtab'))
+
+        nu = self.lookup_first_marco_linenu()
+        if nu == None:
+            return
+
+        lines, width = self.lookup_marco_lines(nu, tabstop)
+
+        for line, w in lines:
+            if (width - w) % tabstop:
+                n = (width - w) / tabstop + 1
+            else:
+                n = (width - w) / tabstop
+
+            n = int(n)
+
+            line = line + '\t' * n + '\\'
+
+            vim.current.buffer[nu] = line
+            nu += 1
+
+    def is_marco_line(self, line):
+        if not line:
+            return None
+
+        line = line.rstrip()
+
+        if not line or line[-1] != '\\':
+            return None
+
+        line = line[0: -1]
+        line = line.rstrip()
+        return line
+
+    def lookup_first_marco_linenu(self):
+        cursor = vim.current.window.cursor
+        nu = cursor[0] - 1
+
+        line = vim.current.buffer[nu]
+        if not self.is_marco_line(line):
+            return
+
+        nu -= 1
+        if nu == 0:
+            return 0
+
+        while True:
+            line = vim.current.buffer[nu]
+            if None == self.is_marco_line(line):
+                nu += 1
+                break
+
+            if nu == 0:
+                break
+
+            nu -= 1
+
+        return nu
+
+    def lookup_marco_lines(self, nu, tabstop):
+        lines = []
+        width = 0
+
+        while True:
+            line = vim.current.buffer[nu]
+            nu += 1
+
+            line = self.is_marco_line(line)
+            if None == line:
+                break
+
+            w = len(line)
+            w += (tabstop - 1) * line.count('\t')
+
+            lines.append((line, w))
+
+            if width < w:
+                width = w
+
+        if width % tabstop:
+            width = int(width / tabstop + 1) * tabstop
+        else:
+            width = int(width / tabstop) * tabstop
+
+        return lines, width
+
+@pyvim.cmd()
+def AlignMarco():
+    C_Marco()
+
 
 
 def is_ignore_word(s):
