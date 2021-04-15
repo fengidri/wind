@@ -12,8 +12,38 @@ from white_black import black_filter_files, sorted_by_expand_name
 
 import frainui
 import libpath
+import copy
 
 from project import Project
+
+
+def sort_dir_names(path, dirs):
+    p = Project.All[0]
+
+    path = path[len(path):]
+    if not path or path[0] != '/':
+        path = '/' + path
+
+    s = p.kvdb.get('dirsort')
+    if not s:
+        return dirs
+
+    s = s.get(path)
+    if not s:
+        return dirs
+
+    s = copy.copy(s)
+
+    while s:
+        name = s.pop()
+
+        if name not in dirs:
+            continue
+
+        dirs.remove(name)
+        dirs.insert(0, name)
+
+    return dirs
 
 def leaf_handle(leaf, listwin):
     log.debug('leaf_handle: %s', leaf.ctx)
@@ -51,6 +81,7 @@ def get_child(Node, listwin):
     names = sorted_by_expand_name(names)
 
     dirs  = sorted(black_filter_files(dirs))
+    dirs = sort_dir_names(path, dirs)
 
     for n in names:
         p = libpath.join(path, n)

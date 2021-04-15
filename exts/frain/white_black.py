@@ -44,7 +44,7 @@ def black_filter_files( files ):
 """
     排序函数
 """
-def sorted_by_expand_name( files ):
+def sorted_by_expand_name(files):
     files_type = { "c":[], "cpp":[], "h":[], "py":[], "other":[] }
     types = files_type.keys( )
 
