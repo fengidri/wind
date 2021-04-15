@@ -132,6 +132,9 @@ class Project(object):
 
         self.kvdb.set("cinclude", inc)
         self.kvdb.save()
+        for i in inc:
+            print(i)
+
         return True
 
 
