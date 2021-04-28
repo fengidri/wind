@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 
+import vim
 from bs4 import BeautifulSoup
 
 import pyvim
@@ -8,11 +9,13 @@ import requests
 import json
 
 import popup
+import os
 
-class g:
-    lastwin = None
-    lines = []
-    last = None
+def translate_google(text):
+    #https://github.com/soimort/translate-shell
+    cmd = "trans -brief '%s'" % text
+    return os.popen(cmd).read()
+
 
 def translate(word):
     # 有道词典 api
@@ -33,27 +36,15 @@ def translate(word):
     # 判断服务器是否相应成功
     if response.status_code == 200:
         # 然后相应的结果
-        return response.text
+        result = json.loads(response.text)
+        result = result['translateResult'][0][0]['tgt']
+        return result
     else:
         # 相应失败就返回空
         return None
 
-
-def trans(word):
-    list_trans = translate(word)
-
-    if not list_trans:
-        return None
-
-    result = json.loads(list_trans)
-    result = result['translateResult'][0][0]['tgt']
-    return result
-
-
-
-url = 'http://www.youdao.com/w/'
-
 def dict_en(w):
+    url = 'http://www.youdao.com/w/'
     r = url + w
     r = requests.get(r)
     if r.status_code != 200:
@@ -66,6 +57,66 @@ def dict_en(w):
 
     ret = ret[0].findNext('ul').text
     return ret.split('\n')
+
+
+"""
+    ===========================================================================
+"""
+
+"""
+    return text,  last linenu
+"""
+def current_text():
+    linenu = vim.current.window.cursor[0] - 1
+
+    lines = []
+
+    while True:
+        if linenu >= len(vim.current.buffer):
+            break
+
+        line = vim.current.buffer[linenu]
+        linenu += 1
+        line = line.strip()
+        if not line:
+            break
+
+        lines.append(line)
+
+    text = ' '.join(lines)
+    return text, linenu
+
+def __translines(yd = True):
+    text, linenu = current_text()
+
+    if yd:
+        result = translate(text)
+    else:
+        result = translate_google(text)
+
+    vim.current.buffer.append(result, linenu)
+    vim.current.window.cursor = (linenu + 1, 0)
+    vim.command('normal Vgq')
+
+@pyvim.cmd()
+def TrnasLines(yd = None):
+    __translines(yd)
+
+class g:
+    lastwin = None
+    lines = []
+    last = None
+
+
+def trans(word):
+    list_trans = translate(word)
+
+    if not list_trans:
+        return None
+
+    return list_trans
+
+
 
 def show():
     if g.lastwin:
