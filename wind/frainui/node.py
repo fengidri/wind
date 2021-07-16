@@ -23,6 +23,20 @@ class Item(utils.Object):# Node与Leaf 的父类
         # 从 frainui listwin 的 line 得到 item 时, 要依赖于这个索引.
         self.ID      = 0
 
+    def bfb_getlinenu(self):
+        if not self.lswin.lines:
+            lines = self.lswin.BFb
+        else:
+            return
+
+        for linenu, line in enumerate(lines):
+            try:
+                ID = int(line.split(',', 1)[0])
+                if ID == self.ID:
+                    return linenu + 1
+            except:
+                pass
+
 
     def getlinenu(self):
         if self.lswin.lines:
@@ -30,17 +44,13 @@ class Item(utils.Object):# Node与Leaf 的父类
         else:
             lines = self.lswin.BFb
 
-        num = 0
-
         for linenu, line in enumerate(lines):
             try:
                 ID = int(line.split(',', 1)[0])
                 if ID == self.ID:
-                    num = linenu
-                    break
+                    return linenu + 1
             except:
                 pass
-        return num + 1
 
 
 
@@ -89,7 +99,7 @@ class Item(utils.Object):# Node与Leaf 的父类
 
 class Node(Item):
     def __init__(self, name, ctx=None, get_child=None, display=None,
-                isdir = True, defopen = False):
+                isdir = True, defopen = False, prefix = ''):
         Item.__init__(self)
         self.is_node    = True
         self.sub_nodes  = []
@@ -101,6 +111,7 @@ class Node(Item):
         self.get_child  = get_child
         self.isdir      = isdir
         self.defopen    = defopen  # default open
+        self.prefix     = prefix
 
     def append(self, node):
         Item.ID += 1
@@ -141,9 +152,30 @@ class Node(Item):
             flag = '+'
 
         if self.isdir:
-            return "%s,%s%s%s/" % (self.ID, "  " * (self.level  -1), flag, dp)
+            suffix = '/'
+            indent = "  " * (self.level  -1)
         else:
-            return "%s,%s%s" % (self.ID, flag, dp)
+            indent = ''
+            suffix = ''
+
+        return "{ID},{indent}{prefix}{flag}{display}{suffix}".format(
+                ID = self.ID,
+                indent = indent,
+                prefix = self.prefix,
+                flag = flag,
+                display = dp,
+                suffix = suffix)
+
+    def update(self, display, prefix = None):
+        if self.prefix:
+            self.prefix = prefix
+        self.display = display
+
+        linenu = self.getlinenu()
+        if linenu == None:
+            return
+
+        self.lswin.setline(linenu - 1, self.show())
 
     def _open(self): # 回车 TODO
 
