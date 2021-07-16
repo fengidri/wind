@@ -27,20 +27,11 @@ def finish_cb(line_nu):
 
 @pyvim.cmd()
 def PopupRun():
-    p = popup.PopupRun('ls -l /tmp/mail.link')
+    p = popup.PopupRun("echo a >> a")
 
 @pyvim.cmd()
 def PopupTips():
     p = popup.PopupTips('hello')
-
-@pyvim.cmd()
-def PopupMenu():
-    menu = ['MailSend', 'MailNew', "Mail Mark Read"]
-
-    def finish(i):
-        print(menu[i])
-
-    popup.PopupMenu(menu, finish)
 
 
 @pyvim.cmd()

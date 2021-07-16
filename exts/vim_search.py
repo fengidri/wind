@@ -3,6 +3,7 @@ import pyvim
 import vim
 import os
 import re
+import history
 
 SUFFIX = ['*.[ch]', '*.cpp', '*.cc', '*.py', '*.S']
 EX_SUFFIX= ['*.mod.c']
@@ -19,6 +20,9 @@ def search(word, target = ''):
     if lines:
         filter_quick(word, lines, path, command )
 
+        h = 'Search %s' % target
+        c = 'FSearch %s' % target
+        history.history(h, cmd = c)
 
 @pyvim.cmd()
 def FSearch(word):

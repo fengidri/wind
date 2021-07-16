@@ -13,7 +13,7 @@ import os
 
 def translate_google(text):
     #https://github.com/soimort/translate-shell
-    cmd = "trans -brief '%s'" % text
+    cmd = "trans -brief '%s' 2>/dev/null" % text
     return os.popen(cmd).read()
 
 
@@ -94,12 +94,12 @@ def __translines(yd = True):
     else:
         result = translate_google(text)
 
-    vim.current.buffer.append(result, linenu)
-    vim.current.window.cursor = (linenu + 1, 0)
+    vim.current.buffer.append(result, linenu - 1)
+    vim.current.window.cursor = (linenu, 0)
     vim.command('normal Vgq')
 
 @pyvim.cmd()
-def TrnasLines(yd = None):
+def Translate(yd = None):
     __translines(yd)
 
 class g:
@@ -179,12 +179,12 @@ def __trans(word):
 
 
 @pyvim.cmd()
-def Trans(word = None):
+def Dict(word = None):
     if word == None:
         word = pyvim.current_word()
 
     __trans(word)
 
 @pyvim.cmd()
-def TransV():
+def DictV():
     __trans(pyvim.select())
