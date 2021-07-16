@@ -5,6 +5,7 @@ from pyvim import log
 import pyvim
 import subprocess
 import time
+import sys
 
 class vimfun:
     setwinvar = vim.Function("setwinvar")
@@ -27,7 +28,7 @@ def handle(winid, key):
     p.handle(int(key))
 
 class Popup(object):
-    def create(self, what, op, title = '', filetype = None):
+    def ops(self, op, title):
         opt = {}
         if op == None:
             op = {}
@@ -39,7 +40,7 @@ class Popup(object):
 
         opt['title']      = title
         opt['border']     = [1, 1, 1, 1]
-        opt['padding']    = [0, 1, 1, 1]
+        opt['padding']    = [0, 0, 0, 0]
         opt['wrap']       = False
         opt['scrollbar']  = 0
 
@@ -67,55 +68,86 @@ class Popup(object):
                 opt[k] =v
 
         opt['cursorline']  = True # must this for scroll
-        self.cursorline = op.get('cursorline')
-        if not self.cursorline:
-            self.fake_curosr = True # fake curosr or curosr line for line number
 
-        if isinstance(what, str):
-            what = what.split('\n')
+        self.cursorline = op.get('cursorline')
+        if self.cursorline:
+            self.fake_curosr = False # fake cursor line for line number
+        else:
+            self.fake_curosr = True # fake cursor line for line number
+
+        return opt
+
+    def init_cursor(self):
+        self.back_hi_pmenusel = None
+        self.back_hi_pmenucursor = None
 
         if self.fake_curosr:
-            for i,l in enumerate(what):
-                if l == '':
-                    what[i] = ' '
+            self.back_hi_pmenusel = vim.eval("execute('hi PmenuSel')")
+            self.back_hi_pmenusel = vim.eval("execute('hi PopupCursor')")
 
-        self.winid = popup.create(what, opt)
-        self.bufid = vim.eval('winbufnr(%s)' % self.winid)
+            # popup cursorline use the hi PmenuSel
+            cmd = 'hi! link PmenuSel Normal'
+            self.command(cmd)
+            cmd = 'hi! link PopupCursor CursorColumn'
+            self.command(cmd)
 
-        popup.winids[self.winid] = self
+        else:
+            self.back_hi_pmenusel = vim.eval("execute('hi PmenuSel')")
 
+            cmd = 'hi! link PmenuSel CursorLine'
+            self.command(cmd)
+
+    def reset_hi(self):
+        if self.back_hi_pmenusel:
+            o = self.back_hi_pmenusel.split()[2:]
+            cmd = "hi PmenuSel " + ' '.join(o)
+            vim.command(cmd)
+
+        if self.back_hi_pmenucursor:
+            o = self.back_hi_pmenucursor.split()[2:]
+            cmd = "hi PopupCursor " + ' '.join(o)
+            vim.command(cmd)
+
+
+    def init_buf(self, filetype, linenu):
         vimfun.setwinvar(self.winid, '&wincolor', 'Normal')
+        if linenu:
+            self.command("set nu")
 
         if filetype:
             cmd = 'call setbufvar(winbufnr(%s), "&filetype", "%s")' % (self.winid, filetype)
             vim.command(cmd)
 
-        if self.fake_curosr:
-            self.command("set nu")
+    def init_var(self):
+        self.bufid = vim.eval('winbufnr(%s)' % self.winid)
 
-            if self.fake_curosr:
-                # popup cursorline use the hi PmenuSel
-                cmd = 'hi PmenuSel guifg=NONE guibg=NONE gui=underline ctermfg=NONE ctermbg=NONE cterm=NONE'
-                self.command(cmd)
-                cmd = 'hi def link PopupCursor CursorColumn'
-                self.command(cmd)
+        popup.winids[self.winid] = self
 
-        self.offset = 1
-        self.focus_line_nu = 0
-        self.mode_insert = False
+        self.offset            = 1
+        self.focus_line_nu     = 0
+        self.mode_insert       = False
         self.mode_insert_allow = False
-        self.ret_bool = False
-        self.finish_cb = None
-        self.cr_handler = self.finish
-        self.finish_cb_arg = None
+        self.ret_bool          = False
+        self.finish_cb         = None
+        self.cr_handler        = self.finish
+        self.finish_cb_arg     = None
 
         # any input as quit
         self.any_close = False
 
+        self.hotmaps   = {}
+
+    def create(self, what, op, title = '', filetype = None, linenu = True):
+        self.winid = popup.create('', self.ops(op, title))
+
+        self.init_var()
+
+        self.settext(what)
+        # if show not same with lines, should set line after lines
         self.lines = what
-        self.hotmaps = {}
 
-
+        self.init_buf(filetype, linenu)
+        self.init_cursor()
 
     def command(self, cmd):
         vimfun.win_execute(self.winid, cmd)
@@ -132,25 +164,34 @@ class Popup(object):
     def close(self):
         popup.close(self.winid)
 
-    def settext(self, text):
-        popup.settext(self.winid, text)
+    def settext(self, what):
+
+        if isinstance(what, str):
+            what = what.split('\n')
+
+        if self.fake_curosr:
+            for i,l in enumerate(what):
+                if l == '':
+                    what[i] = ' '
+
+        popup.settext(self.winid, what)
 
     def setoptions(self, opt):
         popup.setoptions(self.winid, opt)
 
     def move_cursor(self, off, goto_buttom = False, goto_top = False):
-        self.focus_line_nu += off
-
-        if self.focus_line_nu >= len(self.lines):
-            self.focus_line_nu = len(self.lines) - 1
-
-        if goto_buttom:
+        if goto_buttom and len(self.lines):
             self.focus_line_nu = len(self.lines) - 1
         elif goto_top:
             self.focus_line_nu = 0
+        else:
+            self.focus_line_nu += off
 
-        if self.focus_line_nu < 0:
-            self.focus_line_nu = 0
+            if self.focus_line_nu >= len(self.lines):
+                self.focus_line_nu = len(self.lines) - 1
+
+            if self.focus_line_nu < 0:
+                self.focus_line_nu = 0
 
         self.setpos(self.focus_line_nu + self.offset)
 
@@ -170,6 +211,8 @@ class Popup(object):
                 self.finish_cb(i, self.finish_cb_arg)
             else:
                 self.finish_cb(i)
+
+        self.reset_hi()
 
     def handle(self, key):
         if self.any_close:
@@ -270,10 +313,10 @@ class PopupWin(Popup):
             self.any_close = True
 
 class PopupDialog(Popup):
-    def __init__(self, msg, finish_cb = None, arg = None, **popup_opt):
+    def __init__(self, msg, finish_cb = None, arg = None, title = 'Dialog', **popup_opt):
         popup_opt['center'] = True
-        popup_opt['cursorline'] = True
-        self.create(msg, popup_opt)
+        popup_opt['cursorline'] = False
+        self.create(msg, popup_opt, title= title, linenu = False)
 
         self.finish_cb = finish_cb
         self.finish_cb_arg = arg
@@ -306,17 +349,33 @@ class PopupRun(Popup):
             for s in fun:
                 self.run(s)
         else:
-            fun(self, arg)
+            stdout = sys.stdout
+            stderr = sys.stderr
+            sys.stdout = self
+            sys.stderr = self
+            try:
+                if arg:
+                    fun(self, arg)
+                else:
+                    fun()
+            except Exception as e:
+                self.append(e)
 
-        popup_opt['center'] = True
-        popup_opt['cursorline'] = False
-        popup_opt['wrap'] = True
-        popup_opt['minheight']  = 20
-        popup_opt['minwidth']   = 85
-        popup_opt['maxheight']  = 20
-        popup_opt['maxwidth']   = 85
+            sys.stdout = stdout
+            sys.stderr = stderr
+            self.append("========== END ==========")
 
-        self.create(self.buf, popup_opt, title = title)
+        opt = {}
+        opt['center'] = True
+        opt['cursorline'] = False
+        opt['wrap'] = True
+        opt['minheight']  = 20
+        opt['minwidth']   = 85
+        opt['maxheight']  = 20
+        opt['maxwidth']   = 85
+        opt.update(popup_opt)
+
+        self.create(self.buf, opt, title = title)
         # 支持终端转义 color, Colorizer plugin
         self.command("ColorHighlight")
 
@@ -324,16 +383,11 @@ class PopupRun(Popup):
         self.ret_bool = True
 
     def run(self, cmd, stdin = None):
+        ps1 ="\033[01;35m$ \033[0m"
         if isinstance(cmd, str):
-            self.append("$ " + cmd)
+            self.append(ps1 + cmd)
         else:
-            self.append("$ " + ' '.join(cmd))
-
-
-        p = subprocess.run(cmd, shell = True,
-                stdin = subprocess.PIPE,
-                stdout = subprocess.PIPE,
-                stderr = subprocess.STDOUT, text = True)
+            self.append(ps1 + ' '.join(cmd))
 
         if stdin:
             p = subprocess.Popen(cmd,
@@ -353,15 +407,21 @@ class PopupRun(Popup):
 
         return p.returncode
 
-    def append(self, line):
-        self.buf.append(line)
+    def append(self, buf):
+        if buf[-1] == '\n':
+            buf = buf[0:-1]
+
+        lines = buf.split('\n')
+        self.buf.extend(lines)
+
+    def write(self, buf): # for stdout
+        self.append(buf)
 
 
 class PopupSystem(Popup):
     def __init__(self, cmd, **popup_opt):
-        self.lines = ['$ ' + cmd]
-
         self.create(self.lines, popup_opt, title = cmd)
+        self.lines = ['$ ' + cmd]
 
         p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
                 stderr = subprocess.PIPE, shell = True)
@@ -381,11 +441,14 @@ class PopupSelect(Popup):
         popup_opt['cursorline'] = True
         popup_opt['center'] = True
 
-        h = min(20, len(sel) + 2)
+#        h = min(20, len(sel) + 2)
+        h = len(sel) + 2
+        if h < 12:
+            h = 12
         popup_opt['minheight']  = h
         popup_opt['maxheight']  = h
 
-        self.create(sel, popup_opt, title = title)
+        self.create(sel, popup_opt, title = title, linenu = False)
 
         self.finish_cb = finish_cb
 
@@ -395,26 +458,41 @@ class PopupSelect(Popup):
                     self.move_cursor(i)
                     break
 
-class PopupMenu(PopupSelect):
-    def __init__(self, menu, title = 'Popup Menu'):
-        self.menu = menu
-        show = list(list(zip(*menu))[0])
+        cmd = "syn match LineNr '=.*='"
+        self.command(cmd)
 
+class PopupMenuItem(object):
+    def __init__(self, show, callback = None, arg = None):
+        self.show = show
+        self.callback = callback
+        self.arg = arg
+
+class PopupMenu(PopupSelect):
+    def __init__(self, menu, title = 'Popup Menu', hotkey = True):
+        self.menu = menu
+        show = []
+
+        for m in menu:
+            show.append(m.show)
 
         hotmaps = {}
         for i, l in enumerate(show):
-            for c in l:
-                c = c.upper()
-                k = ord(c)
-                if k < ord('A') or k > ord('Z'):
-                    continue
+            if hotkey:
+                for c in l:
+                    c = c.upper()
+                    k = ord(c)
+                    if k < ord('A') or k > ord('Z'):
+                        continue
 
-                if k not in hotmaps:
-                    hotmaps[k] = i
-                    show[i] = '%s. %s' % (c, l)
-                    break
+                    if k not in hotmaps:
+                        hotmaps[k] = i
+                        show[i] = '%s. %s' % (c, l)
+                        break
+            else:
+                show[i] = '  %s' % (l, )
 
-        PopupSelect.__init__(self, show, self.finish_cb, minwidth = 45, maxwidth = 45)
+        PopupSelect.__init__(self, show, self.finish_cb, title = title,
+                minwidth = 60, maxwidth = 60)
 
         self.hotmaps = hotmaps
 
@@ -422,14 +500,10 @@ class PopupMenu(PopupSelect):
         if i < 0:
             return
         m = self.menu[i]
-        if m[1] == None:
+        if m.callback == None:
             return
 
-        handler = m[1]
-        if len(m) >= 3:
-            handler(m[2])
-        else:
-            handler()
+        m.callback(m.arg)
 
 class PopupSearch(Popup):
     def __init__(self, filter_cb, finish_cb, title = 'Popup Search',
@@ -483,7 +557,7 @@ class PopupSearch(Popup):
 
 
         for i, line in enumerate(lines):
-            if line[-1] == '\n':
+            if line and line[-1] == '\n':
                 line = line[0:-1]
 
             line = '  %s' % (line, )
