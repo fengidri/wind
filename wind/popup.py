@@ -79,35 +79,26 @@ class Popup(object):
 
     def init_cursor(self):
         self.back_hi_pmenusel = None
-        self.back_hi_pmenucursor = None
 
         if self.fake_curosr:
-            self.back_hi_pmenusel = vim.eval("execute('hi PmenuSel')")
-            self.back_hi_pmenusel = vim.eval("execute('hi PopupCursor')")
+            self.back_hi_pmenusel = vim.eval("execute('hi PmenuSel')").strip()
 
             # popup cursorline use the hi PmenuSel
             cmd = 'hi! link PmenuSel Normal'
             self.command(cmd)
+
             cmd = 'hi! link PopupCursor CursorColumn'
             self.command(cmd)
 
         else:
-            self.back_hi_pmenusel = vim.eval("execute('hi PmenuSel')")
-
             cmd = 'hi! link PmenuSel CursorLine'
             self.command(cmd)
 
     def reset_hi(self):
         if self.back_hi_pmenusel:
-            o = self.back_hi_pmenusel.split()[2:]
+            o = self.back_hi_pmenusel.split('\n')[0].split()[2:]
             cmd = "hi PmenuSel " + ' '.join(o)
             vim.command(cmd)
-
-        if self.back_hi_pmenucursor:
-            o = self.back_hi_pmenucursor.split()[2:]
-            cmd = "hi PopupCursor " + ' '.join(o)
-            vim.command(cmd)
-
 
     def init_buf(self, filetype, linenu):
         vimfun.setwinvar(self.winid, '&wincolor', 'Normal')
@@ -408,6 +399,9 @@ class PopupRun(Popup):
         return p.returncode
 
     def append(self, buf):
+        if not buf:
+            return
+
         if buf[-1] == '\n':
             buf = buf[0:-1]
 

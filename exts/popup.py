@@ -30,8 +30,8 @@ def PopupRun():
     p = popup.PopupRun("echo a >> a")
 
 @pyvim.cmd()
-def PopupTips():
-    p = popup.PopupTips('hello')
+def PopupDialog():
+    p = popup.PopupDialog('hello')
 
 
 @pyvim.cmd()
