@@ -11,6 +11,7 @@ import vim
 import copy
 from . import utils
 import frainui
+from . import g
 
 def isshow(fun):
     def _fun(self, *k, **kw):
@@ -86,6 +87,15 @@ class NODE(object):
         except:
             logging.debug('getnode by line [%s]: fail' % line)
 
+def BufEnter(_):
+    num = vim.current.buffer.number
+
+    leaf = g.buf_leaf_map.get(num)
+    if not leaf:
+        return
+
+    lswin = leaf.lswin
+    lswin.focus(leaf)
 
 
 from . import Buffer
@@ -94,8 +104,17 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
                  position = 'topleft',
                  use_current_buffer= False,
                  ft = "frainuilist",
-                 title = 'FrainUI'
-                 ):
+                 title = 'FrainUI',
+                 autofocus = True):
+        """
+            autofocus just work for, all buffer opened by frain.
+            If user can open buffer, then this buffer cannot found by
+            autofocus.
+        """
+        if not g.buf_enter_event and autofocus:
+            g.buf_enter_event = True
+            pyvim.addevent("BufEnter", BufEnter, arg = (None,))
+
         frainui.BF.__init__(self)
         node.LIST = self
 
@@ -138,6 +157,32 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
         self.BFCreate(use_current = self.use_current_buffer)
         pyvim.addevent("CursorMovedI", self.update_status, self.BFb)
 
+    @isshow
+    def focus(self, leaf):
+        if not self.root: return
+
+        ns = []
+        n = leaf.father
+        while n:
+            ns.append(n)
+            n = n.father
+
+        for n in ns:
+            n.node_open()
+
+        self.BFw.cursor = (leaf.getlinenu(), 0)
+        self.update_status()
+
+        w = None
+        if self.BFw != vim.current.window:
+            w = vim.current.window
+            vim.current.window = self.BFw
+
+        #在 list 窗口中显示当前行
+        vim.command('call winline()')
+        #vim.command('normal zs')
+        if w:
+            vim.current.window = w
 
     @isshow
     def find(self, names):

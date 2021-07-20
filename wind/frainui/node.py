@@ -8,6 +8,7 @@ from pyvim import log as logging
 import vim
 import pyvim
 from . import utils
+from . import g
 
 LIST = None
 
@@ -311,6 +312,7 @@ class Leaf(Item):
 
         self.root.last_win = vim.current.window
         self.handle(self, LIST)
+        g.buf_leaf_map[vim.current.buffer.number] = self
 
     def update(self, display):
         self.display = display
