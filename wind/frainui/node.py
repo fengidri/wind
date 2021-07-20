@@ -291,6 +291,9 @@ class Leaf(Item):
                         self.root.last_win = None
                         vim.command(cmd)
                     else:
+                        n = self.root.last_win.buffer.number
+                        if n in g.buf_leaf_map:
+                            del g.buf_leaf_map[n]
                         vim.current.window = self.root.last_win
                 else:
                         vim.command(cmd)
@@ -305,6 +308,9 @@ class Leaf(Item):
 
             win = pyvim.previous()
             if win and win.valid:
+                n = win.buffer.number
+                if n in g.buf_leaf_map:
+                    del g.buf_leaf_map[n]
                 vim.current.window = win
                 break
 

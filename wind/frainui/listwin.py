@@ -170,7 +170,12 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
         for n in ns:
             n.node_open()
 
-        self.BFw.cursor = (leaf.getlinenu(), 0)
+        l = leaf.getlinenu()
+
+        if l == None:
+            return
+
+        self.BFw.cursor = (l, 0)
         self.update_status()
 
         w = None
