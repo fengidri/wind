@@ -6,6 +6,7 @@ import pyvim
 import subprocess
 import time
 import sys
+import keys
 
 class vimfun:
     setwinvar = vim.Function("setwinvar")
@@ -19,13 +20,22 @@ class popup:
     settext = vim.Function("popup_settext")
     setoptions = vim.Function("popup_setoptions")
 
-def handle(winid, key):
-    winid = int(winid)
+"""
+    autoload wind#popup_filter pass to IM('popup'), then call this
+"""
+def handle():
+    winid = int(vim.eval("a:winid"))
+    key = map(int, vim.eval("s:key"))
+
     p = popup.winids.get(winid)
     if not p:
         return
 
-    p.handle(int(key))
+    key = keys.convert(key)
+
+    #log.error("popup key: %s %s" % (key, keys.key_name(key)))
+
+    p.handle(key)
 
 class Popup(object):
     def ops(self, op, title):
@@ -215,45 +225,45 @@ class Popup(object):
             self.finish(True)
             return
 
-        if key == 9: # \t
+        if key == keys.KEY_TAB: # \t
             self.mode_insert = False
             self.update(1, False)
             return
 
-        if key == 13: # cr
+        if key in [keys.KEY_ENTER, keys.KEY_MOUSE_DB_PRESS]: # cr
             self.finish(True)
             return
 
-        if key == 0x1B: # <esc>
+        if key == keys.KEY_ESC: # <esc>
             self.finish(False)
             return
 
         if not self.mode_insert:
-            if key == ord('q'):
+            if key == keys.KEY_q:
                 self.finish(False)
                 return
 
-            if key == ord('j'):
+            if key in [keys.KEY_j, keys.KEY_DOWN, keys.KEY_MOUSE_DOWN]:
                 self.move_cursor(1)
                 return
 
-            if key == ord('k'):
+            if key in [keys.KEY_k, keys.KEY_UP, keys.KEY_MOUSE_UP]:
                 self.move_cursor(-1)
                 return
 
-            if key == ord('G'):
+            if key == keys.KEY_G:
                 self.move_cursor(1, goto_buttom = True)
                 return
 
-            if key == ord('g'):
+            if key == keys.KEY_g:
                 self.move_cursor(1, goto_top = True)
                 return
 
-            if key == 32: # space
+            if key == keys.KEY_SPACE:
                 self.move_cursor(5)
                 return
 
-            if key == ord('i'):
+            if key == keys.KEY_i:
                 if not self.mode_insert_allow:
                     return
                 self.mode_insert = True
@@ -274,17 +284,16 @@ class Line(object):
         self.pos = 0
 
     def input(self, key):
-        if key == 0x80: # del
+        if key == keys.KEY_DEL: # del
             if self.pos == 0:
                 return
             self.pos -= 1
             del self.buf[self.pos]
             return
 
-        if key == 6:
-            char = ' '
-        else:
-            char = chr(key)
+        char = keys.char(key)
+        if not char:
+            return
 
         self.buf.append(char)
         self.pos += 1

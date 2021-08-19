@@ -38,7 +38,13 @@ function! wind#py_load(name, path)
 endfunction
 
 func! wind#popup_filter(winid, key)
-    let key = char2nr(a:key)
-    py3 IM('popup', vim.eval('a:winid'), vim.eval('key'))
+    let s:l = split(a:key, '\zs')
+    let s:key = []
+
+    for k in s:l
+        call add(s:key, char2nr(k))
+    endfor
+
+    py3 IM('popup')
     return 1
 endfunc

@@ -83,19 +83,27 @@ def current_text():
 
         lines.append(line)
 
+    if len(lines) > 10:
+        popup.PopupDialog('Too More')
+        return None, None
+
     text = ' '.join(lines)
     return text, linenu
 
 def __translines(yd = True):
     text, linenu = current_text()
 
+    if not text:
+        return
+
     if yd:
         result = translate(text)
     else:
         result = translate_google(text)
 
-    vim.current.buffer.append(result, linenu - 1)
-    vim.current.window.cursor = (linenu, 0)
+    vim.current.buffer.append('', linenu - 1)
+    vim.current.buffer.append(result, linenu)
+    vim.current.window.cursor = (linenu + 1, 0)
     vim.command('normal Vgq')
 
 @pyvim.cmd()
