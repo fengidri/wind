@@ -46,6 +46,12 @@ class OP_OPTIONS(object):
 
 
     def refresh(self, win=None, opensub = False):
+        current = self.getnode()
+        if current:
+            names = current.names()
+        else:
+            names = None
+
         del self.BFb[:]
 
         self.lines = []
@@ -67,6 +73,9 @@ class OP_OPTIONS(object):
 
         self.FREventEmit("List-ReFresh-Post")
         self.nu_refresh += 1
+
+        if names:
+            self.find(names)
 
 
 class NODE(object):
@@ -217,23 +226,22 @@ class LIST(Buffer.BF, OP_OPTIONS, NODE):
             else:
                 node.node_open()
             node = subnode
-        else:
-            if subnode:
-                #self.BFw.cursor = (subnode.getlinenu(), subnode.level * 2 - 1)
-                self.BFw.cursor = (subnode.getlinenu(), 0)
-                self.update_status()
 
-                w = None
-                if self.BFw != vim.current.window:
-                    w = vim.current.window
-                    vim.current.window = self.BFw
+        if node and node != self.root:
+            self.BFw.cursor = (node.getlinenu(), 0)
+            self.update_status()
 
-                #在 list 窗口中显示当前行
-                vim.command('call winline()')
-                #vim.command('normal zs')
-                if w:
-                    vim.current.window = w
-                return
+            w = None
+            if self.BFw != vim.current.window:
+                w = vim.current.window
+                vim.current.window = self.BFw
+
+            #在 list 窗口中显示当前行
+            vim.command('call winline()')
+            #vim.command('normal zs')
+            if w:
+                vim.current.window = w
+            return
 
         self.BFw.cursor = (1, 0)
 

@@ -87,6 +87,15 @@ class Item(utils.Object):# Node与Leaf 的父类
                 if m:
                     return m
 
+    def names(self):
+        n = self
+        names = []
+
+        while n.father:
+            names.insert(0, n.name)
+            n = n.father
+
+        return names
 
     def route(self):
         # 返回从最高层, 到本节点的路径中的所有的节点(包括自身)
