@@ -151,8 +151,18 @@ class Node(Item):
 
 
     def show(self):
+        prefix = self.prefix
+
         if self.display:
-            dp = self.display
+            if callable(self.display):
+                o = self.display(self)
+                if isinstance(o, tuple):
+                    dp = o[1]
+                    prefix = o[0]
+                else:
+                    dp = o
+            else:
+                dp = self.display
         else:
             dp = self.name
 
@@ -171,15 +181,17 @@ class Node(Item):
         return "{ID},{indent}{prefix}{flag}{display}{suffix}".format(
                 ID = self.ID,
                 indent = indent,
-                prefix = self.prefix,
+                prefix = prefix,
                 flag = flag,
                 display = dp,
                 suffix = suffix)
 
-    def update(self, display, prefix = None):
+    def update(self, display = None, prefix = None):
         if self.prefix:
             self.prefix = prefix
-        self.display = display
+
+        if display != None:
+            self.display = display
 
         linenu = self.getlinenu()
         if linenu == None:
@@ -206,7 +218,10 @@ class Node(Item):
         self.opened = True
 
         if index == None:
-            index = self.getlinenu() - 1
+            index = self.getlinenu()
+            if index == None:
+                return
+            index = index - 1
 
         # index is the current node index
 
@@ -235,6 +250,8 @@ class Node(Item):
         self.opened = False
 
         linenu = self.getlinenu()
+        if not linenu:
+            return
 
         buf = self.lswin.BFb
         buf[linenu - 1] = buf[linenu - 1].replace('-', '+', 1)
@@ -256,7 +273,8 @@ class Node(Item):
 
 class Leaf(Item):
     def __init__(self, name, ctx=None, handle=None,
-            display=None, win=None, new_win=False, last_win = False, noindent = False):
+            display=None, win=None, new_win=False,
+            last_win = False, noindent = False, nowin = False):
         Item.__init__(self)
         self.is_node = False
         self.name    = name
@@ -267,10 +285,14 @@ class Leaf(Item):
         self.new_win = new_win
         self.last_win = last_win
         self.noindent = noindent
+        self.nowin = nowin
 
     def show(self):
         if self.display:
-            dp = self.display
+            if callable(self.display):
+                dp = self.display(self)
+            else:
+                dp = self.display
         else:
             dp = self.name
 
@@ -285,6 +307,10 @@ class Leaf(Item):
 
     def _open(self):#TODO
         if not self.handle:
+            return
+
+        if self.nowin:
+            self.handle(self, LIST)
             return
 
         cmd = "vertical rightbelow new"
@@ -329,8 +355,9 @@ class Leaf(Item):
         self.handle(self, LIST)
         g.buf_leaf_map[vim.current.buffer.number] = self
 
-    def update(self, display):
-        self.display = display
+    def update(self, display = None):
+        if display != None:
+            self.display = display
 
         linenu = self.getlinenu()
         self.lswin.BFb[linenu - 1] = self.show()

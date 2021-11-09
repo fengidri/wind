@@ -16,8 +16,6 @@ class Object(object):
         if not hasattr(self, '_CB_'):
             return
 
-        pyvim.log.debug("Frainui call event: %s" % event)
-
         try:
             cbs = self._CB_.get(self).get(event, [])
         except:

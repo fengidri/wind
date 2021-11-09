@@ -30,7 +30,6 @@ def handle(ev, name = None):
 
     if not name:
         name = vim.current.buffer
-    log.debug(utils.Objects)
 
     obj = utils.Objects.get(name)
     if not obj:
