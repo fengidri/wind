@@ -476,7 +476,10 @@ class PopupMenu(PopupSelect):
         show = []
 
         for m in menu:
-            show.append(m.show)
+            if callable(m.show):
+                show.append(m.show())
+            else:
+                show.append(m.show)
 
         hotmaps = {}
         for i, l in enumerate(show):

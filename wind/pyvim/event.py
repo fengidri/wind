@@ -14,7 +14,6 @@ __Event_Map = {}
 __Event_Index = 0
 
 def event_callback( cbid ):#事件回调函数  @event: 当前的事件
-    log.debug("callback event: %s" % cbid)
     cb = __Event_Map.get(cbid)
     if not cb:
         logging.error("Not Found cb for: %s" % cbid)
@@ -31,7 +30,6 @@ def addevent(event, cb, pat='*', arg  = ()):
     autocmd_cmd_format = "autocmd {event} {pat} {cmd}"
 
     cbid = "%s_%s" % (cb.__code__.co_name, __Event_Index)
-    log.error("addevent: %s" % cbid)
 
     cmd = "py3 pyvim.event_callback('%s')" % cbid
 
